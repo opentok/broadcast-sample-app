@@ -5,6 +5,7 @@
  */
 const express = require('express');
 const bodyParser = require('body-parser');
+const R = require('ramda');
 
 /*
  * Config
@@ -16,34 +17,44 @@ app.use(bodyParser.json());
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
 
+/** Services */
+const api = require('./services/api');
+const broadcast = require('./services/broadcast');
+
 /*
  * Routes
  */
 app.get('/host', (req, res) => {
-  const session = 'a';
-  const token = 'a';
-  res.render('host.ejs', { session, token });
+  api.getCredentials('host')
+  .then(credentials => res.render('host.ejs', { credentials }))
+  .catch(error => res.status(500).send(error));
 });
 
 app.get('/guest', (req, res) => {
-  const session = 'a';
-  const token = 'a';
-  res.render('guest.ejs', { session, token });
+  api.getCredentials('guest')
+  .then(credentials => res.render('guest.ejs', { credentials }))
+  .catch(error => res.status(500).send(error));
 });
-
 
 // Live stream
 app.get('/viewer', (req, res) => {
-  const session = 'a';
-  const token = 'a';
-  res.render('viewer.ejs', { session, token });
+  api.getCredentials('viewer')
+  .then(credentials => res.render('viewer.ejs', { credentials }))
+  .catch(error => res.status(500).send(error));
 });
 
  // Broadcast stream
 app.get('/broadcast', (req, res) => {
-  const session = 'a';
-  const token = 'a';
-  res.render('broadcast.ejs', { session, token });
+  broadcast.getData()
+  .then(data => res.send(data))
+  .catch(error => res.status(500).send(error));
+});
+
+app.post('/broadcast', (req, res) => {
+  const sessionId = R.path(['body', 'sessionId'], req);
+  broadcast.start(sessionId)
+  .then(data => res.send(data))
+  .catch(error => res.status(500).send(error));
 });
 
 app.get('*', (req, res) => {
