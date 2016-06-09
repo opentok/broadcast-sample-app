@@ -15,7 +15,7 @@ const OT = Promise.promisifyAll(new OpenTok(apiKey, apiSecret));
 
 /**
  * Returns options for token creation based on user type
- * @param {string} userType Host, guest, or viewer
+ * @param {String} userType Host, guest, or viewer
  */
 const tokenOptions = userType => {
 
@@ -35,8 +35,8 @@ let activeSession;
 
 /**
  * Create an OpenTok session
- * @param {object} [options]
- * @returns {promise.<object, error>}
+ * @param {Object} [options]
+ * @returns {Promise.<Object, Error>}
  */
 const createSession = options =>
   new Promise((resolve, reject) => {
@@ -50,8 +50,8 @@ const createSession = options =>
 
 /**
  * Create an OpenTok token
- * @param {string} userType Host, guest, or viewer
- * @returns {string}
+ * @param {String} userType Host, guest, or viewer
+ * @returns {String}
  */
 const createToken = userType => {
   const sessionId = activeSession.id;
@@ -60,7 +60,7 @@ const createToken = userType => {
 
 /**
  * Creates an OpenTok session and generates an associated token
- * @returns {promise.<object, error>}
+ * @returns {Promise.<Object, Error>}
  */
 const getCredentials = userType =>
   new Promise((resolve, reject) => {
