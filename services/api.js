@@ -22,7 +22,7 @@ const tokenOptions = userType => {
   const role = {
     host: 'moderator',
     guest: 'publisher',
-    viewer: 'subscriber'
+    viewer: 'subscriber',
   }[userType];
 
   return { role };
@@ -69,7 +69,7 @@ const getCredentials = userType =>
       resolve({ sessionId: activeSession.id, token });
     } else {
       createSession()
-        .then(session => { resolve({ sessionId: session.id, token }); })
+        .then(session => { resolve({ apiKey, sessionId: session.id, token }); })
         .catch(error => reject(error));
     }
   });
