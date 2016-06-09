@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-env es6 */
 
 /** Config */
@@ -9,6 +10,7 @@ const apiSecret = config.apiSecret;
 const R = require('ramda');
 const Promise = require('bluebird');
 const OpenTok = require('opentok');
+// http://bluebirdjs.com/docs/api/promisification.html
 const OT = Promise.promisifyAll(new OpenTok(apiKey, apiSecret));
 
 /** Private */
@@ -29,15 +31,13 @@ const tokenOptions = userType => {
 };
 
 const defaultSessionOptions = { mediaMode: 'routed' };
-let activeSession;
-
-/** Exports */
 
 /**
  * Create an OpenTok session
  * @param {Object} [options]
  * @returns {Promise.<Object, Error>}
  */
+let activeSession;
 const createSession = options =>
   new Promise((resolve, reject) => {
     OT.createSessionAsync(R.defaultTo(defaultSessionOptions)(options))
@@ -53,10 +53,9 @@ const createSession = options =>
  * @param {String} userType Host, guest, or viewer
  * @returns {String}
  */
-const createToken = userType => {
-  const sessionId = activeSession.id;
-  OT.generateToken(sessionId, tokenOptions(userType));
-};
+const createToken = userType => OT.generateToken(activeSession.sessionId, tokenOptions(userType));
+
+/** Exports */
 
 /**
  * Creates an OpenTok session and generates an associated token
@@ -64,18 +63,19 @@ const createToken = userType => {
  */
 const getCredentials = userType =>
   new Promise((resolve, reject) => {
-    const token = createToken(tokenOptions(userType));
     if (!!activeSession) {
-      resolve({ sessionId: activeSession.id, token });
+      const token = createToken(tokenOptions(userType));
+      resolve({ sessionId: activeSession.sessionId, token });
     } else {
       createSession()
-        .then(session => { resolve({ apiKey, sessionId: session.id, token }); })
+        .then(session => {
+          const token = createToken(tokenOptions(userType));
+          resolve({ apiKey, sessionId: session.sessionId, token });
+        })
         .catch(error => reject(error));
     }
   });
 
 module.exports = {
-  createSession,
-  createToken,
-  getCredentials,
+  getCredentials
 };
