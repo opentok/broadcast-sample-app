@@ -22,7 +22,7 @@ const api = require('./services/api');
 const broadcast = require('./services/broadcast');
 
 /*
- * Routes
+ * User Routes
  */
 app.get('/host', (req, res) => {
   api.getCredentials('host')
@@ -50,9 +50,19 @@ app.get('/broadcast', (req, res) => {
   .catch(error => res.status(500).send(error));
 });
 
-app.post('/broadcast', (req, res) => {
+/*
+ * API Endpoints
+ */
+app.post('/broadcast/start', (req, res) => {
   const sessionId = R.path(['body', 'sessionId'], req);
   broadcast.start(sessionId)
+  .then(data => res.send(data))
+  .catch(error => res.status(500).send(error));
+});
+
+app.post('/broadcast/end', (req, res) => {
+  const broadcastId = R.path(['body', 'broadcastId'], req);
+  broadcast.end(broadcastId)
   .then(data => res.send(data))
   .catch(error => res.status(500).send(error));
 });
