@@ -1,0 +1,44 @@
+.main-container {
+    width: 90vw;
+    height: 90vh;
+    margin: 0 auto;
+    border: 1px solid #0099cb;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.video-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.OT_publisher {
+    margin: 0 5px;
+}
+
+.btn-blue {
+    background-color: #0099cb;
+    box-shadow: 0 0 0 1px #0099cb;
+    color: #fff !important;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    display: inline-block;
+    padding: 5px 10px;
+    border: 0;
+    border-radius: 0;
+    -o-transition: all .5s ease-out;
+    -webkit-transition: all .5s ease-out;
+    -moz-transition: all .5s ease-out;
+    -ms-transition: all .5s ease-out;
+    -kthtml-transition: all .5s ease-out;
+    transition: all .5s ease-out;
+}
+
+.btn-blue:hover {
+    text-decoration: none;
+    background-color: #007ba3;
+    box-shadow: 0 0 0 2px #0099cb
+}
