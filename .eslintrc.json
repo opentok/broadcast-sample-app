@@ -7,15 +7,15 @@
     "parserOptions": {
         "ecmaVersion": 5
     },
-    "plugins": [
-        "react"
-    ],
     "rules": {
         "padded-blocks": 0,
+        "comma-dangle": 0,
+        "func-names": 0,
+        "no-var" : 0,
+        "prefer-arrow-callback": 0,
         "no-unused-expressions": [2, { "allowTernary": true, "allowShortCircuit": true }]
     },
     "globals": {
-        "$": true,
-        "_": true
+        "R": true
     }
 }
