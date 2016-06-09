@@ -8,6 +8,7 @@
         "ecmaVersion": 5
     },
     "rules": {
+        "strict": 0,
         "padded-blocks": 0,
         "comma-dangle": 0,
         "func-names": 0,
