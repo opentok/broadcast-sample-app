@@ -26,7 +26,9 @@ const broadcast = require('./services/broadcast');
  */
 app.get('/host', (req, res) => {
   api.getCredentials('host')
-  .then(credentials => res.render('host.ejs', { credentials }))
+  .then(credentials => {
+    res.render('pages/host', { credentials: JSON.stringify(credentials) });
+  })
   .catch(error => res.status(500).send(error));
 });
 
@@ -45,9 +47,10 @@ app.get('/viewer', (req, res) => {
 
  // Broadcast stream
 app.get('/broadcast', (req, res) => {
-  broadcast.getData()
-  .then(data => res.send(data))
-  .catch(error => res.status(500).send(error));
+  res.send('yes');
+  // broadcast.start()
+  // .then(data => res.send(data))
+  // .catch(error => res.status(500).send(error));
 });
 
 /*
