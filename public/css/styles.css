@@ -1,6 +1,6 @@
 .main-container {
     width: 90vw;
-    height: 90vh;
+    height: 85vh;
     margin: 0 auto;
     border: 1px solid #0099cb;
     border-radius: 6px;
@@ -18,14 +18,31 @@
     margin: 0 5px;
 }
 
-.btn-blue {
+.controls-container {
+    margin: 15px 0 10px 0;
+    text-align: center;
+    color: #696868;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.controls-container .url {
+    color: #E04E4E;
+    font-size: 16px;
+    margin-left: 10px;
+    display: inline-block;
+    border: 1px solid grey;
+    padding: 3px 5px;
+    border-radius: 3px;
+}
+
+.broadcast-btn {
     background-color: #0099cb;
     box-shadow: 0 0 0 1px #0099cb;
     color: #fff !important;
     cursor: pointer;
     font-size: 16px;
-    font-family: Arial, Helvetica, sans-serif;
     display: inline-block;
+    margin: 5px 0;
     padding: 5px 10px;
     border: 0;
     border-radius: 0;
@@ -37,8 +54,28 @@
     transition: all .5s ease-out;
 }
 
-.btn-blue:hover {
+.broadcast-btn:hover {
     text-decoration: none;
     background-color: #007ba3;
     box-shadow: 0 0 0 2px #0099cb
+}
+
+.broadcast-btn.active {
+    background-color: #E04E4E;
+    box-shadow: 0 0 0 1px #E04E4E;
+}
+
+.broadcast-btn.active:hover {
+    background-color:#692B2B;
+    box-shadow: 0 0 0 2px #E04E4E
+}
+
+.broadcast-btn:disabled {
+    background-color: darkgrey;
+    box-shadow: 0 0 0 2px darkgrey;
+    cursor: default;
+}
+
+.hidden {
+    display: none;
 }
