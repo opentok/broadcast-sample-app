@@ -3,7 +3,6 @@
 (function () {
 
   /** The state of things */
-  var state = { session: 'waiting', broadcast: 'waiting' };
   var broadcast = { status: 'waiting' };
 
   /**
@@ -37,14 +36,45 @@
     return OT.initPublisher('videoContainer', insertOptions);
   };
 
-  var signal = function (session, options) {
-    session.signal(options, function (error) {
+  /**
+   * Send the broadcast status to everyone connected to the session using
+   * the OpenTok signaling API
+   * @param {Object} session
+   * @param {String} status
+   */
+  var signal = function (session, status) {
+    session.signal({ type: 'broadcast', data: status }, function (error) {
       if (error) {
         console.log(['signal error (', error.code, '): ', error.message].join(''));
       } else {
         console.log('signal sent.');
       }
     });
+  };
+
+
+  /**
+   * Set the state of the broadcast and update the UI
+   */
+  var updateStatus = function (session, status) {
+
+    var startStopButton = document.getElementById('startStop');
+    broadcast.status = status;
+
+    if (status === 'active') {
+      startStopButton.classList.add('active');
+      startStopButton.innerHTML = 'End Broadcast';
+      document.getElementById('urlContainer').classList.remove('hidden');
+      document.getElementById('broadcastURL').innerHTML = broadcast.url;
+
+      signal(session, broadcast.status);
+    } else {
+      startStopButton.classList.remove('active');
+      startStopButton.innerHTML = 'Broadcast Over';
+      startStopButton.disabled = true;
+      signal(session, broadcast.status);
+    }
+
   };
 
   /**
@@ -55,15 +85,11 @@
 
     api.post('/broadcast/start', { sessionId: session.sessionId })
       .then(function (broadcastData) {
-        console.log('broadcast broadcastData after start', broadcastData);
-        signal(session, { type: 'broadcast', data: 'start' });
-        // broadcast = R.merge(broadcast, broadcastData);
+        broadcast = R.merge(broadcast, broadcastData);
+        updateStatus(session, 'active');
       }).catch(function (error) {
         console.log(error);
       });
-
-    broadcast.status = 'active';
-    signal(session, { type: 'broadcast', data: broadcast.status });
 
   };
 
@@ -71,11 +97,11 @@
    * Make a request to the server to stop the broadcast
    * @param {String} sessionId
    */
-  var stopBroadcast = function () {
-    api.post('/broadcast/stop')
+  var endBroadcast = function (session) {
+    api.post('/broadcast/end')
       .then(function (broadcastData) {
-        console.log('broadcast broadcastData after start', broadcastData);
-        broadcast = R.merge(broadcast, broadcastData);
+        console.log('broadcast END', broadcastData);
+        updateStatus(session, 'ended');
       })
       .catch(function (error) {
         console.log(error);
@@ -95,6 +121,17 @@
 
   var setEventListeners = function (session) {
 
+    // Add click handler to the start/stop button
+    var startStopButton = document.getElementById('startStop');
+    startStopButton.classList.remove('hidden');
+    startStopButton.addEventListener('click', function () {
+      if (broadcast.status !== 'active') {
+        startBroadcast(session);
+      } else {
+        endBroadcast(session);
+      }
+    });
+
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
       subscribe(session, event.stream);
@@ -103,18 +140,10 @@
     // Signal the status of the broadcast when requested
     session.on('signal:broadcast', function (event) {
       if (event.data === 'status') {
-        signal(session, { type: 'broadcast', data: broadcast.status });
+        signal(session, broadcast.status);
       }
     });
 
-    // Add click handler to the start/stop button
-    document.getElementById('startStop').addEventListener('click', function () {
-      if (state.broadcast !== 'active') {
-        startBroadcast(session);
-      } else {
-        stopBroadcast(session);
-      }
-    });
   };
 
   /**
