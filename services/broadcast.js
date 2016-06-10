@@ -38,7 +38,7 @@ let activeBroadcast;
  * @param {String} broadcastSessionId - Spotlight host session id
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const startBroadcast = broadcastSessionId => {
+const start = broadcastSessionId => {
 
   const requestConfig = {
     headers,
@@ -50,16 +50,20 @@ const startBroadcast = broadcastSessionId => {
 
   return new Promise((resolve, reject) => {
 
+    if (R.path('broadcastSessionId', activeBroadcast) === broadcastSessionId) {
+      resolve(activeBroadcast);
+    }
+
     request.postAsync(requestConfig)
       .then(response => {
         const data = JSON.parse(response.body);
 
         const broadcastData = {
-          broadcastSession: broadcastSessionId,
-          broadcastUrl: R.path(['broadcastUrls', 'hls'], data),
-          broadcastId: R.path('id', data),
-          broadcastKey: R.path('partnerId', data),
-          availableAt: R.path('createdAt', data) + broadcastDelay
+          id: R.path(['id'], data),
+          session: broadcastSessionId,
+          url: R.path(['broadcastUrls', 'hls'], data),
+          apiKey: R.path(['partnerId'], data),
+          availableAt: R.path(['createdAt'], data) + broadcastDelay
         };
         activeBroadcast = broadcastData;
         resolve(broadcastData);
@@ -68,15 +72,13 @@ const startBroadcast = broadcastSessionId => {
 
 };
 
-const getActiveBroadcast = () => activeBroadcast;
-
 /**
  * End the broadcast
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const endBroadcast = () => {
+const end = () => {
 
-  const id = activeBroadcast.broadcastId;
+  const id = activeBroadcast.id;
   const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
   return new Promise((resolve, reject) => {
     request.postAsync(requestConfig(id))
@@ -86,13 +88,14 @@ const endBroadcast = () => {
       .catch(error => {
         reject(error);
       });
+  }).finally(function () {
+    activeBroadcast = null;
   });
 };
 
 
 
 module.exports = {
-  startBroadcast,
-  getActiveBroadcast,
-  endBroadcast,
+  start,
+  end,
 };
