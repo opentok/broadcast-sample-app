@@ -21,10 +21,9 @@ const headers = {
 };
 
 /**
- * There is currently a ~50 second delay between the interactive session due to the
- * encoding process and the time it takes to upload the video to the CDN. This gap
- * may decrease to ~20 seconds in the future.  Currently using a 60-second delay to
- * be safe.
+ * There is currently a ~15 second delay between the interactive session due to the
+ * encoding process and the time it takes to upload the video to the CDN.  Currently
+ * using a 20-second delay to be safe.
  */
 const broadcastDelay = 20 * 1000;
 

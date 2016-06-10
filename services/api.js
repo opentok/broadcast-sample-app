@@ -15,6 +15,8 @@ const OT = Promise.promisifyAll(new OpenTok(apiKey, apiSecret));
 
 /** Private */
 
+const defaultSessionOptions = { mediaMode: 'routed' };
+
 /**
  * Returns options for token creation based on user type
  * @param {String} userType Host, guest, or viewer
@@ -29,8 +31,6 @@ const tokenOptions = userType => {
 
   return { role };
 };
-
-const defaultSessionOptions = { mediaMode: 'routed' };
 
 /**
  * Create an OpenTok session

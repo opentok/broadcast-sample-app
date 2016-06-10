@@ -34,14 +34,16 @@ app.get('/host', (req, res) => {
 
 app.get('/guest', (req, res) => {
   api.getCredentials('guest')
-  .then(credentials => res.render('guest.ejs', { credentials }))
+  .then(credentials => {
+    res.render('pages/guest', { credentials: JSON.stringify(credentials) });
+  })
   .catch(error => res.status(500).send(error));
 });
 
 // Live stream
 app.get('/viewer', (req, res) => {
   api.getCredentials('viewer')
-  .then(credentials => res.render('viewer.ejs', { credentials }))
+  .then(credentials => res.render('viewer.ejs', { credentials: JSON.stringify(credentials) }))
   .catch(error => res.status(500).send(error));
 });
 
