@@ -1,6 +1,7 @@
+'use strict';
 /* eslint-env es6 */
 
-/** Consfig */
+/** Config */
 const config = require('../config');
 const apiKey = config.apiKey;
 const apiSecret = config.apiSecret;
@@ -26,6 +27,9 @@ const headers = {
  * using a 20-second delay to be safe.
  */
 const broadcastDelay = 20 * 1000;
+
+/** Let's store the active broadcast */
+let activeBroadcast;
 
 /** Exports */
 
@@ -57,39 +61,38 @@ const startBroadcast = broadcastSessionId => {
           broadcastKey: R.path('partnerId', data),
           availableAt: R.path('createdAt', data) + broadcastDelay
         };
+        activeBroadcast = broadcastData;
         resolve(broadcastData);
       }).catch(error => reject(error));
   });
 
 };
 
+const getActiveBroadcast = () => activeBroadcast;
+
 /**
  * End the broadcast
- * @param {String} broadcastId
+ * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const endBroadcast = (broadcastId) => {
+const endBroadcast = () => {
 
-  const requestConfig = () => ({ headers, url: stopBroadcastURL(broadcastId) });
-
-  const sendEndRequest = () => {
-    request.postAsync(requestConfig(broadcastId))
+  const id = activeBroadcast.broadcastId;
+  const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
+  return new Promise((resolve, reject) => {
+    request.postAsync(requestConfig(id))
       .then(response => {
-        console.log('Broadcast has ended: ', JSON.parse(response.body));
+        resolve(JSON.parse(response.body));
       })
       .catch(error => {
-        console.log('Error occured while trying to end broadcast: ', error);
+        reject(error);
       });
-  };
-
-  /**
-   * The broadcast API will immediately end the CDN stream when we make the
-   * request.  Thus, we want to delay the request so that the CDN viewers are
-   * able to watch the broadcast in its entirety.
-   */
-  setTimeout(sendEndRequest, broadcastDelay);
+  });
 };
+
+
 
 module.exports = {
   startBroadcast,
+  getActiveBroadcast,
   endBroadcast,
 };
