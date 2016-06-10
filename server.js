@@ -24,6 +24,13 @@ const broadcast = require('./services/broadcast');
 /*
  * User Routes
  */
+
+app.get('/viewer', (req, res) => {
+  api.getCredentials('viewer')
+  .then(credentials => res.render('pages/viewer', { credentials: JSON.stringify(credentials) }))
+  .catch(error => res.status(500).send(error));
+});
+
 app.get('/host', (req, res) => {
   api.getCredentials('host')
   .then(credentials => {
@@ -40,19 +47,8 @@ app.get('/guest', (req, res) => {
   .catch(error => res.status(500).send(error));
 });
 
-// Live stream
-app.get('/viewer', (req, res) => {
-  api.getCredentials('viewer')
-  .then(credentials => res.render('viewer.ejs', { credentials: JSON.stringify(credentials) }))
-  .catch(error => res.status(500).send(error));
-});
-
- // Broadcast stream
-app.get('/broadcast', (req, res) => {
-  res.send('yes');
-  // broadcast.start()
-  // .then(data => res.send(data))
-  // .catch(error => res.status(500).send(error));
+app.get('*', (req, res) => {
+  res.redirect('/viewer');
 });
 
 /*
@@ -66,14 +62,9 @@ app.post('/broadcast/start', (req, res) => {
 });
 
 app.post('/broadcast/end', (req, res) => {
-  const broadcastId = R.path(['body', 'broadcastId'], req);
-  broadcast.end(broadcastId)
+  broadcast.end()
   .then(data => res.send(data))
   .catch(error => res.status(500).send(error));
-});
-
-app.get('*', (req, res) => {
-  res.redirect('/broadcast');
 });
 
 /*
