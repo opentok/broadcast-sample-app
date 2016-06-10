@@ -17,6 +17,7 @@
         "no-unused-expressions": [2, { "allowTernary": true, "allowShortCircuit": true }]
     },
     "globals": {
+        "OT": true,
         "R": true
     }
 }
