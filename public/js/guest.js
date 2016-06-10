@@ -1,7 +1,9 @@
-/* global OT */
 /* eslint-disable object-shorthand */
 (function () {
 
+  /**
+   * Options for adding OpenTok publisher and subscriber video elements
+   */
   var insertOptions = {
     insertMode: 'append',
     width: '100%',
@@ -12,6 +14,10 @@
     }
   };
 
+  /**
+   * Get our OpenTok API Key, Session ID, and Token from the JSON embedded
+   * in the HTML.
+   */
   var getCredentials = function () {
     var el = document.getElementById('credentials');
     var credentials = JSON.parse(el.getAttribute('data'));
@@ -19,28 +25,38 @@
     return credentials;
   };
 
+  /**
+   * Create an OpenTok publisher object
+   */
   var initPublisher = function () {
     return OT.initPublisher('videoContainer', insertOptions);
   };
 
   /**
-   * The host starts publishing and signals everyone else connected to the
-   * session so that they can start publishing and/or subscribing.  We also
-   * make an API call to the server to start the broadcast.
+   * Subscribe to a stream
+   */
+  var subscribe = function (session, stream) {
+    session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
+      if (error) {
+        console.log(error);
+      }
+    });
+  };
+
+  /**
+   * Start publishing our audio and video to the session. Also, start
+   * subscribing to other streams as they are published.
    * @param {Object} session The OpenTok session
    * @param {Object} publisher The OpenTok publisher object
    */
-  var startSession = function (session, publisher) {
+  var publishAndSubscribe = function (session, publisher) {
+
     session.publish(publisher);
 
     session.on('streamCreated', function (event) {
-      var stream = event.stream;
-      session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
-        if (error) {
-          console.log(error);
-        }
-      });
+      subscribe(session, event.stream);
     });
+
   };
 
   var init = function () {
@@ -52,7 +68,7 @@
       if (error) {
         console.log(error);
       } else {
-        startSession(session, publisher);
+        publishAndSubscribe(session, publisher);
       }
     });
   };
