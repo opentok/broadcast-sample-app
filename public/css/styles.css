@@ -14,7 +14,7 @@
     justify-content: space-around;
 }
 
-.video-container .OT_publisher {
+.video-container .OT_publisher, .video-container .OT_subscriber {
     margin: 0 5px;
 }
 
