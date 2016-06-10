@@ -65,7 +65,7 @@ const getCredentials = userType =>
   new Promise((resolve, reject) => {
     if (!!activeSession) {
       const token = createToken(tokenOptions(userType));
-      resolve({ sessionId: activeSession.sessionId, token });
+      resolve({ apiKey, sessionId: activeSession.sessionId, token });
     } else {
       createSession()
         .then(session => {
