@@ -35,7 +35,7 @@ const tokenOptions = userType => {
 /**
  * Create an OpenTok session
  * @param {Object} [options]
- * @returns {Promise.<Object, Error>}
+ * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
 let activeSession;
 const createSession = options =>
@@ -59,7 +59,7 @@ const createToken = userType => OT.generateToken(activeSession.sessionId, tokenO
 
 /**
  * Creates an OpenTok session and generates an associated token
- * @returns {Promise.<Object, Error>}
+ * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
 const getCredentials = userType =>
   new Promise((resolve, reject) => {
