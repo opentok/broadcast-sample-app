@@ -1,9 +1,10 @@
+/* global api */
 /* eslint-disable object-shorthand */
 (function () {
 
   /** The state of things */
   var state = { session: 'waiting', broadcast: 'waiting' };
-  var broadcast = { state: 'waiting' };
+  var broadcast = { status: 'waiting' };
 
   /**
    * Options for adding OpenTok publisher and subscriber video elements
@@ -50,53 +51,35 @@
    * Make a request to the server to start the broadcast
    * @param {String} sessionId
    */
-  var startBroadcast = function (sessionId) {
-    /* eslint-disable quote-props */
-    /* eslint-disable newline-per-chained-call */
-    fetch('/broadcast/start', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ sessionId: sessionId })
-    }).then(function (response) {
-      return response.json();
-    }).then(function (broadcastData) {
-      console.log('broadcast broadcastData after start', broadcastData);
-      broadcast = R.merge(broadcast, broadcastData);
-      // signal();
-    }).catch(function (error) {
-      console.log(error);
-    });
-    /* eslint-enable quote-props */
-    /* eslint-enable newline-per-chained-call */
+  var startBroadcast = function (session) {
+
+    api.post('/broadcast/start', { sessionId: session.sessionId })
+      .then(function (broadcastData) {
+        console.log('broadcast broadcastData after start', broadcastData);
+        signal(session, { type: 'broadcast', data: 'start' });
+        // broadcast = R.merge(broadcast, broadcastData);
+      }).catch(function (error) {
+        console.log(error);
+      });
+
+    broadcast.status = 'active';
+    signal(session, { type: 'broadcast', data: broadcast.status });
+
   };
 
   /**
-   * Make a request to the server to start the broadcast
+   * Make a request to the server to stop the broadcast
    * @param {String} sessionId
    */
-  var stopBroadcast = function (sessionId) {
-    /* eslint-disable quote-props */
-    /* eslint-disable newline-per-chained-call */
-    fetch('/broadcast/stop', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ sessionId: sessionId })
-    }).then(function (response) {
-      return response.json();
-    }).then(function (data) {
-      console.log('broadcast data after start', data);
-      signal();
-    }).catch(function (error) {
-      console.log(error);
-    });
-    /* eslint-enable quote-props */
-    /* eslint-enable newline-per-chained-call */
+  var stopBroadcast = function () {
+    api.post('/broadcast/stop')
+      .then(function (broadcastData) {
+        console.log('broadcast broadcastData after start', broadcastData);
+        broadcast = R.merge(broadcast, broadcastData);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   /**
@@ -112,10 +95,19 @@
 
   var setEventListeners = function (session) {
 
+    // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
       subscribe(session, event.stream);
     });
 
+    // Signal the status of the broadcast when requested
+    session.on('signal:broadcast', function (event) {
+      if (event.data === 'status') {
+        signal(session, { type: 'broadcast', data: broadcast.status });
+      }
+    });
+
+    // Add click handler to the start/stop button
     document.getElementById('startStop').addEventListener('click', function () {
       if (state.broadcast !== 'active') {
         startBroadcast(session);
@@ -134,9 +126,6 @@
   var publishAndSubscribe = function (session, publisher) {
     session.publish(publisher);
     setEventListeners(session);
-    // state.session = 'active';
-    // signal(session, { data: state.session, type: 'session' });
-    // startBroadcast(session.id);
   };
 
   var init = function () {

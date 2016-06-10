@@ -29,6 +29,7 @@
    * Subscribe to a stream
    */
   var subscribe = function (session, stream) {
+
     session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
       if (error) {
         console.log(error);
@@ -36,10 +37,42 @@
     });
   };
 
+  /** Ping the host to see if the broadcast has started */
+  var checkBroadcastStatus = function (session) {
+    session.signal({
+      type: 'broadcast',
+      data: 'status'
+    });
+  };
+
+  /**
+   * Listen for events on the OpenTok session
+   */
   var setEventListeners = function (session) {
+
+    var streams = [];
+    var broadcastActive = false;
+
     /** Subscribe to new streams as they are published */
     session.on('streamCreated', function (event) {
-      subscribe(session, event.stream);
+      streams.push(event.stream);
+      broadcastActive && subscribe(session, event.stream);
+    });
+
+    /** Listen for a broadcast status update from the host */
+    session.on('signal:broadcast', function (event) {
+
+      broadcastActive = event.data === 'active';
+
+      if (broadcastActive) {
+        streams.forEach(function (stream) {
+          subscribe(session, stream);
+        });
+      } else {
+        streams.forEach(function (stream) {
+          session.unsubscribe(stream);
+        });
+      }
     });
   };
 
@@ -52,6 +85,7 @@
         console.log(error);
       } else {
         setEventListeners(session);
+        checkBroadcastStatus(session);
       }
     });
   };
