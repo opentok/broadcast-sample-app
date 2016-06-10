@@ -2,30 +2,14 @@
 <html lang="en">
 
 <head>
-
-    <% include('../partials/common-header.ejs') %>
-    <script src="js/guest.js" type="text/javascript" defer></script>
+    <% include ../partials/common-head %>
+    <script src="js/guest.js" type="text/javascript"></script>
 </head>
 
 <body>
+    <div id="credentials" style="display:none;" data="<%= credentials %>"></div>
     <div id="main" class="main-container">
-        <div id="videoContainer" class="video-container">
-            <div id="sharingMask" class="sharing-mask" style="display:none;">
-                <div class="sharing-text">Annotating on External Screen</div>
-            </div>
-            <div id="videoHolderSmall" class="video-wrap primary-video video-background"></div>
-            <div id="feedControls" class="local-controls">
-                <div id="enableLocalVideo" class="video-control circle video enabled" style="display:none;"></div>
-                <div id="callActive" class="video-control circle call"></div>
-                <div id="enableLocalAudio" class="video-control circle microphone enabled" style="display:none;"></div>
-            </div>
-            <div id="videoHolderBig" class="video-wrap secondary-video" style="display:none;"></div>
-            <div id="videoHolderSharedScreen" class="video-wrap shared-screen" style="display:none;"></div>
-            <div id="remoteControls" class="remote-controls" style="display:none;">
-                <div id="enableRemoteAudio" class="video-control audio" id="enableRemoteAudio"></div>
-                <div id="enableRemoteVideo" class="video-control video"></div>
-            </div>
-        </div>
+        <div id="videoContainer" class="video-container"></div>
     </div>
 </body>
 
