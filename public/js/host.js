@@ -66,7 +66,6 @@
       startStopButton.innerHTML = 'End Broadcast';
       document.getElementById('urlContainer').classList.remove('hidden');
       document.getElementById('broadcastURL').innerHTML = broadcast.url;
-
       signal(session, broadcast.status);
     } else {
       startStopButton.classList.remove('active');
@@ -99,8 +98,7 @@
    */
   var endBroadcast = function (session) {
     api.post('/broadcast/end')
-      .then(function (broadcastData) {
-        console.log('broadcast END', broadcastData);
+      .then(function () {
         updateStatus(session, 'ended');
       })
       .catch(function (error) {

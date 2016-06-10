@@ -27,10 +27,10 @@
 
   /**
    * Subscribe to a stream
+   * @returns {Object} A subsriber object
    */
   var subscribe = function (session, stream) {
-
-    session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
+    return session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
       if (error) {
         console.log(error);
       }
@@ -46,33 +46,55 @@
   };
 
   /**
+   * Update the banner based on the status of the broadcast (active or ended)
+   */
+  var updateBanner = function (status) {
+
+    var banner = document.getElementById('banner');
+    var bannerText = document.getElementById('bannerText');
+
+    if (status === 'active') {
+      banner.classList.add('hidden');
+    } else if (status === 'ended') {
+      bannerText.classList.add('red');
+      bannerText.innerHTML = 'The Broadcast is Over';
+      banner.classList.remove('hidden');
+    }
+  };
+
+  /**
    * Listen for events on the OpenTok session
    */
   var setEventListeners = function (session) {
 
     var streams = [];
+    var subscribers = [];
     var broadcastActive = false;
 
     /** Subscribe to new streams as they are published */
     session.on('streamCreated', function (event) {
       streams.push(event.stream);
-      broadcastActive && subscribe(session, event.stream);
+      if (broadcastActive) {
+        subscribers.push(subscribe(session, event.stream));
+      }
     });
 
     /** Listen for a broadcast status update from the host */
     session.on('signal:broadcast', function (event) {
 
-      broadcastActive = event.data === 'active';
+      var status = event.data;
+      broadcastActive = status === 'active';
 
-      if (broadcastActive) {
+      if (status === 'active') {
         streams.forEach(function (stream) {
-          subscribe(session, stream);
+          subscribers.push(subscribe(session, stream));
         });
-      } else {
-        streams.forEach(function (stream) {
-          session.unsubscribe(stream);
+      } else if (status === 'ended') {
+        subscribers.forEach(function (subscriber) {
+          session.unsubscribe(subscriber);
         });
       }
+      updateBanner(status);
     });
   };
 
