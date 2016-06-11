@@ -25,6 +25,10 @@ const broadcast = require('./services/broadcast');
  * User Routes
  */
 
+app.get('/', (req, res) => {
+  res.redirect('/viewer');
+});
+
 app.get('/viewer', (req, res) => {
   api.getCredentials('viewer')
   .then(credentials => res.render('pages/viewer', { credentials: JSON.stringify(credentials) }))
