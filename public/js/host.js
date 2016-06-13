@@ -95,6 +95,15 @@
 
   };
 
+  // Let the user know that the url has been copied to the clipboard
+  var showCopiedNotice = function () {
+    var notice = document.getElementById('copyNotice');
+    notice.classList.remove('opacity-0');
+    setTimeout(function () {
+      notice.classList.add('opacity-0');
+    }, 1500);
+  };
+
   /**
    * Make a request to the server to start the broadcast
    * @param {String} sessionId
@@ -161,6 +170,10 @@
       }
     });
 
+    document.getElementById('copyURL').addEventListener('click', function () {
+      showCopiedNotice();
+    });
+
   };
 
   /**
@@ -175,7 +188,7 @@
   };
 
   var init = function () {
-    var clipboard = new Clipboard('.btn-copy');
+    var clipboard = new Clipboard('#copyURL');
     var credentials = getCredentials();
     var session = OT.initSession(credentials.apiKey, credentials.sessionId);
     var publisher = initPublisher();

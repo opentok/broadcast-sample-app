@@ -4,7 +4,8 @@
 <head>
     <% include ../partials/common-head %>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js" type="text/javascript" defer></script>
-        <script src="js/util/api.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.10/clipboard.min.js"></script>
+        <script src="js/util/http.js" type="text/javascript"></script>
         <script src="js/host.js" type="text/javascript"></script>
 </head>
 
@@ -14,11 +15,16 @@
         <div id="videoContainer" class="video-container"></div>
     </div>
     <div class="controls-container">
-        <button id="startStop" class="broadcast-btn hidden">Start Broadcast</button>
-        <div id="urlContainer" class="hidden">
-            <span>Broadcast URL:</span><span id="broadcastURL" class="url"></span>
+        <button id="startStop" class="btn-broadcast hidden">Start Broadcast</button>
+        <div id="urlContainer" class="url-container hidden">
+            <input id="broadcastURL" class="url"></input>
+            <button id="copyURL"class="btn-copy" data-clipboard-target="#broadcastURL">
+                <img src="images/clippy.svg" alt="Copy to clipboard">
+            </button>
+            <span id="copyNotice" class="tooltip copy opacity-0">Broadcast URL Copied!</span>
         </div>
     </div>
+
 </body>
 
 </html>

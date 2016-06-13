@@ -50,7 +50,7 @@ const start = broadcastSessionId => {
 
   return new Promise((resolve, reject) => {
 
-    if (R.path('broadcastSessionId', activeBroadcast) === broadcastSessionId) {
+    if (R.path(['session'], activeBroadcast) === broadcastSessionId) {
       resolve(activeBroadcast);
     }
 
@@ -76,11 +76,13 @@ const start = broadcastSessionId => {
  * End the broadcast
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const end = () => {
-
-  const id = activeBroadcast.id;
-  const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
-  return new Promise((resolve, reject) => {
+const end = () =>
+  new Promise((resolve, reject) => {
+    const id = R.path(['id'], activeBroadcast);
+    if (!id) {
+      reject({ error: 'No active broadcast session found' });
+    }
+    const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
     request.postAsync(requestConfig(id))
       .then(response => {
         resolve(JSON.parse(response.body));
@@ -91,8 +93,6 @@ const end = () => {
   }).finally(function () {
     activeBroadcast = null;
   });
-};
-
 
 
 module.exports = {
