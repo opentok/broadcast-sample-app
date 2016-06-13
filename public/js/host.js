@@ -1,4 +1,4 @@
-/* global api */
+/* global http Clipboard */
 /* eslint-disable object-shorthand */
 (function () {
 
@@ -19,7 +19,7 @@
   };
 
   /**
-   * Get our OpenTok API Key, Session ID, and Token from the JSON embedded
+   * Get our OpenTok http Key, Session ID, and Token from the JSON embedded
    * in the HTML.
    */
   var getCredentials = function () {
@@ -75,6 +75,7 @@
 
     var startStopButton = document.getElementById('startStop');
     var playerUrl = getBroadcastUrl(R.pick(['url', 'availableAt'], broadcast));
+    var displayUrl = document.getElementById('broadcastURL');
 
     broadcast.status = status;
 
@@ -82,7 +83,8 @@
       startStopButton.classList.add('active');
       startStopButton.innerHTML = 'End Broadcast';
       document.getElementById('urlContainer').classList.remove('hidden');
-      document.getElementById('broadcastURL').innerHTML = playerUrl;
+      displayUrl.innerHTML = playerUrl;
+      displayUrl.setAttribute('value', playerUrl);
       signal(session, broadcast.status);
     } else {
       startStopButton.classList.remove('active');
@@ -99,7 +101,7 @@
    */
   var startBroadcast = function (session) {
 
-    api.post('/broadcast/start', { sessionId: session.sessionId })
+    http.post('/broadcast/start', { sessionId: session.sessionId })
       .then(function (broadcastData) {
         broadcast = R.merge(broadcast, broadcastData);
         updateStatus(session, 'active');
@@ -114,7 +116,7 @@
    * @param {String} sessionId
    */
   var endBroadcast = function (session) {
-    api.post('/broadcast/end')
+    http.post('/broadcast/end')
       .then(function () {
         updateStatus(session, 'ended');
       })
@@ -173,6 +175,7 @@
   };
 
   var init = function () {
+    var clipboard = new Clipboard('.btn-copy');
     var credentials = getCredentials();
     var session = OT.initSession(credentials.apiKey, credentials.sessionId);
     var publisher = initPublisher();

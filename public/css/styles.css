@@ -70,7 +70,7 @@
     border-radius: 3px;
 }
 
-.broadcast-btn {
+.btn-broadcast {
     background-color: #0099cb;
     box-shadow: 0 0 0 1px #0099cb;
     color: #fff !important;
@@ -89,26 +89,48 @@
     transition: all .5s ease-out;
 }
 
-.broadcast-btn:hover {
+.btn-broadcast:hover {
     text-decoration: none;
     background-color: #007ba3;
     box-shadow: 0 0 0 2px #0099cb
 }
 
-.broadcast-btn.active {
+.btn-broadcast.active {
     background-color: #E04E4E;
     box-shadow: 0 0 0 1px #E04E4E;
 }
 
-.broadcast-btn.active:hover {
+.btn-broadcast.active:hover {
     background-color:#692B2B;
     box-shadow: 0 0 0 2px #E04E4E
 }
 
-.broadcast-btn:disabled {
+.btn-broadcast:disabled {
     background-color: darkgrey;
     box-shadow: 0 0 0 2px darkgrey;
     cursor: default;
+}
+
+.btn-copy {
+    position: relative;
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 20px;
+    color: #333;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #eee;
+    background-image: linear-gradient(#fcfcfc,#eee);
+    border: 1px solid #d5d5d5;
+    border-radius: 3px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-appearance: none;
 }
 
 .hidden {

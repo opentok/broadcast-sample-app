@@ -1,7 +1,7 @@
 /* eslint-disable object-shorthand */
 (function () {
 
-  var api = {
+  var http = {
     post: function (url, data) {
 
       var requestHeaders = {
@@ -34,6 +34,6 @@
     }
   };
 
-  window.api = api;
+  window.http = http;
 
 }());
