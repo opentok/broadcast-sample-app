@@ -31,24 +31,30 @@ app.get('/', (req, res) => {
 
 app.get('/viewer', (req, res) => {
   api.getCredentials('viewer')
-  .then(credentials => res.render('pages/viewer', { credentials: JSON.stringify(credentials) }))
-  .catch(error => res.status(500).send(error));
+    .then(credentials => res.render('pages/viewer', { credentials: JSON.stringify(credentials) }))
+    .catch(error => res.status(500).send(error));
 });
 
 app.get('/host', (req, res) => {
   api.getCredentials('host')
-  .then(credentials => {
-    res.render('pages/host', { credentials: JSON.stringify(credentials) });
-  })
-  .catch(error => res.status(500).send(error));
+    .then(credentials => {
+      res.render('pages/host', { credentials: JSON.stringify(credentials) });
+    })
+    .catch(error => res.status(500).send(error));
 });
 
 app.get('/guest', (req, res) => {
   api.getCredentials('guest')
-  .then(credentials => {
-    res.render('pages/guest', { credentials: JSON.stringify(credentials) });
-  })
-  .catch(error => res.status(500).send(error));
+    .then(credentials => {
+      res.render('pages/guest', { credentials: JSON.stringify(credentials) });
+    })
+    .catch(error => res.status(500).send(error));
+});
+
+app.get('/broadcast', (req, res) => {
+  const url = req.query.url;
+  const availableAt = req.query.availableAt;
+  res.render('pages/broadcast', { broadcast: JSON.stringify({ url, availableAt }) });
 });
 
 app.get('*', (req, res) => {
@@ -61,14 +67,14 @@ app.get('*', (req, res) => {
 app.post('/broadcast/start', (req, res) => {
   const sessionId = R.path(['body', 'sessionId'], req);
   broadcast.start(sessionId)
-  .then(data => res.send(data))
-  .catch(error => res.status(500).send(error));
+    .then(data => res.send(data))
+    .catch(error => res.status(500).send(error));
 });
 
 app.post('/broadcast/end', (req, res) => {
   broadcast.end()
-  .then(data => res.send(data))
-  .catch(error => res.status(500).send(error));
+    .then(data => res.send(data))
+    .catch(error => res.status(500).send(error));
 });
 
 /*

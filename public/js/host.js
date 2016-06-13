@@ -54,18 +54,35 @@
 
 
   /**
+   * Construct the url for viewers to view the broadcast stream
+   * @param {Object} params
+   * @param {String} params.url The CDN url for the m3u8 video stream
+   * @param {Number} params.availableAt The time (ms since epoch) at which the stream is available
+   */
+  var getBroadcastUrl = function (params) {
+    var buildQueryString = function (query, key) {
+      return [query, key, '=', params[key], '&'].join('');
+    };
+    var queryString = R.reduce(buildQueryString, '?', R.keys(params)).slice(0, -1);
+
+    return [window.location.host, '/broadcast', queryString].join('');
+  };
+
+  /**
    * Set the state of the broadcast and update the UI
    */
   var updateStatus = function (session, status) {
 
     var startStopButton = document.getElementById('startStop');
+    var playerUrl = getBroadcastUrl(R.pick(['url', 'availableAt'], broadcast));
+
     broadcast.status = status;
 
     if (status === 'active') {
       startStopButton.classList.add('active');
       startStopButton.innerHTML = 'End Broadcast';
       document.getElementById('urlContainer').classList.remove('hidden');
-      document.getElementById('broadcastURL').innerHTML = broadcast.url;
+      document.getElementById('broadcastURL').innerHTML = playerUrl;
       signal(session, broadcast.status);
     } else {
       startStopButton.classList.remove('active');
@@ -123,9 +140,9 @@
     var startStopButton = document.getElementById('startStop');
     startStopButton.classList.remove('hidden');
     startStopButton.addEventListener('click', function () {
-      if (broadcast.status !== 'active') {
+      if (broadcast.status === 'waiting') {
         startBroadcast(session);
-      } else {
+      } else if (broadcast.status === 'active') {
         endBroadcast(session);
       }
     });

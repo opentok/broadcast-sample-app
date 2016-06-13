@@ -7,11 +7,25 @@
     padding: 10px;
 }
 
+.main-container.player {
+    min-height: 535px;
+}
+
 .video-container {
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: space-around;
+}
+
+.fp-player {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.fp-ratio, .fp-ui, .fp-help, .fp-subtitle {
+  display: none;
 }
 
 .video-container .OT_publisher, .video-container .OT_subscriber {
