@@ -1,3 +1,4 @@
+/* global analytics */
 /* eslint-disable object-shorthand */
 (function () {
 
@@ -63,12 +64,16 @@
     var credentials = getCredentials();
     var session = OT.initSession(credentials.apiKey, credentials.sessionId);
     var publisher = initPublisher();
+    analytics.init(session);
+    analytics.log('initialize', 'variationAttempt');
 
     session.connect(credentials.token, function (error) {
       if (error) {
         console.log(error);
+        analytics.log('initialize', 'variationError');
       } else {
         publishAndSubscribe(session, publisher);
+        analytics.log('initialize', 'variationSuccess');
       }
     });
   };

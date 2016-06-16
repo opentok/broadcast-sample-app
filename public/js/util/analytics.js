@@ -31,8 +31,8 @@
 
   var log = function (action, variation) {
     var data = {
-      action: action,
-      variation: variation
+      action: _logEventData[action],
+      variation: _logEventData[variation]
     };
     _otkanalytics.logEvent(data);
   };

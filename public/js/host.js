@@ -1,4 +1,4 @@
-/* global http Clipboard */
+/* global analytics http Clipboard */
 /* eslint-disable object-shorthand */
 (function () {
 
@@ -110,12 +110,15 @@
    */
   var startBroadcast = function (session) {
 
+    analytics.log('startBroadcast', 'variationAttempt');
     http.post('/broadcast/start', { sessionId: session.sessionId })
       .then(function (broadcastData) {
         broadcast = R.merge(broadcast, broadcastData);
         updateStatus(session, 'active');
+        analytics.log('startBroadcast', 'variationSuccess');
       }).catch(function (error) {
         console.log(error);
+        analytics.log('startBroadcast', 'variationError');
       });
 
   };
@@ -128,9 +131,11 @@
     http.post('/broadcast/end')
       .then(function () {
         updateStatus(session, 'ended');
+        analytics.log('endBroadcast', 'variationSuccess');
       })
       .catch(function (error) {
         console.log(error);
+        analytics.log('endBroadcast', 'variationError');
       });
   };
 
@@ -188,16 +193,20 @@
   };
 
   var init = function () {
-    var clipboard = new Clipboard('#copyURL');
+    var clipboard = new Clipboard('#copyURL'); // eslint-disable-line no-unused-vars
     var credentials = getCredentials();
     var session = OT.initSession(credentials.apiKey, credentials.sessionId);
     var publisher = initPublisher();
+    analytics.init(session);
+    analytics.log('initialize', 'variationAttempt');
 
     session.connect(credentials.token, function (error) {
       if (error) {
         console.log(error);
+        analytics.log('initialize', 'variationError');
       } else {
         publishAndSubscribe(session, publisher);
+        analytics.log('initialize', 'variationSuccess');
       }
     });
   };
