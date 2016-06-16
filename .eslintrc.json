@@ -10,6 +10,8 @@
     "rules": {
         "strict": 0,
         "padded-blocks": 0,
+        "no-underscore-dangle": 0,
+        "object-shorthand": 0,
         "comma-dangle": 0,
         "func-names": 0,
         "no-var" : 0,
