@@ -64,12 +64,12 @@ const createToken = userType => OT.generateToken(activeSession.sessionId, tokenO
 const getCredentials = userType =>
   new Promise((resolve, reject) => {
     if (!!activeSession) {
-      const token = createToken(tokenOptions(userType));
+      const token = createToken(userType);
       resolve({ apiKey, sessionId: activeSession.sessionId, token });
     } else {
       createSession()
         .then(session => {
-          const token = createToken(tokenOptions(userType));
+          const token = createToken(userType);
           resolve({ apiKey, sessionId: session.sessionId, token });
         })
         .catch(error => reject(error));
