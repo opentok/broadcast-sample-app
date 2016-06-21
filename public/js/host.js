@@ -15,7 +15,8 @@
     showControls: false,
     style: {
       buttonDisplayMode: 'off'
-    }
+    },
+    name: 'Host'
   };
 
   /**
@@ -33,7 +34,7 @@
    * Create an OpenTok publisher object
    */
   var initPublisher = function () {
-    return OT.initPublisher('videoContainer', insertOptions);
+    return OT.initPublisher('hostContainer', insertOptions);
   };
 
   /**
@@ -85,14 +86,13 @@
       document.getElementById('urlContainer').classList.remove('hidden');
       displayUrl.innerHTML = playerUrl;
       displayUrl.setAttribute('value', playerUrl);
-      signal(session, broadcast.status);
     } else {
       startStopButton.classList.remove('active');
       startStopButton.innerHTML = 'Broadcast Over';
       startStopButton.disabled = true;
-      signal(session, broadcast.status);
     }
 
+    signal(session, broadcast.status);
   };
 
   // Let the user know that the url has been copied to the clipboard
@@ -143,7 +143,8 @@
    * Subscribe to a stream
    */
   var subscribe = function (session, stream) {
-    session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
+    var properties = Object.assign({}, insertOptions, { name: 'Guest' });
+    session.subscribe(stream, 'guestContainer', properties, function (error) {
       if (error) {
         console.log(error);
       }
@@ -197,15 +198,17 @@
     var credentials = getCredentials();
     var session = OT.initSession(credentials.apiKey, credentials.sessionId);
     var publisher = initPublisher();
-    analytics.init(session);
-    analytics.log('initialize', 'variationAttempt');
 
     session.connect(credentials.token, function (error) {
       if (error) {
         console.log(error);
+        analytics.init(session);
+        analytics.log('initialize', 'variationAttempt');
         analytics.log('initialize', 'variationError');
       } else {
         publishAndSubscribe(session, publisher);
+        analytics.init(session);
+        analytics.log('initialize', 'variationAttempt');
         analytics.log('initialize', 'variationSuccess');
       }
     });

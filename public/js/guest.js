@@ -30,14 +30,17 @@
    * Create an OpenTok publisher object
    */
   var initPublisher = function () {
-    return OT.initPublisher('videoContainer', insertOptions);
+    return OT.initPublisher('guestContainer', Object.assign({}, insertOptions, { name: 'Guest' }));
   };
 
   /**
    * Subscribe to a stream
    */
   var subscribe = function (session, stream) {
-    session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
+    var name = stream.name;
+    var container = [name.toLowerCase(), 'Container'].join('');
+    var properties = Object.assign({}, insertOptions, { name: name });
+    session.subscribe(stream, container, properties, function (error) {
       if (error) {
         console.log(error);
       }
@@ -64,15 +67,17 @@
     var credentials = getCredentials();
     var session = OT.initSession(credentials.apiKey, credentials.sessionId);
     var publisher = initPublisher();
-    analytics.init(session);
-    analytics.log('initialize', 'variationAttempt');
 
     session.connect(credentials.token, function (error) {
       if (error) {
         console.log(error);
+        analytics.init(session);
+        analytics.log('initialize', 'variationAttempt');
         analytics.log('initialize', 'variationError');
       } else {
         publishAndSubscribe(session, publisher);
+        analytics.init(session);
+        analytics.log('initialize', 'variationAttempt');
         analytics.log('initialize', 'variationSuccess');
       }
     });

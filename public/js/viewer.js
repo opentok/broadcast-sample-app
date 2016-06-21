@@ -30,7 +30,10 @@
    * @returns {Object} A subsriber object
    */
   var subscribe = function (session, stream) {
-    return session.subscribe(stream, 'videoContainer', insertOptions, function (error) {
+    var name = stream.name;
+    var container = [name.toLowerCase(), 'Container'].join('');
+    var properties = Object.assign({}, insertOptions, { name: name });
+    return session.subscribe(stream, container, properties, function (error) {
       if (error) {
         console.log(error);
       }
