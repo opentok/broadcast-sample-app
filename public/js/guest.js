@@ -6,7 +6,6 @@
    * Options for adding OpenTok publisher and subscriber video elements
    */
   var insertOptions = {
-    insertMode: 'append',
     width: '100%',
     height: '100%',
     showControls: false,
@@ -30,7 +29,8 @@
    * Create an OpenTok publisher object
    */
   var initPublisher = function () {
-    return OT.initPublisher('guestContainer', Object.assign({}, insertOptions, { name: 'Guest' }));
+    var properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
+    return OT.initPublisher('hostDivider', properties);
   };
 
   /**
@@ -38,9 +38,9 @@
    */
   var subscribe = function (session, stream) {
     var name = stream.name;
-    var container = [name.toLowerCase(), 'Container'].join('');
-    var properties = Object.assign({}, insertOptions, { name: name });
-    session.subscribe(stream, container, properties, function (error) {
+    var insertMode = name === 'Host' ? 'before' : 'after';
+    var properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
+    session.subscribe(stream, 'hostDivider', properties, function (error) {
       if (error) {
         console.log(error);
       }
