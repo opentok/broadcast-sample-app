@@ -11,7 +11,7 @@ const R = require('ramda');
  * Config
  */
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.use(express.static(`${__dirname}/public`));
 app.use(bodyParser.json());
 app.set('views', `${__dirname}/views`);
@@ -37,17 +37,13 @@ app.get('/viewer', (req, res) => {
 
 app.get('/host', (req, res) => {
   api.getCredentials('host')
-    .then(credentials => {
-      res.render('pages/host', { credentials: JSON.stringify(credentials) });
-    })
+    .then(credentials => res.render('pages/host', { credentials: JSON.stringify(credentials) }))
     .catch(error => res.status(500).send(error));
 });
 
 app.get('/guest', (req, res) => {
   api.getCredentials('guest')
-    .then(credentials => {
-      res.render('pages/guest', { credentials: JSON.stringify(credentials) });
-    })
+    .then(credentials => res.render('pages/guest', { credentials: JSON.stringify(credentials) }))
     .catch(error => res.status(500).send(error));
 });
 
