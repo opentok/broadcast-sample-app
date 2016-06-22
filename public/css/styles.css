@@ -61,6 +61,15 @@
     border-radius: 20px;
 }
 
+.OT_publisher .OT_widget-container,
+.OT_subscriber .OT_widget-container {
+    background-color: #fff;
+}
+
+.OT_widget-container .OT_video-element {
+    border-radius: 8px;
+}
+
 .banner {
     background-color: #fff;
     width: 100%;
