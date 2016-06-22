@@ -2,8 +2,6 @@
     width: 90vw;
     height: 85vh;
     margin: 0 auto;
-    border: 1px solid #0099cb;
-    border-radius: 6px;
     padding: 10px;
 }
 
@@ -81,7 +79,7 @@
 }
 
 .banner .text {
-    color: #0099cb;
+    color: #0099cc;
     font-size: 34px;
     font-family: 'Yellowtail', cursive;
     letter-spacing: 1px;
@@ -136,8 +134,8 @@
 }
 
 .btn-broadcast {
-    background-color: #0099cb;
-    box-shadow: 0 0 0 1px #0099cb;
+    background-color: #0099cc;
+    box-shadow: 0 0 0 1px #0099cc;
     color: #fff !important;
     cursor: pointer;
     font-size: 16px;
@@ -157,7 +155,7 @@
 .btn-broadcast:hover {
     text-decoration: none;
     background-color: #007ba3;
-    box-shadow: 0 0 0 2px #0099cb
+    box-shadow: 0 0 0 2px #0099cc
 }
 
 .btn-broadcast.active {
