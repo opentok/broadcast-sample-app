@@ -45,6 +45,31 @@
   };
 
   /**
+   * Toggle publishing audio/video to allow host to mute
+   * their video (publishVideo) or audio (publishAudio)
+   * @param {Object} publisher The OpenTok publisher object
+   * @param {Object} el The DOM element of the control whose id corresponds to the action
+   */
+  var toggleMedia = function (publisher, el) {
+    var enabled = el.classList.contains('disabled');
+    el.classList.toggle('disabled');
+    publisher[el.id](enabled);
+  };
+
+  var addPublisherControls = function (publisher) {
+    var publisherContainer = document.getElementById(publisher.element.id);
+    var el = document.createElement('div');
+    var controls = [
+      '<div class="publisher-controls-container">',
+      '<div id="publishVideo" class="control video-control"></div>',
+      '<div id="publishAudio" class="control audio-control"></div>',
+      '</div>',
+    ].join('\n');
+    el.innerHTML = controls;
+    publisherContainer.appendChild(el.firstChild);
+  };
+
+  /**
    * Start publishing our audio and video to the session. Also, start
    * subscribing to other streams as they are published.
    * @param {Object} session The OpenTok session
@@ -53,9 +78,18 @@
   var publishAndSubscribe = function (session, publisher) {
 
     session.publish(publisher);
+    addPublisherControls(publisher);
 
     session.on('streamCreated', function (event) {
       subscribe(session, event.stream);
+    });
+
+    document.getElementById('publishVideo').addEventListener('click', function () {
+      toggleMedia(publisher, this);
+    });
+
+    document.getElementById('publishAudio').addEventListener('click', function () {
+      toggleMedia(publisher, this);
     });
 
   };
