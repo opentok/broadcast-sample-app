@@ -41,7 +41,8 @@ body {
 .fp-ratio,
 .fp-ui,
 .fp-help,
-.fp-subtitle {
+.fp-subtitle.audio-control,
+.fp-context-menu {
     display: none;
 }
 
