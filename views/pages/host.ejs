@@ -19,11 +19,14 @@
     <div class="controls-container">
         <button id="startStop" class="btn-broadcast hidden">Start Broadcast</button>
         <div id="urlContainer" class="url-container hidden">
-            <input id="broadcastURL" class="url"></input>
-            <button id="copyURL"class="btn-copy" data-clipboard-target="#broadcastURL">
-                <img src="images/clippy.svg" alt="Copy to clipboard">
-            </button>
-            <span id="copyNotice" class="tooltip copy opacity-0">Broadcast URL Copied!</span>
+            <div id="broadcastURL" class="opacity-0 no-show"></div>
+            <div id="copyURL"class="copy-link" data-clipboard-target="#broadcastURL">
+                <span>Get sharable link</span>
+            </div>
+            <div id="copyNotice" class="tooltip copy opacity-0">
+                <span>Link copied to clipboard!</span>
+                <span class="triangle-down">▼</span>
+            </div>
         </div>
     </div>
 

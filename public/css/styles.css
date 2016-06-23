@@ -3,6 +3,8 @@
     height: 85vh;
     margin: 0 auto;
     padding: 10px;
+    border: 1px solid #59c9e3;
+    border-radius: 6px;
 }
 
 .main-container.player {
@@ -53,6 +55,7 @@
     bottom: 20px;
     margin: 0 auto;
     opacity: 1;
+    font-family: 'Poiret One', cursive;
     text-align: center;
     background-color: rgba(0, 0, 0, 0.5);
     width: 125px;
@@ -112,6 +115,26 @@
     position: relative;
 }
 
+.copy-link {
+    position: relative;
+    font-family: 'Poiret One', cursive;
+    color: #59c9e3;
+    width: 200px;
+    margin: 10px auto;
+    cursor: pointer;
+}
+
+.copy-link::before {
+    content: '';
+    height: 20px;
+    width: 20px;
+    position: absolute;
+    left: 15px;
+    background-image: url('../images/get-link.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
 .tooltip {
     position: absolute;
 }
@@ -123,17 +146,51 @@
     -ms-transition: all .5s ease-out;
     -kthtml-transition: all .5s ease-out;
     transition: all .5s ease-out;
+    -webkit-box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.75);
+}
+
+.tooltip.copy::before {
+    content: '\2714';
+    height: 16px;
+    width: 16px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #59c9e3;
+    margin-right: 10px;
+    border: 1px solid #59c9e3;
+    border-radius: 50%;
 }
 
 .url-container .tooltip.copy {
     position: absolute;
-    color: #E04E4E;
-    font-family: Arial, Helvetica, sans-serif;
-    top: -30px;
-    right: 10px;
+    color: #59c9e3;
+    background-color: #fff;
+    border-radius: 4px;
+    font-family: 'Poiret One', cursive;
+    width: 250px;
+    height: 40px;
+    top: -45px;
+    right: 0px;
+    left: 0px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.url-container .tooltip.copy .triangle-down {
+    color: #fff;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.4), 0 1px 0px rgba(0, 0, 0, 0.5);
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: -16px;
 }
 
 .btn-broadcast {
+    font-family: 'Poiret One', cursive;
     background-color: #0099cc;
     box-shadow: 0 0 0 1px #0099cc;
     color: #fff !important;
@@ -201,4 +258,10 @@
 
 .opacity-0 {
     opacity: 0;
+    z-index: -1;
+}
+
+.no-show {
+    height: 0;
+    width: 0;
 }
