@@ -1,3 +1,8 @@
+html,
+body {
+    box-sizing: border-box;
+}
+
 .main-container {
     width: 90vw;
     height: 85vh;
@@ -71,6 +76,47 @@
     border-radius: 8px;
 }
 
+.publisher-controls-container {
+    height: 70px;
+    width: 36px;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1001;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    top: 20px;
+    left: 20px;
+    padding: 10px 0 !important;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.publisher-controls-container .control {
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.publisher-controls-container .video-control {
+    background-image: url('../images/video-icon.png');
+}
+
+.publisher-controls-container .video-control.disabled {
+    background-image: url('../images/no-video-icon.png');
+}
+
+.publisher-controls-container .audio-control {
+    background-image: url('../images/mic.png');
+}
+
+.publisher-controls-container .audio-control.disabled {
+    background-image: url('../images/muted-mic.png');
+}
+
 .banner {
     background-color: #fff;
     width: 100%;
@@ -92,7 +138,7 @@
     color: #E04E4E;
 }
 
-.controls-container {
+.broadcast-controls-container {
     margin: 15px 0 10px 0;
     text-align: center;
     color: #696868;
