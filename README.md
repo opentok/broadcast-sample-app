@@ -105,7 +105,7 @@ While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must
 
 #### Server
 
-The methods in server.js include the host, guest, and viewer routes. Each API retrieves the credentials and creates the token for each user type (moderator, publisher, subscriber) defined in api.js:
+The methods in server.js include the host, guest, and viewer routes, as well as the broadcast start and end routes. Each of the host, guest, and viewer routes retrieves the credentials and creates the token for each user type (moderator, publisher, subscriber) defined in api.js:
 
 ```javascript
 const tokenOptions = userType => {
@@ -194,7 +194,7 @@ The following method in host.js sets up the publisher session for the host, conf
   };
 ```
 
-When the broadcast button is clicked, the `setEventListeners()` method calls the `startBroadcast()` method, which submits a request to the server endpoint to begin the broadcast. The server endpoint relays the request to the OpenTok API, which returns the URL
+When the broadcast button is clicked, the `setEventListeners()` method calls the `startBroadcast()` method, which submits a request to the server endpoint to begin the broadcast. The server endpoint relays the request to the [OpenTok REST API](https://tokbox.com/developer/rest/), which returns the URL. 
 
 
 #### Guest
