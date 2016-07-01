@@ -38,32 +38,6 @@ _**IMPORTANT:** In order to deploy an OpenTok Broadcast app, your web domain mus
 
 ## Quick start
 
-To get up and running quickly with your app, go through the following steps in the tutorial provided below:
-
-1. [Configuring the App](#configuring-the-app)
-2. [Deploying and running](#deploying-and-running)
-
-To learn more about the best practices used to design this app, see [Exploring the code](#exploring-the-code).
-
-
-### Configuring the app
-
-Now you are ready to add the configuration detail to your app. These will include the **Session ID**, **Token**, and **API Key** you retrieved earlier (see [Prerequisites](#prerequisites)).
-
-In **app.js**, replace the following empty strings with the required detail:
-
-
-   ```javascript
-    apiKey: '',    // Replace with your OpenTok API Key
-    sessionId: '', // Replace with a generated Session ID
-    token: '',     // Replace with a generated token (from the dashboard or using an OpenTok server SDK)
-   ```
-
-_At this point you can try running the app! See [Deploying and running](#deploying-and-running) for more information._
-
-
-### Deploying and running
-
 The web page that loads the sample app for JavaScript must be served over HTTP/HTTPS. Browser security limitations prevent you from publishing video using a `file://` path, as discussed in the OpenTok.js [Release Notes](https://www.tokbox.com/developer/sdks/js/release-notes.html#knownIssues). To support clients running [Chrome 47 or later](https://groups.google.com/forum/#!topic/discuss-webrtc/sq5CVmY69sc), HTTPS is required. A web server such as [MAMP](https://www.mamp.info/) or [XAMPP](https://www.apachefriends.org/index.html) will work, or you can use a cloud service such as [Heroku](https://www.heroku.com/) to host the application.
 
 To try out the Broadcast Sample App, visit the following URLs:
