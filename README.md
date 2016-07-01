@@ -42,8 +42,8 @@ The web page that loads the sample app for JavaScript must be served over HTTP/H
 
 To try out the Broadcast Sample App, visit the following URLs:
 
-Host:   <a href=“http://broadcast-viewer.herokuapp.com/host”>http://broadcast-viewer.herokuapp.com/host</a>
-Guest:  <a href=“http://broadcast-viewer.herokuapp.com/guest”>http://broadcast-viewer.herokuapp.com/guest</a>
+Host:   <a href=“http://broadcast-viewer.herokuapp.com/host”>http://broadcast-viewer.herokuapp.com/host</a><br/>
+Guest:  <a href=“http://broadcast-viewer.herokuapp.com/guest”>http://broadcast-viewer.herokuapp.com/guest</a><br/>
 Viewer: <a href=“http://broadcast-viewer.herokuapp.com/viewer”>http://broadcast-viewer.herokuapp.com/viewer</a>
 
 
