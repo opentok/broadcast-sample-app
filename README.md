@@ -74,12 +74,16 @@ While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must
 
 * **[viewer.js](./public/js/viewer.js)**: Viewers can control their own audio and video but can only view the broadcast. 
 
+* **[api.js](./services/api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers.
+
+* **[broadcast.js](./services/broadcast.js)**: Starts and ends the broadcast.
+
 * **[CSS files](./public/css)**: Defines the client UI style. 
 
 
 ### Server
 
-The methods in server.js include the host, guest, and viewer routes, as well as the broadcast start and end routes. Each of the host, guest, and viewer routes retrieves the credentials and creates the token for each user type (moderator, publisher, subscriber) defined in api.js:
+The methods in [server.js](./server.js) include the host, guest, and viewer routes, as well as the broadcast start and end routes. Each of the host, guest, and viewer routes retrieves the credentials and creates the token for each user type (moderator, publisher, subscriber) defined in [api.js](./services/api.js):
 
 ```javascript
 const tokenOptions = userType => {
@@ -106,7 +110,7 @@ app.get('/host', (req, res) => {
 });
 ```
 
-The credentials are then retrieved in host.js and used to connect to the host to the session:
+The credentials are then retrieved in [host.js](./public/js/host.js) and used to connect to the host to the session:
 
 ```javascript
   var getCredentials = function () {
@@ -141,17 +145,17 @@ When the web page is loaded, those credentials are retrieved from the HTML and a
 
 ### Guest
 
-The functions in guest.js retrieve the credentials from the HTML, subscribe to the host stream and other guest streams, publish audio and video to the session, and monitor broadcast status. Each guest uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send and receive the signals in the broadcast.
+The functions in [guest.js](./public/js/guest.js) retrieve the credentials from the HTML, subscribe to the host stream and other guest streams, publish audio and video to the session, and monitor broadcast status. Each guest uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send and receive the signals in the broadcast.
 
 
 ### Viewer
 
-The functions in viewer.js retrieve the credentials from the HTML, subscribe to the broadcast stream, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast.
+The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials from the HTML, subscribe to the broadcast stream, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast.
 
 
 ### Host
 
-The methods in host.js retrieve the credentials from the HTML, set the state of the broadcast and update the UI, control the broadcast stream, subscribe to the guest streams, create the URL for viewers to watch the broadcast, and monitor broadcast status. The host UI includes a button to start and end the broadcast, as well as a control to get a sharable link that can be distributed to all potential viewers to watch the CDN stream. The host makes calls the OpenTok API to start and end the broadcast and send a signal to the CDN live stream. Once the broadcast ends, the client player will trigger an error event and display a message that the broadcast is over. For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
+The methods in [host.js](./public/js/host.js) retrieve the credentials from the HTML, set the state of the broadcast and update the UI, control the broadcast stream, subscribe to the guest streams, create the URL for viewers to watch the broadcast, and monitor broadcast status. The host UI includes a button to start and end the broadcast, as well as a control to get a sharable link that can be distributed to all potential viewers to watch the CDN stream. The host makes calls the OpenTok API to start and end the broadcast and send a signal to the CDN live stream. Once the broadcast ends, the client player will trigger an error event and display a message that the broadcast is over. For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
 
 The following line in host.js creates a control that allows the host to copy the URL of the CDN stream to their clipboard so they can paste it for distribution to potential viewers:
 
