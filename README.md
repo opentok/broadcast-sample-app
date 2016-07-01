@@ -157,7 +157,7 @@ The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials fro
 
 The methods in [host.js](./public/js/host.js) retrieve the credentials from the HTML, set the state of the broadcast and update the UI, control the broadcast stream, subscribe to the guest streams, create the URL for viewers to watch the broadcast, and monitor broadcast status. The host UI includes a button to start and end the broadcast, as well as a control to get a sharable link that can be distributed to all potential viewers to watch the CDN stream. The host makes calls the OpenTok API to start and end the broadcast and send a signal to the CDN live stream. Once the broadcast ends, the client player will trigger an error event and display a message that the broadcast is over. For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
 
-The following line in host.js creates a control that allows the host to copy the URL of the CDN stream to their clipboard so they can paste it for distribution to potential viewers:
+The following line in host.js creates a control that allows the host to copy the URL of the CDN stream to the clipboard for distribution to potential viewers:
 
 
 ```javascript
@@ -200,7 +200,7 @@ When the broadcast button is clicked, the `setEventListeners()` method calls the
 ```
 
 
-The `startBroadcast()` method subsequently calls the `updateStatus()` method with the broadcast status. The `updateStatus()` method uses the OpenTok Signaling API to notify the live viewers who are subscribed to the session that the broadcast has started:
+The `startBroadcast()` method subsequently calls the `updateStatus()` method with the broadcast status. The `updateStatus()` method uses the [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to notify the live viewers who are subscribed to the session that the broadcast has started:
 
 ```javascript
   var updateStatus = function (session, status) {
@@ -210,9 +210,6 @@ The `startBroadcast()` method subsequently calls the `updateStatus()` method wit
     signal(session, broadcast.status);
   };
 ```
-
-For more information, see [Signaling](https://www.tokbox.com/developer/guides/signaling/js/).
-
 
 
 The broadcast data includes both the URL for the CDN stream and a timestamp indicating when the video should begin playing. The `init()` method in broadcast.js compares this timestamp to the current time to determine when to play the video. It either begins to play immediately, or sets a timeout to play at the appropriate future time:
