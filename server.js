@@ -18,8 +18,8 @@ app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
 
 /** Services */
-const api = require('./services/api');
-const broadcast = require('./services/broadcast');
+const opentok = require('./services/opentok-api');
+const broadcast = require('./services/broadcast-api');
 
 /*
  * User Routes
@@ -30,19 +30,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/viewer', (req, res) => {
-  api.getCredentials('viewer')
+  opentok.getCredentials('viewer')
     .then(credentials => res.render('pages/viewer', { credentials: JSON.stringify(credentials) }))
     .catch(error => res.status(500).send(error));
 });
 
 app.get('/host', (req, res) => {
-  api.getCredentials('host')
+  opentok.getCredentials('host')
     .then(credentials => res.render('pages/host', { credentials: JSON.stringify(credentials) }))
     .catch(error => res.status(500).send(error));
 });
 
 app.get('/guest', (req, res) => {
-  api.getCredentials('guest')
+  opentok.getCredentials('guest')
     .then(credentials => res.render('pages/guest', { credentials: JSON.stringify(credentials) }))
     .catch(error => res.status(500).send(error));
 });
