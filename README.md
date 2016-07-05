@@ -13,7 +13,7 @@ The sample app also supports the following recommended numbers of viewers, based
   - 1 host, 1 guest:  150 viewers
 
 
-**NOTE**: These viewer limits do not apply to HLS, since all publishing streams are transcoded to a single HLS stream that can be accessed from an HLS player. The expected latency for HLS is 15-20 seconds. When the host clicks the broadcast button, an HLS URL is provided, which the host can then share with all prospective viewers.
+**NOTE**: These viewer limits do not apply to HLS, since all publishing streams are transcoded to a single HLS stream that can be accessed from an HLS player. The expected latency for HLS is 15-20 seconds. When the host clicks the broadcast button, a link is provided, which the host can then share with all prospective viewers. The link directs the viewer to another page within the application that streams the broadcast feed.
 
 You can configure and run this sample app within just a few minutes!
 
@@ -22,7 +22,7 @@ This guide has the following sections:
 
 * [Prerequisites](#prerequisites): A checklist of everything you need to get started.
 * [Quick start](#quick-start): A step-by-step tutorial to help you quickly run the sample app.
-* [Exploring the code](#exploring-the-code): This describes the sample app code design, which uses recommended best practices to implement the text chat features. 
+* [Exploring the code](#exploring-the-code): This describes the sample app code design, which uses recommended best practices to implement the OpenTok Broadcast app features. 
 
 ## Prerequisites
 
@@ -68,22 +68,24 @@ While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must
 
 * **[server.js](./server.js)**: The server configures the routes for the host, guests, and viewers.  
 
+* **[opentok-api.js](./services/opentok-api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers.
+
+* **[broadcast-api.js](./services/broadcast-api.js)**: Starts and ends the broadcast.
+
 * **[host.js](./public/js/host.js)**: The host is the individual who controls and publishes the broadcast, but does not control audio or video for guests or viewers. The host uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send the signals to all clients in the session.
 
-* **[guest.js](./public/js/guest.js)**: Guests can publish in the broadcast. They can control their own audio and video, but only the host can control whether they are broadcasting. Each guest uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send the signals to all clients in the session.
+* **[guest.js](./public/js/guest.js)**: Guests can publish in the broadcast. They can control their own audio and video. The sample app does not include the ability for the host to control whether guests are broadcasting, though the host does have a moderator token that can be used for that purpose.
 
-* **[viewer.js](./public/js/viewer.js)**: Viewers can control their own audio and video but can only view the broadcast. 
+* **[viewer.js](./public/js/viewer.js)**: Viewers can only view the broadcast. 
 
-* **[api.js](./services/api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers.
-
-* **[broadcast.js](./services/broadcast.js)**: Starts and ends the broadcast.
+* **[broadcast.js](./public/js/broadcast.js)**: Plays the broadcast feed.
 
 * **[CSS files](./public/css)**: Defines the client UI style. 
 
 
 ### Server
 
-The methods in [server.js](./server.js) include the host, guest, and viewer routes, as well as the broadcast start and end routes. Each of the host, guest, and viewer routes retrieves the credentials and creates the token for each user type (moderator, publisher, subscriber) defined in [api.js](./services/api.js):
+The methods in [server.js](./server.js) include the host, guest, and viewer routes, as well as the broadcast start and end routes. Each of the host, guest, and viewer routes retrieves the credentials and creates the token for each user type (moderator, publisher, subscriber) defined in [opentok-api.js](./services/opentok-api.js):
 
 ```javascript
 const tokenOptions = userType => {
@@ -145,17 +147,17 @@ When the web page is loaded, those credentials are retrieved from the HTML and a
 
 ### Guest
 
-The functions in [guest.js](./public/js/guest.js) retrieve the credentials from the HTML, subscribe to the host stream and other guest streams, publish audio and video to the session, and monitor broadcast status. Each guest uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send and receive the signals in the broadcast.
+The functions in [guest.js](./public/js/guest.js) retrieve the credentials from the HTML, subscribe to the host stream and other guest streams, and publish audio and video to the session.
 
 
 ### Viewer
 
-The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials from the HTML, subscribe to the broadcast stream, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast.
+The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials from the HTML, connect to the session and subscribe after receiving a signal from the host indicating the broadcast has started, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast.
 
 
 ### Host
 
-The methods in [host.js](./public/js/host.js) retrieve the credentials from the HTML, set the state of the broadcast and update the UI, control the broadcast stream, subscribe to the guest streams, create the URL for viewers to watch the broadcast, and monitor broadcast status. The host UI includes a button to start and end the broadcast, as well as a control to get a sharable link that can be distributed to all potential viewers to watch the CDN stream. The host makes calls the OpenTok API to start and end the broadcast and send a signal to the CDN live stream. Once the broadcast ends, the client player will trigger an error event and display a message that the broadcast is over. For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
+The methods in [host.js](./public/js/host.js) retrieve the credentials from the HTML, set the state of the broadcast and update the UI, control the broadcast stream, subscribe to the guest streams, create the URL for viewers to watch the broadcast, and signal broadcast status. The host UI includes a button to start and end the broadcast, as well as a control to get a sharable link that can be distributed to all potential viewers to watch the CDN stream. The host makes calls to the server, which calls the OpenTok API to start and end the broadcast. Once the broadcast ends, the client player will recognize an error event and display a message that the broadcast is over. For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
 
 The following line in host.js creates a control that allows the host to copy the URL of the CDN stream to the clipboard for distribution to potential viewers:
 
@@ -181,7 +183,7 @@ The following method in host.js sets up the publisher session for the host, conf
   };
 ```
 
-When the broadcast button is clicked, the `setEventListeners()` method calls the `startBroadcast()` method, which submits a request to the server endpoint to begin the broadcast. The server endpoint relays the session ID to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/) `/broadcast/start` endpoint, which returns broadcast data to the host. The broadcast data includes the broadcast URL in its JSON-encoded HTTP response:
+When the broadcast button is clicked, the `startBroadcast()` method is invoked and submits a request to the server endpoint to begin the broadcast. The server endpoint relays the session ID to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/) `/broadcast/start` endpoint, which returns broadcast data to the host. The broadcast data includes the broadcast URL in its JSON-encoded HTTP response:
 
 ```javascript
   var startBroadcast = function (session) {
@@ -212,7 +214,7 @@ The `startBroadcast()` method subsequently calls the `updateStatus()` method wit
 ```
 
 
-The broadcast data includes both the URL for the CDN stream and a timestamp indicating when the video should begin playing. The `init()` method in [broadcast.js](./services/broadcast.js) compares this timestamp to the current time to determine when to play the video. It either begins to play immediately, or sets a timeout to play at the appropriate future time:
+The broadcast data includes both the URL for the CDN stream and a timestamp indicating when the video should begin playing. The `init()` method in [broadcast-api.js](./services/broadcast-api.js) compares this timestamp to the current time to determine when to play the video. It either begins to play immediately, or sets a timeout to play at the appropriate future time:
 
 ```javascript
   var init = function () {
@@ -229,7 +231,7 @@ The broadcast data includes both the URL for the CDN stream and a timestamp indi
 ```
 
 
-When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/) `/broadcast/end` endpoint in order to end the session. This is a recommended best practice, as the default is that broadcasts remain active until a 120-minute timeout period has completed.
+When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server, which invokes the [OpenTok Broadcast API](https://tokbox.com/developer/rest/) `/broadcast/end` endpoint, which terminates the CDN stream. This is a recommended best practice, as the default is that broadcasts remain active until a 120-minute timeout period has completed.
 
 
 
