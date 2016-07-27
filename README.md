@@ -29,8 +29,17 @@ This guide has the following sections:
 To be prepared to develop your OpenTok Broadcast app:
 
 1. Review the [OpenTok.js](https://tokbox.com/developer/sdks/js/) requirements.
-2. Your app will need a **Session ID**, **Token**, and **API Key**, which you can get at the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/).
+2. Your app will need a **Session ID**, **Token**, and **API Key**, which you can get at the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/). Set the API Key and API Secret in [config.json](./config.json).
 3. You will need the **Instance ID** and **Backend Base URL** provided by TokBox.
+
+
+To install the OpenTok Broadcast Sample App, run the following commands:
+
+```
+npm i
+node server.js
+```
+
 
 _**NOTE**: The OpenTok Developer Dashboard allows you to quickly run this sample program. For production deployment, you must generate the **Session ID** and **Token** values using one of the [OpenTok Server SDKs](https://tokbox.com/developer/sdks/server/)._
 
@@ -68,7 +77,7 @@ While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must
 
 * **[server.js](./server.js)**: The server configures the routes for the host, guests, and viewers.  
 
-* **[opentok-api.js](./services/opentok-api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers.
+* **[opentok-api.js](./services/opentok-api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers. Set the API Key and API Secret in [config.json](./config.json).
 
 * **[broadcast-api.js](./services/broadcast-api.js)**: Starts and ends the broadcast.
 
