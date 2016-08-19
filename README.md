@@ -12,8 +12,10 @@ The sample app also supports the following recommended numbers of viewers, based
   - 1 host, 2 guests: 100 viewers
   - 1 host, 1 guest:  150 viewers
 
+The OpenTok live streaming feature lets you broadcast an OpenTok session to a HTTP live streaming (HLS) stream. More clients can simultaneously view this stream than can view a live interactive OpenTok session. Also, clients that do not support WebRTC (such as Safari) can view the HLS stream. HLS playback is not supported in all browsers. However, there are a number of plugins, such as <a href="https://flowplayer.org/">Flowplayer</a>, that provide cross-browser support (using Flash
+Player in browsers that do not provide direct HLS support).
 
-**NOTE**: These viewer limits do not apply to HLS, since all publishing streams are transcoded to a single HLS stream that can be accessed from an HLS player. The expected latency for HLS is 15-20 seconds. When the host clicks the broadcast button, a link is provided, which the host can then share with all prospective viewers. The link directs the viewer to another page within the application that streams the broadcast feed.
+**NOTE**: The viewer limits do not apply to HLS, since all publishing streams are transcoded to a single HLS stream that can be accessed from an HLS player. The expected latency for HLS is 15-20 seconds. When the host clicks the broadcast button, a link is provided, which the host can then share with all prospective viewers. The link directs the viewer to another page within the application that streams the broadcast feed.
 
 You can configure and run this sample app within just a few minutes!
 
