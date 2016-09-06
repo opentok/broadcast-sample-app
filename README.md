@@ -194,7 +194,7 @@ The following method in host.js sets up the publisher session for the host, conf
   };
 ```
 
-When the broadcast button is clicked, the `startBroadcast()` method is invoked and submits a request to the server endpoint to begin the broadcast. The server endpoint relays the session ID to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/) `/broadcast/start` endpoint, which returns broadcast data to the host. The broadcast data includes the broadcast URL in its JSON-encoded HTTP response:
+When the broadcast button is clicked, the `startBroadcast()` method is invoked and submits a request to the server endpoint to begin the broadcast. The server endpoint relays the session ID to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/#start_broadcast) `/broadcast/start` endpoint, which returns broadcast data to the host. The broadcast data includes the broadcast URL in its JSON-encoded HTTP response:
 
 ```javascript
   var startBroadcast = function (session) {
@@ -242,7 +242,7 @@ The broadcast data includes both the URL for the CDN stream and a timestamp indi
 ```
 
 
-When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server, which invokes the [OpenTok Broadcast API](https://tokbox.com/developer/rest/) `/broadcast/end` endpoint, which terminates the CDN stream. This is a recommended best practice, as the default is that broadcasts remain active until a 120-minute timeout period has completed.
+When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server, which invokes the [OpenTok Broadcast API](https://tokbox.com/developer/rest/#stop_broadcast) `/broadcast/stop` endpoint, which terminates the CDN stream. This is a recommended best practice, as the default is that broadcasts remain active until a 120-minute timeout period has completed.
 
 
 
