@@ -1,0 +1,10 @@
+name: Broadcast Sample App
+author: TokBox, Inc.
+website: https://tokbox.com
+tags:
+ - sample
+ - broadcast
+description: This sample app shows how to use the OpenTok HLS Broadcast functionality in a JavaScript app.
+image: https://static.opentok.com/img/styleguide/tokbox-logo-bug.png
+platforms:
+ - js
