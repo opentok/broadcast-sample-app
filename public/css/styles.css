@@ -26,6 +26,13 @@ body {
     height: 100%;
     display: flex;
     justify-content: space-around;
+
+}
+
+.video-container.wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 }
 
 .video-container:empty {
@@ -51,6 +58,13 @@ body {
     position: relative;
     margin: 0 5px;
 }
+
+.video-container.wrap .OT_publisher,
+.video-container.wrap .OT_subscriber {
+    height: 49.5% !important;
+    width: 48.5% !important;
+}
+
 
 .OT_publisher .OT_name.OT_edge-bar-item.OT_mode-off,
 .OT_subscriber .OT_name.OT_edge-bar-item.OT_mode-off {

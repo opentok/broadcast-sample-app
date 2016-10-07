@@ -77,11 +77,25 @@
    */
   var publishAndSubscribe = function (session, publisher) {
 
+    var streams = 1;
+
     session.publish(publisher);
     addPublisherControls(publisher);
 
     session.on('streamCreated', function (event) {
       subscribe(session, event.stream);
+      streams++;
+      if (streams > 2) {
+        document.getElementById('videoContainer').classList.add('wrap');
+      }
+    });
+
+    session.on('streamDestroyed', function (event) {
+      subscribe(session, event.stream);
+      streams--;
+      if (streams < 3) {
+        document.getElementById('videoContainer').classList.remove('wrap');
+      }
     });
 
     document.getElementById('publishVideo').addEventListener('click', function () {

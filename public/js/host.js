@@ -3,7 +3,7 @@
 (function () {
 
   /** The state of things */
-  var broadcast = { status: 'waiting' };
+  var broadcast = { status: 'waiting', streams: 1 };
 
   /**
    * Options for adding OpenTok publisher and subscriber video elements
@@ -175,6 +175,17 @@
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
       subscribe(session, event.stream);
+      broadcast.streams++;
+      if (broadcast.streams > 2) {
+        document.getElementById('videoContainer').classList.add('wrap');
+      }
+    });
+
+    session.on('streamDestroyed', function () {
+      broadcast.streams--;
+      if (broadcast.streams < 3) {
+        document.getElementById('videoContainer').classList.remove('wrap');
+      }
     });
 
     // Signal the status of the broadcast when requested
