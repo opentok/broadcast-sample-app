@@ -31,21 +31,38 @@ const broadcastDelay = 20 * 1000;
 /** Let's store the active broadcast */
 let activeBroadcast;
 
+const horizontalLayout = {
+  layout: {
+    type: 'custom',
+    stylesheet: `stream {
+        float: left;
+        height: 100%;
+        width: 33.33%;
+      }`
+  }
+};
+
+const bestFitLayout = {
+  layout: {
+    type: 'bestFit'
+  }
+};
+
 /** Exports */
 
 /**
- * Start the broadcast, update in-memory and redis data, and schedule cleanup
+ * Start the broadcast, update in-memory data, and schedule cleanup
  * @param {String} broadcastSessionId - Spotlight host session id
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const start = broadcastSessionId => {
+const start = (broadcastSessionId, streams) => {
+
+  const layout = streams > 3 ? bestFitLayout : horizontalLayout;
 
   const requestConfig = {
     headers,
     url: broadcastURL,
-    body: JSON.stringify({
-      sessionId: broadcastSessionId
-    })
+    body: JSON.stringify(R.merge({ sessionId: broadcastSessionId }, layout))
   };
 
   return new Promise((resolve, reject) => {

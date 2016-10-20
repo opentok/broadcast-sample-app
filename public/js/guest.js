@@ -85,7 +85,7 @@
     session.on('streamCreated', function (event) {
       subscribe(session, event.stream);
       streams++;
-      if (streams > 2) {
+      if (streams > 3) {
         document.getElementById('videoContainer').classList.add('wrap');
       }
     });
@@ -93,7 +93,7 @@
     session.on('streamDestroyed', function (event) {
       subscribe(session, event.stream);
       streams--;
-      if (streams < 3) {
+      if (streams < 4) {
         document.getElementById('videoContainer').classList.remove('wrap');
       }
     });

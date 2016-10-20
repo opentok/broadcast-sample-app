@@ -76,7 +76,7 @@
       if (broadcastActive) {
         subscribers.push(subscribe(session, event.stream));
       }
-      if (streams.length > 2) {
+      if (streams.length > 3) {
         document.getElementById('videoContainer').classList.add('wrap');
       }
     });
@@ -84,7 +84,7 @@
     session.on('streamDestroyed', function (event) {
       var index = streams.indexOf(event.stream);
       streams.splice(index, 1);
-      if (streams.length < 3) {
+      if (streams.length < 4) {
         document.getElementById('videoContainer').classList.remove('wrap');
       }
     });

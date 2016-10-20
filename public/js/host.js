@@ -107,7 +107,7 @@
   var startBroadcast = function (session) {
 
     analytics.log('startBroadcast', 'variationAttempt');
-    http.post('/broadcast/start', { sessionId: session.sessionId })
+    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams })
       .then(function (broadcastData) {
         broadcast = R.merge(broadcast, broadcastData);
         updateStatus(session, 'active');
@@ -176,14 +176,14 @@
     session.on('streamCreated', function (event) {
       subscribe(session, event.stream);
       broadcast.streams++;
-      if (broadcast.streams > 2) {
+      if (broadcast.streams > 3) {
         document.getElementById('videoContainer').classList.add('wrap');
       }
     });
 
     session.on('streamDestroyed', function () {
       broadcast.streams--;
-      if (broadcast.streams < 3) {
+      if (broadcast.streams < 4) {
         document.getElementById('videoContainer').classList.remove('wrap');
       }
     });
