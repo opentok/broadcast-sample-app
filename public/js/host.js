@@ -159,6 +159,13 @@
     publisher[el.id](enabled);
   };
 
+  var updateBroadcastLayout = function () {
+    console.log('updating the layout');
+    http.post('/broadcast/layout', { streams: broadcast.streams })
+    .then(function (result) { console.log(result); })
+    .catch(function (error) { console.log(error); });
+  };
+
   var setEventListeners = function (session, publisher) {
 
     // Add click handler to the start/stop button
@@ -174,17 +181,25 @@
 
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
+      const currentStreams = broadcast.streams;
       subscribe(session, event.stream);
       broadcast.streams++;
       if (broadcast.streams > 3) {
         document.getElementById('videoContainer').classList.add('wrap');
+        if (broadcast.status === 'active' && currentStreams <= 3) {
+          updateBroadcastLayout();
+        }
       }
     });
 
     session.on('streamDestroyed', function () {
+      const currentStreams = broadcast.streams;
       broadcast.streams--;
       if (broadcast.streams < 4) {
         document.getElementById('videoContainer').classList.remove('wrap');
+        if (broadcast.status === 'active' && currentStreams >= 4) {
+          updateBroadcastLayout();
+        }
       }
     });
 

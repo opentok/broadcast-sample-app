@@ -68,6 +68,13 @@ app.post('/broadcast/start', (req, res) => {
     .catch(error => res.status(500).send(error));
 });
 
+app.post('/broadcast/layout', (req, res) => {
+  const streams = R.path(['body', 'streams'], req);
+  broadcast.updateLayout(streams)
+    .then(data => res.send(data))
+    .catch(error => res.status(500).send(error));
+});
+
 app.post('/broadcast/end', (req, res) => {
   broadcast.end()
     .then(data => res.send(data))

@@ -15,6 +15,7 @@ Promise.promisifyAll(request);
 
 /** Constants */
 const broadcastURL = `https://api.opentok.com/v2/partner/${apiKey}/broadcast`;
+const updateLayoutURL = id => `https://api.opentok.com/v2/project/${apiKey}/broadcast/${id}/layout`;
 const stopBroadcastURL = id => `${broadcastURL}/${id}/stop`;
 const headers = {
   'Content-Type': 'application/json',
@@ -31,6 +32,8 @@ const broadcastDelay = 20 * 1000;
 /** Let's store the active broadcast */
 let activeBroadcast;
 
+
+// https://tokbox.com/developer/guides/broadcast/#custom-layouts
 const horizontalLayout = {
   layout: {
     type: 'custom',
@@ -42,6 +45,7 @@ const horizontalLayout = {
   }
 };
 
+// https://tokbox.com/developer/guides/broadcast/#predefined-layout-types
 const bestFitLayout = {
   layout: {
     type: 'bestFit'
@@ -51,7 +55,7 @@ const bestFitLayout = {
 /** Exports */
 
 /**
- * Start the broadcast, update in-memory data, and schedule cleanup
+ * Start the broadcast and keep the active broadcast in memory
  * @param {String} broadcastSessionId - Spotlight host session id
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
@@ -90,6 +94,30 @@ const start = (broadcastSessionId, streams) => {
 };
 
 /**
+ * Dynamically update the broadcast layout
+ * @param {Number} streams - The number of active streams in the broadcast session
+ * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
+ */
+const updateLayout = (streams) =>
+  new Promise((resolve, reject) => {
+    const id = R.path(['id'], activeBroadcast);
+    if (!id) {
+      reject({ error: 'No active broadcast session found' });
+    }
+    const layout = streams > 3 ? bestFitLayout : horizontalLayout;
+    const requestConfig = {
+      headers,
+      url: updateLayoutURL(id),
+      body: JSON.stringify(layout)
+    };
+    request.postAsync(requestConfig)
+      .then(response => {
+        const data = JSON.parse(response.body);
+        resolve({ data });
+      }).catch(error => reject(error));
+  });
+
+/**
  * End the broadcast
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
@@ -101,18 +129,15 @@ const end = () =>
     }
     const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
     request.postAsync(requestConfig(id))
-      .then(response => {
-        resolve(JSON.parse(response.body));
-      })
-      .catch(error => {
-        reject(error);
+      .then(response => resolve(JSON.parse(response.body)))
+      .catch(error => reject(error))
+      .finally(() => {
+        activeBroadcast = null;
       });
-  }).finally(function () {
-    activeBroadcast = null;
   });
-
 
 module.exports = {
   start,
+  updateLayout,
   end,
 };
