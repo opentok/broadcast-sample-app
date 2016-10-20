@@ -104,13 +104,15 @@ const updateLayout = (streams) =>
     if (!id) {
       reject({ error: 'No active broadcast session found' });
     }
+
     const layout = streams > 3 ? bestFitLayout : horizontalLayout;
+
     const requestConfig = {
       headers,
       url: updateLayoutURL(id),
-      body: JSON.stringify(layout)
+      body: JSON.stringify(R.pick(['type', 'stylesheet'], layout))
     };
-    request.postAsync(requestConfig)
+    request.putAsync(requestConfig)
       .then(response => {
         const data = JSON.parse(response.body);
         resolve({ data });
