@@ -110,8 +110,10 @@ const updateLayout = (streams) =>
     const requestConfig = {
       headers,
       url: updateLayoutURL(id),
-      body: JSON.stringify(R.pick(['type', 'stylesheet'], layout))
+      body: JSON.stringify(R.pick(['type', 'stylesheet'], R.prop('layout', layout)))
     };
+
+
     request.putAsync(requestConfig)
       .then(response => {
         const data = JSON.parse(response.body);
