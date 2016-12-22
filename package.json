@@ -2,6 +2,9 @@
   "name": "broadcast-sample-app",
   "version": "1.0.0",
   "description": "OpenTok Broadcast Sample Application",
+  "engines": {
+    "node": "6.9.2"
+  },
   "main": "server.js",
   "dependencies": {
     "bluebird": "^3.4.0",
