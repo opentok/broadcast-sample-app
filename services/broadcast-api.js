@@ -89,7 +89,7 @@ const start = (broadcastSessionId, streams) =>
     request.postAsync(requestConfig)
       .then(setActiveBroadcast)
       .then(resolve)
-      .catch(error => reject(error));
+      .catch(reject);
   });
 
 
@@ -116,7 +116,7 @@ const updateLayout = streams =>
 
     request.putAsync(requestConfig)
       .then(({ body }) => resolve(body))
-      .catch(error => reject(error));
+      .catch(reject);
   });
 
 /**
@@ -132,7 +132,7 @@ const end = () =>
     const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
     request.postAsync(requestConfig(id))
       .then(({ body }) => resolve(body))
-      .catch(error => reject(error))
+      .catch(reject)
       .finally(() => { activeBroadcast = null; });
   });
 
