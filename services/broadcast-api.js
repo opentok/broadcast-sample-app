@@ -1,16 +1,16 @@
 'use strict';
+
 /* eslint-env es6 */
 
 /** Config */
-const config = require('../config');
-const apiKey = config.apiKey;
-const apiSecret = config.apiSecret;
+const { apiKey, apiSecret } = require('../config');
 
 /** Imports */
 const R = require('ramda');
 const Promise = require('bluebird');
-// http://bluebirdjs.com/docs/api/promisification.html
 const request = Promise.promisify(require('request'));
+
+// http://bluebirdjs.com/docs/api/promisification.html
 Promise.promisifyAll(request);
 
 /** Constants */
@@ -18,7 +18,6 @@ const broadcastURL = `https://api.opentok.com/v2/partner/${apiKey}/broadcast`;
 const updateLayoutURL = id => `https://api.opentok.com/v2/project/${apiKey}/broadcast/${id}/layout`;
 const stopBroadcastURL = id => `${broadcastURL}/${id}/stop`;
 const headers = {
-  'Content-Type': 'application/json',
   'X-TB-PARTNER-AUTH': `${apiKey}:${apiSecret}`
 };
 
@@ -59,66 +58,65 @@ const bestFitLayout = {
  * @param {String} broadcastSessionId - Spotlight host session id
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const start = (broadcastSessionId, streams) => {
-
-  const layout = streams > 3 ? bestFitLayout : horizontalLayout;
-
-  const requestConfig = {
-    headers,
-    url: broadcastURL,
-    body: JSON.stringify(R.merge({ sessionId: broadcastSessionId }, layout))
-  };
-
-  return new Promise((resolve, reject) => {
+const start = (broadcastSessionId, streams) =>
+  new Promise((resolve, reject) => {
 
     if (R.path(['session'], activeBroadcast) === broadcastSessionId) {
-      resolve(activeBroadcast);
+      return resolve(activeBroadcast);
     }
 
-    request.postAsync(requestConfig)
-      .then(response => {
-        const data = JSON.parse(response.body);
+    const layout = streams > 3 ? bestFitLayout : horizontalLayout;
+    const requestConfig = {
+      headers,
+      url: broadcastURL,
+      json: true,
+      body: R.merge({ sessionId: broadcastSessionId }, layout),
+    };
 
-        const broadcastData = {
-          id: R.path(['id'], data),
-          session: broadcastSessionId,
-          url: R.path(['broadcastUrls', 'hls'], data),
-          apiKey: R.path(['partnerId'], data),
-          availableAt: R.path(['createdAt'], data) + broadcastDelay
-        };
-        activeBroadcast = broadcastData;
-        resolve(broadcastData);
-      }).catch(error => reject(error));
+    // Parse the response from the broadcast api
+    const setActiveBroadcast = ({ body }) => {
+      const broadcastData = {
+        id: R.path(['id'], body),
+        session: broadcastSessionId,
+        url: R.path(['broadcastUrls', 'hls'], body),
+        apiKey: R.path(['partnerId'], body),
+        availableAt: R.path(['createdAt'], body) + broadcastDelay
+      };
+      activeBroadcast = broadcastData;
+      return Promise.resolve(broadcastData);
+    };
+
+    request.postAsync(requestConfig)
+      .then(setActiveBroadcast)
+      .then(resolve)
+      .catch(error => reject(error));
   });
 
-};
 
 /**
  * Dynamically update the broadcast layout
  * @param {Number} streams - The number of active streams in the broadcast session
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const updateLayout = (streams) =>
+const updateLayout = streams =>
   new Promise((resolve, reject) => {
     const id = R.path(['id'], activeBroadcast);
+
     if (!id) {
       reject({ error: 'No active broadcast session found' });
     }
 
     const layout = streams > 3 ? bestFitLayout : horizontalLayout;
-
     const requestConfig = {
       headers,
       url: updateLayoutURL(id),
-      body: JSON.stringify(R.pick(['type', 'stylesheet'], R.prop('layout', layout)))
+      json: true,
+      body: R.pick(['type', 'stylesheet'], R.prop('layout', layout)),
     };
 
-
     request.putAsync(requestConfig)
-      .then(response => {
-        const data = JSON.parse(response.body);
-        resolve({ data });
-      }).catch(error => reject(error));
+      .then(({ body }) => resolve(body))
+      .catch(error => reject(error));
   });
 
 /**
@@ -129,15 +127,13 @@ const end = () =>
   new Promise((resolve, reject) => {
     const id = R.path(['id'], activeBroadcast);
     if (!id) {
-      reject({ error: 'No active broadcast session found' });
+      return reject({ error: 'No active broadcast session found' });
     }
     const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
     request.postAsync(requestConfig(id))
-      .then(response => resolve(JSON.parse(response.body)))
+      .then(({ body }) => resolve(body))
       .catch(error => reject(error))
-      .finally(() => {
-        activeBroadcast = null;
-      });
+      .finally(() => { activeBroadcast = null; });
   });
 
 module.exports = {
