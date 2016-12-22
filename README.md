@@ -12,8 +12,10 @@ The sample app also supports the following recommended numbers of viewers, based
   - 1 host, 2 guests: 100 viewers
   - 1 host, 1 guest:  150 viewers
 
+The OpenTok live streaming feature lets you broadcast an OpenTok session to an HTTP live streaming (HLS) stream. More clients can simultaneously view this stream than can view a live interactive OpenTok session. Also, clients that do not support WebRTC (such as Safari) can view the HLS stream. HLS playback is not supported in all browsers. However, there are a number of plugins, such as <a href="https://flowplayer.org/">Flowplayer</a>, that provide cross-browser support (using Flash
+Player in browsers that do not provide direct HLS support).
 
-**NOTE**: These viewer limits do not apply to HLS, since all publishing streams are transcoded to a single HLS stream that can be accessed from an HLS player. The expected latency for HLS is 15-20 seconds. When the host clicks the broadcast button, a link is provided, which the host can then share with all prospective viewers. The link directs the viewer to another page within the application that streams the broadcast feed.
+**NOTE**: The viewer limits do not apply to HLS, since all publishing streams are transcoded to a single HLS stream that can be accessed from an HLS player. The expected latency for HLS is 15-20 seconds. When the host clicks the broadcast button, a link is provided, which the host can then share with all prospective viewers. The link directs the viewer to another page within the application that streams the broadcast feed.
 
 You can configure and run this sample app within just a few minutes!
 
@@ -29,8 +31,17 @@ This guide has the following sections:
 To be prepared to develop your OpenTok Broadcast app:
 
 1. Review the [OpenTok.js](https://tokbox.com/developer/sdks/js/) requirements.
-2. Your app will need a **Session ID**, **Token**, and **API Key**, which you can get at the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/).
+2. Your app will need a **Session ID**, **Token**, and **API Key**, which you can get at the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/). Set the API Key and API Secret in [config.json](./config.json).
 3. You will need the **Instance ID** and **Backend Base URL** provided by TokBox.
+
+
+To install the OpenTok Broadcast Sample App, run the following commands:
+
+```
+npm i
+node server.js
+```
+
 
 _**NOTE**: The OpenTok Developer Dashboard allows you to quickly run this sample program. For production deployment, you must generate the **Session ID** and **Token** values using one of the [OpenTok Server SDKs](https://tokbox.com/developer/sdks/server/)._
 
@@ -68,7 +79,7 @@ While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must
 
 * **[server.js](./server.js)**: The server configures the routes for the host, guests, and viewers.  
 
-* **[opentok-api.js](./services/opentok-api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers.
+* **[opentok-api.js](./services/opentok-api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers. Set the API Key and API Secret in [config.json](./config.json).
 
 * **[broadcast-api.js](./services/broadcast-api.js)**: Starts and ends the broadcast.
 
@@ -183,7 +194,7 @@ The following method in host.js sets up the publisher session for the host, conf
   };
 ```
 
-When the broadcast button is clicked, the `startBroadcast()` method is invoked and submits a request to the server endpoint to begin the broadcast. The server endpoint relays the session ID to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/) `/broadcast/start` endpoint, which returns broadcast data to the host. The broadcast data includes the broadcast URL in its JSON-encoded HTTP response:
+When the broadcast button is clicked, the `startBroadcast()` method is invoked and submits a request to the server endpoint to begin the broadcast. The server endpoint relays the session ID to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/#start_broadcast) `/broadcast/start` endpoint, which returns broadcast data to the host. The broadcast data includes the broadcast URL in its JSON-encoded HTTP response:
 
 ```javascript
   var startBroadcast = function (session) {
@@ -231,7 +242,7 @@ The broadcast data includes both the URL for the CDN stream and a timestamp indi
 ```
 
 
-When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server, which invokes the [OpenTok Broadcast API](https://tokbox.com/developer/rest/) `/broadcast/end` endpoint, which terminates the CDN stream. This is a recommended best practice, as the default is that broadcasts remain active until a 120-minute timeout period has completed.
+When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server, which invokes the [OpenTok Broadcast API](https://tokbox.com/developer/rest/#stop_broadcast) `/broadcast/stop` endpoint, which terminates the CDN stream. This is a recommended best practice, as the default is that broadcasts remain active until a 120-minute timeout period has completed.
 
 
 

@@ -1,15 +1,15 @@
 'use strict';
+
 /* eslint-env es6 */
 
 /** Config */
-const config = require('../config');
-const apiKey = config.apiKey;
-const apiSecret = config.apiSecret;
+const { apiKey, apiSecret } = require('../config');
 
 /** Imports */
 const R = require('ramda');
 const Promise = require('bluebird');
 const OpenTok = require('opentok');
+
 // http://bluebirdjs.com/docs/api/promisification.html
 const OT = Promise.promisifyAll(new OpenTok(apiKey, apiSecret));
 
@@ -21,8 +21,7 @@ const defaultSessionOptions = { mediaMode: 'routed' };
  * Returns options for token creation based on user type
  * @param {String} userType Host, guest, or viewer
  */
-const tokenOptions = userType => {
-
+const tokenOptions = (userType) => {
   const role = {
     host: 'moderator',
     guest: 'publisher',
@@ -40,12 +39,14 @@ const tokenOptions = userType => {
 let activeSession;
 const createSession = options =>
   new Promise((resolve, reject) => {
+    const setActiveSession = (session) => {
+      activeSession = session;
+      return Promise.resolve(session);
+    };
+
     OT.createSessionAsync(R.defaultTo(defaultSessionOptions)(options))
-      .then(session => {
-        activeSession = session;
-        resolve(session);
-      })
-      .catch(error => reject(error));
+      .then(setActiveSession)
+      .catch(reject);
   });
 
 /**
@@ -63,16 +64,19 @@ const createToken = userType => OT.generateToken(activeSession.sessionId, tokenO
  */
 const getCredentials = userType =>
   new Promise((resolve, reject) => {
-    if (!!activeSession) {
+    if (activeSession) {
       const token = createToken(userType);
       resolve({ apiKey, sessionId: activeSession.sessionId, token });
     } else {
+
+      const addToken = (session) => {
+        const token = createToken(userType);
+        return Promise.resolve({ apiKey, sessionId: session.sessionId, token });
+      };
+
       createSession()
-        .then(session => {
-          const token = createToken(userType);
-          resolve({ apiKey, sessionId: session.sessionId, token });
-        })
-        .catch(error => reject(error));
+        .then(addToken)
+        .catch(reject);
     }
   });
 
