@@ -46,6 +46,7 @@ const createSession = options =>
 
     OT.createSessionAsync(R.defaultTo(defaultSessionOptions)(options))
       .then(setActiveSession)
+      .then(resolve)
       .catch(reject);
   });
 
@@ -76,6 +77,7 @@ const getCredentials = userType =>
 
       createSession()
         .then(addToken)
+        .then(resolve)
         .catch(reject);
     }
   });
