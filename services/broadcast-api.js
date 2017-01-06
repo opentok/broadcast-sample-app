@@ -3,12 +3,13 @@
 /* eslint-env es6 */
 
 /** Config */
-const { apiKey, jwt } = require('../config');
+const { apiKey, apiSecret } = require('../config');
 
 /** Imports */
 const R = require('ramda');
 const Promise = require('bluebird');
 const request = Promise.promisify(require('request'));
+const jwt = require('jsonwebtoken');
 
 // http://bluebirdjs.com/docs/api/promisification.html
 Promise.promisifyAll(request);
@@ -17,8 +18,6 @@ Promise.promisifyAll(request);
 const broadcastURL = `https://api.opentok.com/v2/project/${apiKey}/broadcast`;
 const updateLayoutURL = id => `https://api.opentok.com/v2/project/${apiKey}/broadcast/${id}/layout`;
 const stopBroadcastURL = id => `${broadcastURL}/${id}/stop`;
-// https://tokbox.com/developer/rest/#authentication
-const headers = { 'X-OPENTOK-AUTH': jwt };
 
 /**
  * There is currently a ~15 second delay between the interactive session due to the
@@ -50,6 +49,22 @@ const bestFitLayout = {
   }
 };
 
+/**
+ * Get auth header
+ * @returns {Object}
+ */
+const headers = () => {
+  const createToken = () => {
+    const options = {
+      issuer: apiKey,
+      expiresIn: '1m',
+    };
+    return jwt.sign({ ist: 'project' }, apiSecret, options);
+  };
+
+  return { 'X-OPENTOK-AUTH': createToken() };
+};
+
 /** Exports */
 
 /**
@@ -66,7 +81,7 @@ const start = (broadcastSessionId, streams) =>
 
     const layout = streams > 3 ? bestFitLayout : horizontalLayout;
     const requestConfig = {
-      headers,
+      headers: headers(),
       url: broadcastURL,
       json: true,
       body: R.merge({ sessionId: broadcastSessionId }, layout),
@@ -107,7 +122,7 @@ const updateLayout = streams =>
 
     const layout = streams > 3 ? bestFitLayout : horizontalLayout;
     const requestConfig = {
-      headers,
+      headers: headers(),
       url: updateLayoutURL(id),
       json: true,
       body: R.pick(['type', 'stylesheet'], R.prop('layout', layout)),
@@ -128,7 +143,7 @@ const end = () =>
     if (!id) {
       return reject({ error: 'No active broadcast session found' });
     }
-    const requestConfig = () => ({ headers, url: stopBroadcastURL(id) });
+    const requestConfig = () => ({ headers: headers(), url: stopBroadcastURL(id) });
     request.postAsync(requestConfig(id))
       .then(({ body }) => resolve(body))
       .catch(reject)
