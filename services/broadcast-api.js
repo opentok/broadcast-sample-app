@@ -3,7 +3,7 @@
 /* eslint-env es6 */
 
 /** Config */
-const { apiKey, apiSecret } = require('../config');
+const { apiKey, jwt } = require('../config');
 
 /** Imports */
 const R = require('ramda');
@@ -14,12 +14,11 @@ const request = Promise.promisify(require('request'));
 Promise.promisifyAll(request);
 
 /** Constants */
-const broadcastURL = `https://api.opentok.com/v2/partner/${apiKey}/broadcast`;
+const broadcastURL = `https://api.opentok.com/v2/project/${apiKey}/broadcast`;
 const updateLayoutURL = id => `https://api.opentok.com/v2/project/${apiKey}/broadcast/${id}/layout`;
 const stopBroadcastURL = id => `${broadcastURL}/${id}/stop`;
-const headers = {
-  'X-TB-PARTNER-AUTH': `${apiKey}:${apiSecret}`
-};
+// https://tokbox.com/developer/rest/#authentication
+const headers = { 'X-OPENTOK-AUTH': jwt };
 
 /**
  * There is currently a ~15 second delay between the interactive session due to the
