@@ -110,7 +110,8 @@
 
   var init = function () {
     var credentials = getCredentials();
-    var session = OT.initSession(credentials.apiKey, credentials.sessionId);
+    var props = { connectionEventsSuppressed: true };
+    var session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
     var publisher = initPublisher();
 
     session.connect(credentials.token, function (error) {
