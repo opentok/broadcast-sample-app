@@ -3,7 +3,7 @@
 /* eslint-env es6 */
 
 /** Config */
-const { apiKey, apiSecret, rtmp } = require('../config');
+const { apiKey, apiSecret } = require('../config');
 
 /** Imports */
 const R = require('ramda');
@@ -70,9 +70,11 @@ const headers = () => {
 /**
  * Start the broadcast and keep the active broadcast in memory
  * @param {String} broadcastSessionId - Spotlight host session id
+ * @param {Number} streams - The current number of published streams
+ * @param {String} [rtmpUrl] - The (optional) RTMP stream url
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const start = (broadcastSessionId, streams) =>
+const start = (broadcastSessionId, streams, rtmpUrl) =>
   new Promise((resolve, reject) => {
 
     if (R.path(['session'], activeBroadcast) === broadcastSessionId) {
@@ -82,9 +84,9 @@ const start = (broadcastSessionId, streams) =>
 
       /**
        * This property must be included in the request body in order to
-       * broadcast to RTMP streams
+       * broadcast to p streams
        */
-      const outputs = rtmp.length ? { outputs: { hls: {}, rtmp } } : {};
+      const outputs = rtmpUrl.length ? { outputs: { hls: {}, rtmp: { url: rtmpUrl } } } : {};
 
       const requestConfig = {
         headers: headers(),
@@ -98,6 +100,7 @@ const start = (broadcastSessionId, streams) =>
         const broadcastData = {
           id: R.path(['id'], body),
           session: broadcastSessionId,
+          rtmp: !!R.path(['broadcastUrls', 'rtmp'], body),
           url: R.path(['broadcastUrls', 'hls'], body),
           apiKey: R.path(['partnerId'], body),
           availableAt: R.path(['createdAt'], body) + broadcastDelay

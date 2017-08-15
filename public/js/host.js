@@ -1,9 +1,10 @@
 /* global analytics http Clipboard */
 /* eslint-disable object-shorthand */
+/* eslint-disable vars-on-top */
 (function () {
 
   /** The state of things */
-  var broadcast = { status: 'waiting', streams: 1 };
+  var broadcast = { status: 'waiting', streams: 1, rtmp: false };
 
   /**
    * Options for adding OpenTok publisher and subscriber video elements
@@ -73,6 +74,7 @@
     var startStopButton = document.getElementById('startStop');
     var playerUrl = getBroadcastUrl(R.pick(['url', 'availableAt'], broadcast));
     var displayUrl = document.getElementById('broadcastURL');
+    var rtmpActive = document.getElementById('rtmpActive');
 
     broadcast.status = status;
 
@@ -82,10 +84,14 @@
       document.getElementById('urlContainer').classList.remove('hidden');
       displayUrl.innerHTML = playerUrl;
       displayUrl.setAttribute('value', playerUrl);
+      if (broadcast.rtmp) {
+        rtmpActive.classList.remove('hidden');
+      }
     } else {
       startStopButton.classList.remove('active');
       startStopButton.innerHTML = 'Broadcast Over';
       startStopButton.disabled = true;
+      rtmpActive.classList.add('hidden');
     }
 
     signal(session, broadcast.status);
@@ -100,6 +106,25 @@
     }, 1500);
   };
 
+  var validRtmpUrl = function (url) {
+
+    if (!url.checkValidity()) {
+      document.getElementById('rtmpLabel').classList.add('hidden');
+      document.getElementById('rtmpError').classList.remove('hidden');
+      return false;
+    }
+
+    document.getElementById('rtmpLabel').classList.remove('hidden');
+    document.getElementById('rtmpError').classList.add('hidden');
+    return true;
+  };
+
+  var hideRtmpInput = function () {
+    ['rtmpLabel', 'rtmpError', 'rtmpUrl'].forEach(function (id) {
+      document.getElementById(id).classList.add('hidden');
+    });
+  };
+
   /**
    * Make a request to the server to start the broadcast
    * @param {String} sessionId
@@ -107,7 +132,15 @@
   var startBroadcast = function (session) {
 
     analytics.log('startBroadcast', 'variationAttempt');
-    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams })
+
+    var rtmpUrl = document.getElementById('rtmpUrl');
+    if (!validRtmpUrl(rtmpUrl)) {
+      analytics.log('startBroadcast', 'variationError');
+      return;
+    }
+
+    hideRtmpInput();
+    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams, rtmpUrl: rtmpUrl.value })
       .then(function (broadcastData) {
         broadcast = R.merge(broadcast, broadcastData);
         updateStatus(session, 'active');
@@ -162,8 +195,8 @@
   var updateBroadcastLayout = function () {
     console.log('updating the layout');
     http.post('/broadcast/layout', { streams: broadcast.streams })
-    .then(function (result) { console.log(result); })
-    .catch(function (error) { console.log(error); });
+      .then(function (result) { console.log(result); })
+      .catch(function (error) { console.log(error); });
   };
 
   var setEventListeners = function (session, publisher) {

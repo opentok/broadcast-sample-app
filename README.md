@@ -32,18 +32,7 @@ To be prepared to develop your OpenTok Broadcast app:
 
 1. Review the [OpenTok.js](https://tokbox.com/developer/sdks/js/) requirements.
 2. Your app will need a **Session ID**, **Token**, and **API Key**, which you can get at the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/). Set the API Key and API Secret in [config.json](./config.json).
-3. If you would like to broadcast to [RTMP](https://tokbox.com/developer/beta/rtmp-broadcast/) streams, you will also need to include the information for your streams in [config.json](./config.json):
-```
-  "rtmp": [{
-      "name": "foo",
-      "url": "rtmp://your-first-rtmp-url"
-    },
-    {
-      "name": "bar",
-      "url": "rtmp://your-second-rtmp-url"
-    }]
-```
-4. You will need the **Instance ID** and **Backend Base URL** provided by TokBox.
+3. You will need the **Instance ID** and **Backend Base URL** provided by TokBox.
 
 
 To install the OpenTok Broadcast Sample App, run the following commands:
@@ -179,7 +168,7 @@ The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials fro
 
 ### Host
 
-The methods in [host.js](./public/js/host.js) retrieve the credentials from the HTML, set the state of the broadcast and update the UI, control the broadcast stream, subscribe to the guest streams, create the URL for viewers to watch the broadcast, and signal broadcast status. The host UI includes a button to start and end the broadcast, as well as a control to get a sharable link that can be distributed to all potential viewers to watch the CDN stream. The host makes calls to the server, which calls the OpenTok API to start and end the broadcast. Once the broadcast ends, the client player will recognize an error event and display a message that the broadcast is over. For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
+The methods in [host.js](./public/js/host.js) retrieve the credentials from the HTML, set the state of the broadcast and update the UI, control the broadcast stream, subscribe to the guest streams, create the URL for viewers to watch the broadcast, and signal broadcast status. The host UI includes an input field to add an [RTMP stream](https://tokbox.com/developer/beta/rtmp-broadcast/), a button to start and end the broadcast, as well as a control to get a sharable link that can be distributed to all potential viewers to watch the CDN stream. The host makes calls to the server, which calls the OpenTok API to start and end the broadcast. Once the broadcast ends, the client player will recognize an error event and display a message that the broadcast is over. For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
 
 The following line in host.js creates a control that allows the host to copy the URL of the CDN stream to the clipboard for distribution to potential viewers:
 
