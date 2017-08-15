@@ -3,7 +3,7 @@
 /* eslint-env es6 */
 
 /** Config */
-const { apiKey, apiSecret } = require('../config');
+const { apiKey, apiSecret, rtmp } = require('../config');
 
 /** Imports */
 const R = require('ramda');
@@ -76,34 +76,42 @@ const start = (broadcastSessionId, streams) =>
   new Promise((resolve, reject) => {
 
     if (R.path(['session'], activeBroadcast) === broadcastSessionId) {
-      return resolve(activeBroadcast);
-    }
+      resolve(activeBroadcast);
+    } else {
+      const layout = streams > 3 ? bestFitLayout : horizontalLayout;
 
-    const layout = streams > 3 ? bestFitLayout : horizontalLayout;
-    const requestConfig = {
-      headers: headers(),
-      url: broadcastURL,
-      json: true,
-      body: R.merge({ sessionId: broadcastSessionId }, layout),
-    };
+      /**
+       * This property must be included in the request body in order to
+       * broadcast to RTMP streams
+       */
+      const outputs = rtmp.length ? { outputs: { hls: {}, rtmp } } : {};
 
-    // Parse the response from the broadcast api
-    const setActiveBroadcast = ({ body }) => {
-      const broadcastData = {
-        id: R.path(['id'], body),
-        session: broadcastSessionId,
-        url: R.path(['broadcastUrls', 'hls'], body),
-        apiKey: R.path(['partnerId'], body),
-        availableAt: R.path(['createdAt'], body) + broadcastDelay
+      const requestConfig = {
+        headers: headers(),
+        url: broadcastURL,
+        json: true,
+        body: R.mergeAll([{ sessionId: broadcastSessionId }, layout, outputs]),
       };
-      activeBroadcast = broadcastData;
-      return Promise.resolve(broadcastData);
-    };
 
-    request.postAsync(requestConfig)
-      .then(setActiveBroadcast)
-      .then(resolve)
-      .catch(reject);
+      // Parse the response from the broadcast api
+      const setActiveBroadcast = ({ body }) => {
+        const broadcastData = {
+          id: R.path(['id'], body),
+          session: broadcastSessionId,
+          url: R.path(['broadcastUrls', 'hls'], body),
+          apiKey: R.path(['partnerId'], body),
+          availableAt: R.path(['createdAt'], body) + broadcastDelay
+        };
+        activeBroadcast = broadcastData;
+        return Promise.resolve(broadcastData);
+      };
+
+      request.postAsync(requestConfig)
+        .then(setActiveBroadcast)
+        .then(resolve)
+        .catch(reject);
+
+    }
   });
 
 

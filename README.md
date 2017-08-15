@@ -2,9 +2,9 @@
 
 # OpenTok Broadcast Sample App for JavaScript<br/>Version 1.0
 
-This document describes how to use the OpenTok Broadcast Sample App for JavaScript. Through the exploration of this sample application, you will learn best practices for setting up and managing hosts, guests, and viewers in a web-based broadcasting application. 
+This document describes how to use the OpenTok Broadcast Sample App for JavaScript. Through the exploration of this sample application, you will learn best practices for setting up and managing hosts, guests, and viewers in a web-based broadcasting application.
 
-In the OpenTok Broadcast Sample App, the host is the individual who controls and publishes the broadcast. The sample app supports up to 3 guests who can publish in the broadcast. 
+In the OpenTok Broadcast Sample App, the host is the individual who controls and publishes the broadcast. The sample app supports up to 3 guests who can publish in the broadcast.
 
 The sample app also supports the following recommended numbers of viewers, based on the number of publishers in the broadcast:
 
@@ -24,7 +24,7 @@ This guide has the following sections:
 
 * [Prerequisites](#prerequisites): A checklist of everything you need to get started.
 * [Quick start](#quick-start): A step-by-step tutorial to help you quickly run the sample app.
-* [Exploring the code](#exploring-the-code): This describes the sample app code design, which uses recommended best practices to implement the OpenTok Broadcast app features. 
+* [Exploring the code](#exploring-the-code): This describes the sample app code design, which uses recommended best practices to implement the OpenTok Broadcast app features.
 
 ## Prerequisites
 
@@ -32,14 +32,25 @@ To be prepared to develop your OpenTok Broadcast app:
 
 1. Review the [OpenTok.js](https://tokbox.com/developer/sdks/js/) requirements.
 2. Your app will need a **Session ID**, **Token**, and **API Key**, which you can get at the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/). Set the API Key and API Secret in [config.json](./config.json).
-3. You will need the **Instance ID** and **Backend Base URL** provided by TokBox.
+3. If you would like to broadcast to [RTMP](https://tokbox.com/developer/beta/rtmp-broadcast/) streams, you will also need to include the information for your streams in [config.json](./config.json):
+```
+  "rtmp": [{
+      "name": "foo",
+      "url": "rtmp://your-first-rtmp-url"
+    },
+    {
+      "name": "bar",
+      "url": "rtmp://your-second-rtmp-url"
+    }]
+```
+4. You will need the **Instance ID** and **Backend Base URL** provided by TokBox.
 
 
 To install the OpenTok Broadcast Sample App, run the following commands:
 
 ```
-npm i
-node server.js
+$ npm i
+$ node server.js
 ```
 
 
@@ -60,7 +71,7 @@ Viewer: <a href=“http://broadcast-viewer.herokuapp.com/viewer”>http://broadc
 
 ## Exploring the code
 
-This section describes how the sample app code design uses recommended best practices to deploy the broadcast features. 
+This section describes how the sample app code design uses recommended best practices to deploy the broadcast features.
 
 For detail about the APIs used to develop this sample, see the [OpenTok.js Reference](https://tokbox.com/developer/sdks/js/reference/).
 
@@ -75,9 +86,9 @@ _**NOTE:** The sample app contains logic used for logging. This is used to submi
 
 ### Web page design
 
-While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must host the sample app yourself. This allows you to customize the app as desired. 
+While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must host the sample app yourself. This allows you to customize the app as desired.
 
-* **[server.js](./server.js)**: The server configures the routes for the host, guests, and viewers.  
+* **[server.js](./server.js)**: The server configures the routes for the host, guests, and viewers.
 
 * **[opentok-api.js](./services/opentok-api.js)**: Configures the **Session ID**, **Token**, and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and viewers. Set the API Key and API Secret in [config.json](./config.json).
 
@@ -87,11 +98,11 @@ While TokBox hosts [OpenTok.js](https://tokbox.com/developer/sdks/js/), you must
 
 * **[guest.js](./public/js/guest.js)**: Guests can publish in the broadcast. They can control their own audio and video. The sample app does not include the ability for the host to control whether guests are broadcasting, though the host does have a moderator token that can be used for that purpose.
 
-* **[viewer.js](./public/js/viewer.js)**: Viewers can only view the broadcast. 
+* **[viewer.js](./public/js/viewer.js)**: Viewers can only view the broadcast.
 
 * **[broadcast.js](./public/js/broadcast.js)**: Plays the broadcast feed.
 
-* **[CSS files](./public/css)**: Defines the client UI style. 
+* **[CSS files](./public/css)**: Defines the client UI style.
 
 
 ### Server
@@ -116,8 +127,8 @@ The credentials are embedded in an EJS template as JSON. For example, the follow
 ```javascript
 app.get('/host', (req, res) => {
   api.getCredentials('host')
-    .then(credentials => res.render('pages/host', { 
-      credentials: JSON.stringify(credentials) 
+    .then(credentials => res.render('pages/host', {
+      credentials: JSON.stringify(credentials)
     }))
     .catch(error => res.status(500).send(error));
 });
@@ -243,7 +254,4 @@ The broadcast data includes both the URL for the CDN stream and a timestamp indi
 
 
 When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server, which invokes the [OpenTok Broadcast API](https://tokbox.com/developer/rest/#stop_broadcast) `/broadcast/stop` endpoint, which terminates the CDN stream. This is a recommended best practice, as the default is that broadcasts remain active until a 120-minute timeout period has completed.
-
-
-
 
