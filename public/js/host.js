@@ -39,9 +39,11 @@
    * the OpenTok signaling API
    * @param {Object} session
    * @param {String} status
+   * @param {Object} [to] OpenTok connection object
    */
-  var signal = function (session, status) {
-    session.signal({ type: 'broadcast', data: status }, function (error) {
+  var signal = function (session, status, to) {
+    const signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
+    session.signal(signalData, function (error) {
       if (error) {
         console.log(['signal error (', error.code, '): ', error.message].join(''));
       } else {
@@ -253,7 +255,7 @@
     // Signal the status of the broadcast when requested
     session.on('signal:broadcast', function (event) {
       if (event.data === 'status') {
-        signal(session, broadcast.status);
+        signal(session, broadcast.status, event.from);
       }
     });
 
