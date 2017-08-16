@@ -63,8 +63,8 @@ app.get('*', (req, res) => {
 app.post('/broadcast/start', (req, res) => {
   const sessionId = R.path(['body', 'sessionId'], req);
   const streams = R.path(['body', 'streams'], req);
-  const rtmpUrl = R.path(['body', 'rtmpUrl'], req);
-  broadcast.start(sessionId, streams, rtmpUrl)
+  const rtmp = R.path(['body', 'rtmp'], req);
+  broadcast.start(sessionId, streams, rtmp)
     .then(data => res.send(data))
     .catch(error => res.status(500).send(error));
 });

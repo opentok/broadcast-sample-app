@@ -18,10 +18,13 @@
     </div>
     <div class="broadcast-controls-container">
         <div class="rtmp-container">
-            <span id="rtmpLabel">Want to stream to YouTube Live or Facebook Live? Add your RTMP Stream URL:</span>
-            <span class="hidden error" id="rtmpError">The entered RTMP URL is not valid. Please check the url and try again.</span>
+            <span id="rtmpLabel">Want to stream to YouTube Live or Facebook Live? Add your RTMP Server URL and Stream Name:</span>
+            <span class="hidden error" id="rtmpError">The entered RTMP server and/or stream name are not valid. Please check the url and try again.</span>
             <span id="rtmpActive" class="hidden active">Your RTMP stream is active!</span>
-            <input id="rtmpUrl" type="url" name="rtmp" placeholder="rtmp://a.rtmp.youtube.com/live2/my-stream-key">
+            <div id="rtmpInputContainer" class="input-container" >
+                <input id="rtmpServer" type="url" placeholder="rtmp://myrtmpserver/mybroadcastapp">
+                <input id="rtmpStream" type="text" placeholder="myStreamName">
+            </div>
         </div>
         <button id="startStop" class="btn-broadcast hidden">Start Broadcast</button>
         <div id="urlContainer" class="url-container hidden">

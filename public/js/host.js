@@ -45,7 +45,7 @@
       if (error) {
         console.log(['signal error (', error.code, '): ', error.message].join(''));
       } else {
-        console.log('signal sent.');
+        console.log('signal sent');
       }
     });
   };
@@ -106,21 +106,36 @@
     }, 1500);
   };
 
-  var validRtmpUrl = function (url) {
+  var validRtmp = function () {
+    var server = document.getElementById('rtmpServer');
+    var stream = document.getElementById('rtmpStream');
 
-    if (!url.checkValidity()) {
+    var serverDefined = !!server.value;
+    var streamDefined = !!stream.value;
+    var invalidServerMessage = 'The RTMP server url is invalid. Please update the value and try again.';
+    var invalidStreamMessage = 'The RTMP stream name must be defined. Please update the value and try again.';
+
+    if (serverDefined && !server.checkValidity()) {
       document.getElementById('rtmpLabel').classList.add('hidden');
+      document.getElementById('rtmpError').innerHTML = invalidServerMessage;
       document.getElementById('rtmpError').classList.remove('hidden');
-      return false;
+      return null;
+    }
+
+    if (serverDefined && !streamDefined) {
+      document.getElementById('rtmpLabel').classList.add('hidden');
+      document.getElementById('rtmpError').innerHTML = invalidStreamMessage;
+      document.getElementById('rtmpError').classList.remove('hidden');
+      return null;
     }
 
     document.getElementById('rtmpLabel').classList.remove('hidden');
     document.getElementById('rtmpError').classList.add('hidden');
-    return true;
+    return { serverUrl: server.value, streamName: stream.value };
   };
 
   var hideRtmpInput = function () {
-    ['rtmpLabel', 'rtmpError', 'rtmpUrl'].forEach(function (id) {
+    ['rtmpLabel', 'rtmpError', 'rtmpServer', 'rtmpStream'].forEach(function (id) {
       document.getElementById(id).classList.add('hidden');
     });
   };
@@ -133,14 +148,14 @@
 
     analytics.log('startBroadcast', 'variationAttempt');
 
-    var rtmpUrl = document.getElementById('rtmpUrl');
-    if (!validRtmpUrl(rtmpUrl)) {
+    var rtmp = validRtmp();
+    if (!rtmp) {
       analytics.log('startBroadcast', 'variationError');
       return;
     }
 
     hideRtmpInput();
-    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams, rtmpUrl: rtmpUrl.value })
+    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams, rtmp: rtmp })
       .then(function (broadcastData) {
         broadcast = R.merge(broadcast, broadcastData);
         updateStatus(session, 'active');
@@ -193,7 +208,6 @@
   };
 
   var updateBroadcastLayout = function () {
-    console.log('updating the layout');
     http.post('/broadcast/layout', { streams: broadcast.streams })
       .then(function (result) { console.log(result); })
       .catch(function (error) { console.log(error); });

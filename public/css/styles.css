@@ -156,7 +156,7 @@ body {
 }
 
 .broadcast-controls-container .rtmp-container {
-    width: 650px;
+    width: 675px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -183,8 +183,15 @@ body {
     font-weight: 800;
 }
 
-.broadcast-controls-container .rtmp-container input {
+.broadcast-controls-container .rtmp-container .input-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.broadcast-controls-container .rtmp-container .input-container input {
     height: 35px;
+    width: 45%;
     font-size: 14px;
     padding: 0 10px;
     margin: 5px 0;
@@ -192,7 +199,7 @@ body {
 }
 
 .broadcast-controls-container .rtmp-container input::-webkit-input-placeholder {
-    color: lightslategray;
+    color: lightgrey;
 }
 
 .controls-container .url {
