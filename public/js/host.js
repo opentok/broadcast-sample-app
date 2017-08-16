@@ -39,7 +39,7 @@
    * the OpenTok signaling API
    * @param {Object} session
    * @param {String} status
-   * @param {Object} [to] OpenTok connection object
+   * @param {Object} [to] - An OpenTok connection object
    */
   var signal = function (session, status, to) {
     const signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
