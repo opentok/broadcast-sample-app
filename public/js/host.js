@@ -42,7 +42,7 @@
    * @param {Object} [to] - An OpenTok connection object
    */
   var signal = function (session, status, to) {
-    const signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
+    var signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
     session.signal(signalData, function (error) {
       if (error) {
         console.log(['signal error (', error.code, '): ', error.message].join(''));
@@ -230,7 +230,7 @@
 
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
-      const currentStreams = broadcast.streams;
+      var currentStreams = broadcast.streams;
       subscribe(session, event.stream);
       broadcast.streams++;
       if (broadcast.streams > 3) {
@@ -242,7 +242,7 @@
     });
 
     session.on('streamDestroyed', function () {
-      const currentStreams = broadcast.streams;
+      var currentStreams = broadcast.streams;
       broadcast.streams--;
       if (broadcast.streams < 4) {
         document.getElementById('videoContainer').classList.remove('wrap');
