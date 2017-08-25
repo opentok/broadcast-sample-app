@@ -15,6 +15,7 @@
         "comma-dangle": 0,
         "func-names": 0,
         "no-var" : 0,
+        "max-len": [2, 120],
         "prefer-arrow-callback": 0,
         "no-unused-expressions": [2, { "allowTernary": true, "allowShortCircuit": true }]
     },

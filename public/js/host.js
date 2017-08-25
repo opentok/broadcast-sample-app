@@ -1,9 +1,10 @@
 /* global analytics http Clipboard */
 /* eslint-disable object-shorthand */
+/* eslint-disable vars-on-top */
 (function () {
 
   /** The state of things */
-  var broadcast = { status: 'waiting', streams: 1 };
+  var broadcast = { status: 'waiting', streams: 1, rtmp: false };
 
   /**
    * Options for adding OpenTok publisher and subscriber video elements
@@ -38,13 +39,15 @@
    * the OpenTok signaling API
    * @param {Object} session
    * @param {String} status
+   * @param {Object} [to] - An OpenTok connection object
    */
-  var signal = function (session, status) {
-    session.signal({ type: 'broadcast', data: status }, function (error) {
+  var signal = function (session, status, to) {
+    var signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
+    session.signal(signalData, function (error) {
       if (error) {
         console.log(['signal error (', error.code, '): ', error.message].join(''));
       } else {
-        console.log('signal sent.');
+        console.log('signal sent');
       }
     });
   };
@@ -73,6 +76,7 @@
     var startStopButton = document.getElementById('startStop');
     var playerUrl = getBroadcastUrl(R.pick(['url', 'availableAt'], broadcast));
     var displayUrl = document.getElementById('broadcastURL');
+    var rtmpActive = document.getElementById('rtmpActive');
 
     broadcast.status = status;
 
@@ -82,10 +86,14 @@
       document.getElementById('urlContainer').classList.remove('hidden');
       displayUrl.innerHTML = playerUrl;
       displayUrl.setAttribute('value', playerUrl);
+      if (broadcast.rtmp) {
+        rtmpActive.classList.remove('hidden');
+      }
     } else {
       startStopButton.classList.remove('active');
       startStopButton.innerHTML = 'Broadcast Over';
       startStopButton.disabled = true;
+      rtmpActive.classList.add('hidden');
     }
 
     signal(session, broadcast.status);
@@ -100,6 +108,40 @@
     }, 1500);
   };
 
+  var validRtmp = function () {
+    var server = document.getElementById('rtmpServer');
+    var stream = document.getElementById('rtmpStream');
+
+    var serverDefined = !!server.value;
+    var streamDefined = !!stream.value;
+    var invalidServerMessage = 'The RTMP server url is invalid. Please update the value and try again.';
+    var invalidStreamMessage = 'The RTMP stream name must be defined. Please update the value and try again.';
+
+    if (serverDefined && !server.checkValidity()) {
+      document.getElementById('rtmpLabel').classList.add('hidden');
+      document.getElementById('rtmpError').innerHTML = invalidServerMessage;
+      document.getElementById('rtmpError').classList.remove('hidden');
+      return null;
+    }
+
+    if (serverDefined && !streamDefined) {
+      document.getElementById('rtmpLabel').classList.add('hidden');
+      document.getElementById('rtmpError').innerHTML = invalidStreamMessage;
+      document.getElementById('rtmpError').classList.remove('hidden');
+      return null;
+    }
+
+    document.getElementById('rtmpLabel').classList.remove('hidden');
+    document.getElementById('rtmpError').classList.add('hidden');
+    return { serverUrl: server.value, streamName: stream.value };
+  };
+
+  var hideRtmpInput = function () {
+    ['rtmpLabel', 'rtmpError', 'rtmpServer', 'rtmpStream'].forEach(function (id) {
+      document.getElementById(id).classList.add('hidden');
+    });
+  };
+
   /**
    * Make a request to the server to start the broadcast
    * @param {String} sessionId
@@ -107,7 +149,15 @@
   var startBroadcast = function (session) {
 
     analytics.log('startBroadcast', 'variationAttempt');
-    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams })
+
+    var rtmp = validRtmp();
+    if (!rtmp) {
+      analytics.log('startBroadcast', 'variationError');
+      return;
+    }
+
+    hideRtmpInput();
+    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams, rtmp: rtmp })
       .then(function (broadcastData) {
         broadcast = R.merge(broadcast, broadcastData);
         updateStatus(session, 'active');
@@ -160,10 +210,9 @@
   };
 
   var updateBroadcastLayout = function () {
-    console.log('updating the layout');
     http.post('/broadcast/layout', { streams: broadcast.streams })
-    .then(function (result) { console.log(result); })
-    .catch(function (error) { console.log(error); });
+      .then(function (result) { console.log(result); })
+      .catch(function (error) { console.log(error); });
   };
 
   var setEventListeners = function (session, publisher) {
@@ -181,7 +230,7 @@
 
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
-      const currentStreams = broadcast.streams;
+      var currentStreams = broadcast.streams;
       subscribe(session, event.stream);
       broadcast.streams++;
       if (broadcast.streams > 3) {
@@ -193,7 +242,7 @@
     });
 
     session.on('streamDestroyed', function () {
-      const currentStreams = broadcast.streams;
+      var currentStreams = broadcast.streams;
       broadcast.streams--;
       if (broadcast.streams < 4) {
         document.getElementById('videoContainer').classList.remove('wrap');
@@ -206,7 +255,7 @@
     // Signal the status of the broadcast when requested
     session.on('signal:broadcast', function (event) {
       if (event.data === 'status') {
-        signal(session, broadcast.status);
+        signal(session, broadcast.status, event.from);
       }
     });
 

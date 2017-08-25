@@ -63,7 +63,8 @@ app.get('*', (req, res) => {
 app.post('/broadcast/start', (req, res) => {
   const sessionId = R.path(['body', 'sessionId'], req);
   const streams = R.path(['body', 'streams'], req);
-  broadcast.start(sessionId, streams)
+  const rtmp = R.path(['body', 'rtmp'], req);
+  broadcast.start(sessionId, streams, rtmp)
     .then(data => res.send(data))
     .catch(error => res.status(500).send(error));
 });
@@ -84,5 +85,5 @@ app.post('/broadcast/end', (req, res) => {
 /*
  * Listen
  */
-app.listen(process.env.PORT || port);
-console.log(`app listening on port ${port}`);
+app.listen(process.env.PORT || port, () => console.log(`app listening on port ${port}`));
+
