@@ -37,9 +37,9 @@
       splash: false,
       embed: false,
       ratio: 9 / 16,
-      autoplay: true,
+      autoplay: false,
       clip: {
-        autoplay: true,
+        autoplay: false,
         live: true,
         hlsjs: {
           // listen to hls.js ERROR

@@ -224,7 +224,7 @@ The `startBroadcast()` method subsequently calls the `updateStatus()` method wit
 ```
 
 
-The broadcast data includes both the URL for the CDN stream and a timestamp indicating when the video should begin playing. The `init()` method in [broadcast-api.js](./services/broadcast-api.js) compares this timestamp to the current time to determine when to play the video. It either begins to play immediately, or sets a timeout to play at the appropriate future time:
+The broadcast data includes both the URL for the CDN stream and a timestamp indicating when the video should begin playing. The `init()` method in [broadcast.js](./js/broadcast.js) compares this timestamp to the current time to determine when to play the video. It either begins to play immediately, or sets a timeout to play at the appropriate future time:
 
 ```javascript
   var init = function () {
