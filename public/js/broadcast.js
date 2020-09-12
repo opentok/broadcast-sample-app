@@ -34,21 +34,11 @@
     updateBanner('active');
 
     flowplayer('#videoContainer', {
-      splash: false,
-      embed: false,
-      ratio: 9 / 16,
-      autoplay: false,
-      clip: {
-        autoplay: false,
-        live: true,
-        hlsjs: {
-          // listen to hls.js ERROR
-          listeners: ['hlsError'],
-        },
-        sources: [{
-          type: 'application/x-mpegurl',
-          src: source
-        }]
+      src: source,
+      hls: {
+        autoStartLoad: true,
+        native: true,
+        listeners: ['hlsError'],
       }
     }).on('hlsError', function (e, api, error) {
 
@@ -62,7 +52,6 @@
   };
 
   var init = function () {
-
     var broadcast = getBroadcastData();
     if (broadcast.availableAt <= Date.now()) {
       play(broadcast.url);
@@ -70,7 +59,6 @@
       setTimeout(function () { play(broadcast.url); },
         broadcast.availableAt - Date.now());
     }
-
   };
 
   document.addEventListener('DOMContentLoaded', init);

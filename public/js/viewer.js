@@ -23,7 +23,7 @@
 
   /**
    * Subscribe to a stream
-   * @returns {Object} A subsriber object
+   * @returns {Object} A subscriber object
    */
   var subscribe = function (session, stream) {
     var name = stream.name;
