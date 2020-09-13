@@ -1,6 +1,8 @@
-let config = require('../config.json');
+const fs = require('fs');
+
+let config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
 config.apiKey = process.env.apiKey;
 config.apiSecret = process.env.apiSecret;
 
-require('fs').writeFileSync('../config.json', JSON.stringify(config));
+fs.writeFileSync('./config.json', JSON.stringify(config));
