@@ -35,6 +35,7 @@
 
     flowplayer('#videoContainer', {
       src: source,
+      autoplay: true,
       hls: {
         autoStartLoad: true,
         native: true,
