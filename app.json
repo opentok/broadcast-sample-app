@@ -16,8 +16,5 @@
     "apiSecret": {
       "description": "Vonage Video API Project API Secret"
     }
-  },
-  "scripts": {
-    "postdeploy": "npm run postdeploy"
   }
 }
