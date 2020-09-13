@@ -3,21 +3,20 @@
 
 <head>
     <%- include('../partials/common-head') %>
-    <link href='https://fonts.googleapis.com/css?family=Yellowtail' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="//cdn.flowplayer.com/releases/native/stable/style/flowplayer.css">
-    <script src="//cdn.flowplayer.com/releases/native/stable/flowplayer.min.js" defer></script>
-    <script src="//cdn.flowplayer.com/releases/native/stable/plugins/flashls.min.js" defer></script>
-    <script src="//cdn.flowplayer.com/releases/native/stable/plugins/hls.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css?family=Yellowtail" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="js/broadcast.js" type="text/javascript"></script>
 </head>
 
 <body>
     <div id="broadcast" style="display:none;" data="<%= broadcast %>"></div>
-    <div id="main" class="main-container player">
+    <div id="main" class="main-container">
         <div id="banner" class="banner">
             <span id="bannerText" class="text">Waiting for Broadcast to Begin</span>
         </div>
-        <div id="videoContainer" class="video-container player"></div>
+        <div id="videoContainer" class="video-container">
+            <video id="video"></video>
+        </div>
     </div>
 </body>
 

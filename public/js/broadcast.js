@@ -33,23 +33,21 @@
 
     updateBanner('active');
 
-    flowplayer('#videoContainer', {
-      src: source,
-      autoplay: true,
-      hls: {
-        autoStartLoad: true,
-        native: true,
-        listeners: ['hlsError'],
-      }
-    }).on('hlsError', function (e, api, error) {
-
-      // Broadcast end
-      if (error.type === 'networkError' && error.details === 'levelLoadError') {
-        api.stop();
-        updateBanner('ended');
-        document.getElementById('videoContainer').classList.add('hidden');
-      }
-    });
+    var video = document.getElementById('video');
+    if (Hls.isSupported()) {
+      var hls = new Hls();
+      hls.loadSource(source);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play();
+      });
+    }
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = source;
+      video.addEventListener('loadedmetadata', function () {
+        video.play();
+      });
+    }
   };
 
   var init = function () {
