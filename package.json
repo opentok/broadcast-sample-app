@@ -1,45 +1,38 @@
 {
-  "name": "broadcast-sample-app",
+  "name": "dynamic-video-layouts",
   "version": "1.0.0",
-  "description": "OpenTok Broadcast Sample Application",
-  "engines": {
-    "node": "6.9.2"
-  },
-  "main": "server.js",
-  "dependencies": {
-    "bluebird": "^3.4.0",
-    "body-parser": "^1.15.1",
-    "ejs": "^2.4.2",
-    "express": "^4.13.4",
-    "jsonwebtoken": "^7.2.1",
-    "opentok": "^2.3.2",
-    "ramda": "^0.21.0",
-    "request": "^2.72.0"
-  },
+  "description": "Example of using custom broadcast layouts with the Vonage Video API",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node index.js",
+    "dev": "nodemon * node index.js",
+    "lint": "eslint",
+    "heroku-postbuild": "node heroku/postdeploy.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/opentok/broadcast-sample-app.git"
+    "url": "git+https://github.com/opentok-community/dynamic-video-layouts.git"
   },
   "keywords": [
     "opentok",
     "broadcast",
     "webrtc"
   ],
-  "author": "adrice727@gmail.com",
+  "author": "Michael Jolley <michael.jolley@vonage.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/opentok/broadcast-sample-app/issues"
+    "url": "https://github.com/opentok-community/dynamic-video-layouts/issues"
   },
-  "homepage": "https://github.com/opentok/broadcast-sample-app#readme",
+  "homepage": "https://github.com/opentok-community/dynamic-video-layouts#readme",
+  "dependencies": {
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "opentok": "^2.10.0"
+  },
   "devDependencies": {
-    "eslint": "^3.12.2",
-    "eslint-config-airbnb": "^13.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.8.0"
+    "eslint": "^7.9.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "nodemon": "^2.0.4"
   }
 }

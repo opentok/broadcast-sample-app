@@ -2,17 +2,17 @@
 <html lang="en">
 
 <head>
-    <% include ../partials/common-head %>
-    <script src="js/guest.js" type="text/javascript"></script>
+  <%- include('../partials/head') %>
+  <script src="js/guest.js" type="text/javascript"></script>
 </head>
 
 <body>
-    <div id="credentials" style="display:none;" data="<%= credentials %>"></div>
-    <div id="main" class="main-container">
-        <div id="videoContainer" class="video-container">
-            <div id="hostDivider" class="hidden"></div>
-        </div>
+  <div id="credentials" style="display:none;" data="<%= credentials %>"></div>
+  <div id="main" class="main-container">
+    <div id="videoContainer" class="video-container">
+      <div id="hostDivider" class="hidden"></div>
     </div>
+  </div>
 </body>
 
 </html>
