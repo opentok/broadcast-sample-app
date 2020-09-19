@@ -1,5 +1,5 @@
 {
-  "name": "broadcast-sample-app",
+  "name": "dynamic-video-layouts",
   "version": "1.0.0",
   "description": "OpenTok Broadcast Sample Application",
   "main": "index.js",
