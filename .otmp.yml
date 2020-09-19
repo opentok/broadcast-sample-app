@@ -1,10 +1,10 @@
 name: Broadcast Sample App
-author: TokBox, Inc.
-website: https://tokbox.com
+author: Vonage, Inc.
+website: https://vonage.com
 tags:
  - sample
  - broadcast
 description: This sample app shows how to use the OpenTok HLS Broadcast functionality in a JavaScript app.
-image: https://static.opentok.com/img/styleguide/tokbox-logo-bug.png
+image: https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg
 platforms:
  - js

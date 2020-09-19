@@ -2,22 +2,21 @@
 <html lang="en">
 
 <head>
-    <% include ../partials/common-head %>
-    <link href='https://fonts.googleapis.com/css?family=Yellowtail' rel='stylesheet' type='text/css'>
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/flowplayer/7.2.7/skin/skin.css' rel='stylesheet' type='text/css'>
-    <script src="https://releases.flowplayer.org/7.2.7/flowplayer.min.js" defer></script>
-    <script src="https://releases.flowplayer.org/hlsjs/flowplayer.hlsjs.min.js" defer></script>
-    <script src="js/broadcast.js" type="text/javascript"></script>
+  <%- include('../partials/head') %>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="js/broadcast.js" type="text/javascript"></script>
 </head>
 
 <body>
-    <div id="broadcast" style="display:none;" data="<%= broadcast %>"></div>
-    <div id="main" class="main-container player">
-        <div id="banner" class="banner">
-            <span id="bannerText" class="text">Waiting for Broadcast to Begin</span>
-        </div>
-        <div id="videoContainer" class="video-container player"></div>
+  <div id="broadcast" style="display:none;" data="<%= broadcast %>"></div>
+  <div id="main" class="main-container">
+    <div id="banner" class="banner">
+      <span id="bannerText" class="text">Waiting for Broadcast to Begin</span>
     </div>
+    <div id="videoContainer" class="video-container">
+      <video id="video"></video>
+    </div>
+  </div>
 </body>
 
 </html>

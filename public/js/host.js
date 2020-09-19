@@ -1,15 +1,20 @@
 /* global analytics http Clipboard */
 /* eslint-disable object-shorthand */
+
 /* eslint-disable vars-on-top */
 (function () {
 
   /** The state of things */
-  var broadcast = { status: 'waiting', streams: 1, rtmp: false };
+  let broadcast = { status: 'waiting', streams: 1, rtmp: false };
+  let subscribers = [];
+  let activeSpeaker;
+  let session;
+  let lastActiveSpeaker = Date.now();
 
   /**
    * Options for adding OpenTok publisher and subscriber video elements
    */
-  var insertOptions = {
+  const insertOptions = {
     width: '100%',
     height: '100%',
     showControls: false
@@ -19,19 +24,29 @@
    * Get our OpenTok http Key, Session ID, and Token from the JSON embedded
    * in the HTML.
    */
-  var getCredentials = function () {
-    var el = document.getElementById('credentials');
-    var credentials = JSON.parse(el.getAttribute('data'));
+  const getCredentials = function () {
+    const el = document.getElementById('credentials');
+    const credentials = JSON.parse(el.getAttribute('data'));
     el.remove();
+    credentialData = credentials;
     return credentials;
   };
+
+  let credentialData;
 
   /**
    * Create an OpenTok publisher object
    */
-  var initPublisher = function () {
-    var properties = Object.assign({ name: 'Host', insertMode: 'before' }, insertOptions);
-    return OT.initPublisher('hostDivider', properties);
+  const initPublisher = function () {
+    const properties = Object.assign({ name: 'Host', insertMode: 'before' }, insertOptions);
+    const publisher = OT.initPublisher('hostDivider', properties);
+
+    const subscriberData = {
+      subscriber: publisher
+    };
+    subscribers.push(subscriberData);
+    publisher.on('audioLevelUpdated', audioLevelUpdate);
+    return publisher;
   };
 
   /**
@@ -41,8 +56,8 @@
    * @param {String} status
    * @param {Object} [to] - An OpenTok connection object
    */
-  var signal = function (session, status, to) {
-    var signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
+  const signal = function (session, status, to) {
+    const signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
     session.signal(signalData, function (error) {
       if (error) {
         console.log(['signal error (', error.code, '): ', error.message].join(''));
@@ -52,31 +67,25 @@
     });
   };
 
-
   /**
    * Construct the url for viewers to view the broadcast stream
-   * @param {Object} params
-   * @param {String} params.url The CDN url for the m3u8 video stream
-   * @param {Number} params.availableAt The time (ms since epoch) at which the stream is available
+   * @param {String} url The CDN url for the m3u8 video stream
+   * @param {Number} availableAt The time (ms since epoch) at which the stream is available
    */
-  var getBroadcastUrl = function (params) {
-    var buildQueryString = function (query, key) {
-      return [query, key, '=', params[key], '&'].join('');
-    };
-    var queryString = R.reduce(buildQueryString, '?', R.keys(params)).slice(0, -1);
-
-    return [window.location.host, '/broadcast', queryString].join('');
+  const getBroadcastUrl = function (url, availableAt) {
+    return `${window.location.host}/broadcast?url=${url}&avaialbleAt=${availableAt}`;
   };
 
   /**
    * Set the state of the broadcast and update the UI
    */
-  var updateStatus = function (session, status) {
+  const updateStatus = function (session, status) {
 
-    var startStopButton = document.getElementById('startStop');
-    var playerUrl = getBroadcastUrl(R.pick(['url', 'availableAt'], broadcast));
-    var displayUrl = document.getElementById('broadcastURL');
-    var rtmpActive = document.getElementById('rtmpActive');
+    const startStopButton = document.getElementById('startStop');
+    const { url, availableAt } = broadcast;
+    const playerUrl = getBroadcastUrl(url, availableAt);
+    const displayUrl = document.getElementById('broadcastURL');
+    const rtmpActive = document.getElementById('rtmpActive');
 
     broadcast.status = status;
 
@@ -100,22 +109,22 @@
   };
 
   // Let the user know that the url has been copied to the clipboard
-  var showCopiedNotice = function () {
-    var notice = document.getElementById('copyNotice');
+  const showCopiedNotice = function () {
+    const notice = document.getElementById('copyNotice');
     notice.classList.remove('opacity-0');
     setTimeout(function () {
       notice.classList.add('opacity-0');
     }, 1500);
   };
 
-  var validRtmp = function () {
-    var server = document.getElementById('rtmpServer');
-    var stream = document.getElementById('rtmpStream');
+  const validRtmp = function () {
+    const server = document.getElementById('rtmpServer');
+    const stream = document.getElementById('rtmpStream');
 
-    var serverDefined = !!server.value;
-    var streamDefined = !!stream.value;
-    var invalidServerMessage = 'The RTMP server url is invalid. Please update the value and try again.';
-    var invalidStreamMessage = 'The RTMP stream name must be defined. Please update the value and try again.';
+    const serverDefined = !!server.value;
+    const streamDefined = !!stream.value;
+    const invalidServerMessage = 'The RTMP server url is invalid. Please update the value and try again.';
+    const invalidStreamMessage = 'The RTMP stream name must be defined. Please update the value and try again.';
 
     if (serverDefined && !server.checkValidity()) {
       document.getElementById('rtmpLabel').classList.add('hidden');
@@ -136,7 +145,7 @@
     return { serverUrl: server.value, streamName: stream.value };
   };
 
-  var hideRtmpInput = function () {
+  const hideRtmpInput = function () {
     ['rtmpLabel', 'rtmpError', 'rtmpServer', 'rtmpStream'].forEach(function (id) {
       document.getElementById(id).classList.add('hidden');
     });
@@ -144,36 +153,33 @@
 
   /**
    * Make a request to the server to start the broadcast
-   * @param {String} sessionId
    */
-  var startBroadcast = function (session) {
+  const startBroadcast = function () {
 
     analytics.log('startBroadcast', 'variationAttempt');
 
-    var rtmp = validRtmp();
+    const rtmp = validRtmp();
     if (!rtmp) {
       analytics.log('startBroadcast', 'variationError');
       return;
     }
 
     hideRtmpInput();
-    http.post('/broadcast/start', { sessionId: session.sessionId, streams: broadcast.streams, rtmp: rtmp })
+    http.post('/broadcast/start', { streams: broadcast.streams, rtmp: rtmp })
       .then(function (broadcastData) {
-        broadcast = R.merge(broadcast, broadcastData);
+        broadcast = broadcastData;
         updateStatus(session, 'active');
         analytics.log('startBroadcast', 'variationSuccess');
       }).catch(function (error) {
         console.log(error);
         analytics.log('startBroadcast', 'variationError');
       });
-
   };
 
   /**
    * Make a request to the server to stop the broadcast
-   * @param {String} sessionId
    */
-  var endBroadcast = function (session) {
+  const endBroadcast = function () {
     http.post('/broadcast/end')
       .then(function () {
         updateStatus(session, 'ended');
@@ -186,16 +192,103 @@
   };
 
   /**
+   * Calculates the active speaker amongst all subscribers/publishers
+   */
+  const calculateActiveSpeaker = function () {
+    let activeSpeakers = subscribers.filter(f => (f.activity && f.activity.talking));
+    activeSpeakers = activeSpeakers.sort((a, b) => a.activity.audioLevel < b.activity.audioLevel);
+    const now = Date.now();
+
+    if (activeSpeakers.length > 0 && now - lastActiveSpeaker > 1000) {
+      if (!activeSpeaker || activeSpeaker.subscriber.streamId !== activeSpeakers[0].subscriber.streamId) {
+        activeSpeaker = activeSpeakers[0];
+        lastActiveSpeaker = now;
+        updateClasses();
+      }
+    }
+  }
+
+  /**
+   * Updates the class lists for streams
+   */
+  const updateClasses = function () {
+    let focusUsed = 0;
+
+    const streamClasses = subscribers.map((m, index) => {
+      let cssClasses = ['sub', `item${index - focusUsed}`];
+      if (m.subscriber.streamId === activeSpeaker.subscriber.streamId) {
+        cssClasses = ['focus'];
+        focusUsed = 1;
+      }
+      return {
+        id: m.subscriber.streamId,
+        layoutClassList: cssClasses
+      }
+    });
+
+    http.post('/broadcast/classes', { classList: streamClasses })
+      .then(function () {
+        analytics.log('updatedStreamClasses', 'variationSuccess');
+      })
+      .catch(function (error) {
+        console.log(error);
+        analytics.log('updatedStreamClasses', 'variationError');
+      });
+  }
+
+  /**
    * Subscribe to a stream
    */
-  var subscribe = function (session, stream) {
-    var properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
-    session.subscribe(stream, 'hostDivider', properties, function (error) {
+  const subscribe = function (session, stream) {
+    const properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
+    const subscriber = session.subscribe(stream, 'hostDivider', properties, function (error) {
       if (error) {
         console.log(error);
       }
     });
+    subscribers.push({ subscriber });
+    subscriber.on('audioLevelUpdated', audioLevelUpdate);
+
+    if (subscribers.length > 3) {
+      updateBroadcastLayout();
+    }
   };
+
+  /**
+   * Updates the subscriber with its current audio level
+   * @param {Object} event AudioLevelUpdatedEvent 
+   */
+  const audioLevelUpdate = function (event) {
+    const now = Date.now();
+
+    const subData = subscribers.find(f => f.subscriber.streamId === event.target.streamId);
+    if (event.audioLevel > 0.2) {
+      if (!subData.activity) {
+        subData.activity = { timestamp: now, talking: true, audioLevel: event.audioLevel };
+      } else if (subData.activity.talking && now - subData.activity.timestamp > 1000) {
+        subData.activity.timestamp = now;
+        subData.activity.audioLevel = event.audioLevel;
+      } else if (now - subData.activity.timestamp > 1000) {
+        // detected audio activity for more than 1s
+        // for the first time.
+        subData.activity.talking = true;
+        subData.activity.audioLevel = event.audioLevel;
+      }
+    } else if (subData.activity && now - subData.activity.timestamp > 3000) {
+      // detected low audio activity for more than 3s
+      if (subData.activity.talking) {
+        subData.activity.talking = false;
+        subData.activity.audioLevel = event.audioLevel;
+      }
+    }
+
+    subscribers = [
+      ...subscribers.filter(f => f.subscriber.streamId !== event.target.streamId),
+      subData
+    ];
+
+    calculateActiveSpeaker();
+  }
 
   /**
    * Toggle publishing audio/video to allow host to mute
@@ -203,22 +296,31 @@
    * @param {Object} publisher The OpenTok publisher object
    * @param {Object} el The DOM element of the control whose id corresponds to the action
    */
-  var toggleMedia = function (publisher, el) {
-    var enabled = el.classList.contains('disabled');
+  const toggleMedia = function (publisher, el) {
+    const enabled = el.classList.contains('disabled');
     el.classList.toggle('disabled');
     publisher[el.id](enabled);
   };
 
-  var updateBroadcastLayout = function () {
-    http.post('/broadcast/layout', { streams: broadcast.streams })
-      .then(function (result) { console.log(result); })
-      .catch(function (error) { console.log(error); });
+  /**
+   * Update broadcast layouts
+   */
+  const updateBroadcastLayout = function () {
+    if (broadcast.status === 'active') {
+      // streams, type, stylesheet
+      http.post('/broadcast/layout', {
+        streams: subscribers.length,
+        type: subscribers.length > 3 ? 'custom' : 'bestFit'
+      })
+        .then(function (result) { console.log(result); })
+        .catch(function (error) { console.log(error); });
+    }
   };
 
-  var setEventListeners = function (session, publisher) {
+  const setEventListeners = function (session, publisher) {
 
     // Add click handler to the start/stop button
-    var startStopButton = document.getElementById('startStop');
+    const startStopButton = document.getElementById('startStop');
     startStopButton.classList.remove('hidden');
     startStopButton.addEventListener('click', function () {
       if (broadcast.status === 'waiting') {
@@ -230,23 +332,20 @@
 
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
-      var currentStreams = broadcast.streams;
       subscribe(session, event.stream);
-      broadcast.streams++;
-      if (broadcast.streams > 3) {
+      if (subscribers.length > 2) {
         document.getElementById('videoContainer').classList.add('wrap');
-        if (broadcast.status === 'active' && currentStreams <= 3) {
+        if (broadcast.status === 'active' && subscribers.length <= 3) {
           updateBroadcastLayout();
         }
       }
     });
 
-    session.on('streamDestroyed', function () {
-      var currentStreams = broadcast.streams;
-      broadcast.streams--;
-      if (broadcast.streams < 4) {
+    session.on('streamDestroyed', function (event) {
+      subscribers = subscribers.filter(f => f.subscriber.streamId !== event.stream.id);
+      if (subscribers.length <= 3) {
         document.getElementById('videoContainer').classList.remove('wrap');
-        if (broadcast.status === 'active' && currentStreams >= 4) {
+        if (broadcast.status === 'active' && subscribers.length < 3) {
           updateBroadcastLayout();
         }
       }
@@ -273,10 +372,10 @@
 
   };
 
-  var addPublisherControls = function (publisher) {
-    var publisherContainer = document.getElementById(publisher.element.id);
-    var el = document.createElement('div');
-    var controls = [
+  const addPublisherControls = function (publisher) {
+    const publisherContainer = document.getElementById(publisher.element.id);
+    const el = document.createElement('div');
+    const controls = [
       '<div class="publisher-controls-container">',
       '<div id="publishVideo" class="control video-control"></div>',
       '<div id="publishAudio" class="control audio-control"></div>',
@@ -292,18 +391,18 @@
    * @param {Object} session The OpenTok session
    * @param {Object} publisher The OpenTok publisher object
    */
-  var publishAndSubscribe = function (session, publisher) {
+  const publishAndSubscribe = function (session, publisher) {
     session.publish(publisher);
     addPublisherControls(publisher);
     setEventListeners(session, publisher);
   };
 
-  var init = function () {
-    var clipboard = new Clipboard('#copyURL'); // eslint-disable-line no-unused-vars
-    var credentials = getCredentials();
-    var props = { connectionEventsSuppressed: true };
-    var session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
-    var publisher = initPublisher();
+  const init = function () {
+    const clipboard = new Clipboard('#copyURL'); // eslint-disable-line no-unused-vars
+    const credentials = getCredentials();
+    const props = { connectionEventsSuppressed: true };
+    session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
+    const publisher = initPublisher();
 
     session.connect(credentials.token, function (error) {
       if (error) {
@@ -321,5 +420,4 @@
   };
 
   document.addEventListener('DOMContentLoaded', init);
-
 }());
