@@ -2,12 +2,15 @@
   "name": "dynamic-video-layouts",
   "version": "1.0.0",
   "description": "OpenTok Broadcast Sample Application",
+  "engines": {
+    "node": "10.16.3"	
+  },
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon * node index.js",
     "lint": "eslint",
-    "heroku-postbuild": "node heroku/postdeploy.js"
+    "heroku-postbuild": "node .heroku/post-deploy.js"
   },
   "repository": {
     "type": "git",
