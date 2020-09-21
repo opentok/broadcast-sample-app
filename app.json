@@ -9,9 +9,6 @@
     "broadcast",
     "javascript"
   ],
-  "engines": {
-    "node": "10.16.3"	
-  },
   "env": {
     "apiKey": {
       "description": "Vonage Video API Project API Key"
