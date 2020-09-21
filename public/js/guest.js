@@ -5,7 +5,7 @@
   /**
    * Options for adding OpenTok publisher and subscriber video elements
    */
-  var insertOptions = {
+  const insertOptions = {
     width: '100%',
     height: '100%',
     showControls: false
@@ -15,9 +15,9 @@
    * Get our OpenTok API Key, Session ID, and Token from the JSON embedded
    * in the HTML.
    */
-  var getCredentials = function () {
-    var el = document.getElementById('credentials');
-    var credentials = JSON.parse(el.getAttribute('data'));
+  const getCredentials = function () {
+    const el = document.getElementById('credentials');
+    const credentials = JSON.parse(el.getAttribute('data'));
     el.remove();
     return credentials;
   };
@@ -25,18 +25,18 @@
   /**
    * Create an OpenTok publisher object
    */
-  var initPublisher = function () {
-    var properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
+  const initPublisher = function () {
+    const properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
     return OT.initPublisher('hostDivider', properties);
   };
 
   /**
    * Subscribe to a stream
    */
-  var subscribe = function (session, stream) {
-    var name = stream.name;
-    var insertMode = name === 'Host' ? 'before' : 'after';
-    var properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
+  const subscribe = function (session, stream) {
+    const name = stream.name;
+    const insertMode = name === 'Host' ? 'before' : 'after';
+    const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
     session.subscribe(stream, 'hostDivider', properties, function (error) {
       if (error) {
         console.log(error);
@@ -50,16 +50,16 @@
    * @param {Object} publisher The OpenTok publisher object
    * @param {Object} el The DOM element of the control whose id corresponds to the action
    */
-  var toggleMedia = function (publisher, el) {
-    var enabled = el.classList.contains('disabled');
+  const toggleMedia = function (publisher, el) {
+    const enabled = el.classList.contains('disabled');
     el.classList.toggle('disabled');
     publisher[el.id](enabled);
   };
 
-  var addPublisherControls = function (publisher) {
-    var publisherContainer = document.getElementById(publisher.element.id);
-    var el = document.createElement('div');
-    var controls = [
+  const addPublisherControls = function (publisher) {
+    const publisherContainer = document.getElementById(publisher.element.id);
+    const el = document.createElement('div');
+    const controls = [
       '<div class="publisher-controls-container">',
       '<div id="publishVideo" class="control video-control"></div>',
       '<div id="publishAudio" class="control audio-control"></div>',
@@ -75,9 +75,9 @@
    * @param {Object} session The OpenTok session
    * @param {Object} publisher The OpenTok publisher object
    */
-  var publishAndSubscribe = function (session, publisher) {
+  const publishAndSubscribe = function (session, publisher) {
 
-    var streams = 1;
+    const streams = 1;
 
     session.publish(publisher);
     addPublisherControls(publisher);
@@ -108,11 +108,11 @@
 
   };
 
-  var init = function () {
-    var credentials = getCredentials();
-    var props = { connectionEventsSuppressed: true };
-    var session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
-    var publisher = initPublisher();
+  const init = function () {
+    const credentials = getCredentials();
+    const props = { connectionEventsSuppressed: true };
+    const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
+    const publisher = initPublisher();
 
     session.connect(credentials.token, function (error) {
       if (error) {
@@ -130,5 +130,4 @@
   };
 
   document.addEventListener('DOMContentLoaded', init);
-
 }());
