@@ -75,7 +75,18 @@ To try out the Broadcast Sample App, visit the following URLs:
 Host: [https://broadcast-sample.herokuapp.com/host](https://broadcast-sample.herokuapp.com/host)  
 Guest: [https://broadcast-sample.herokuapp.com/guest](https://broadcast-sample.herokuapp.com/guest)  
 Viewer: [https://broadcast-sample.herokuapp.com/viewer](https://broadcast-sample.herokuapp.com/viewer)  
-Broadcast Viewer: [https://broadcast-sample.herokuapp.com/broadcast](https://broadcast-sample.herokuapp.com/broadcast)  
+
+### Starting a broadcast
+
+From the host view, press the `Start Broadcast` button (shown below,) and optionally provide the RTMP Server URL and Stream Name.
+
+![image](https://user-images.githubusercontent.com/1228996/97630435-9ad4f500-19fd-11eb-9772-64e72bd005e3.png)
+
+This will start an HLS/RTMP stream and provide a sharable link to the broadcast view (shown below.)
+
+![image](https://user-images.githubusercontent.com/1228996/97630527-bb9d4a80-19fd-11eb-8f7e-3d21c66d232b.png)
+
+Click the `Get sharable HLS link` to copy the broadcast URL to your clipboard. You can then paste that link into a browser to view the stream live.
 
 ## Exploring the code
 
