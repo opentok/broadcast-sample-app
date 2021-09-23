@@ -131,10 +131,10 @@ const getCredentials = async (userType) => {
 /**
  * Start the broadcast and keep the active broadcast in memory
  * @param {Number} streams - The current number of published streams
- * @param {String} [rmtp] - The (optional) RTMP stream url
+ * @param {String} [rtmp] - The (optional) RTMP stream url
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const startBroadcast = async (streams, rmtp) => {
+const startBroadcast = async (streams, rtmp) => {
   return new Promise((resolve, reject) => {
 
     let layout;
@@ -154,10 +154,10 @@ const startBroadcast = async (streams, rmtp) => {
     };
     const sessionId = activeSession.sessionId;
 
-    const { serverUrl, streamName } = rmtp;
+    const { serverUrl, streamName } = rtmp;
 
     if (serverUrl && streamName) {
-      outputs.rmtp = rmtp;
+      outputs.rtmp = rtmp;
     }
 
     try {
@@ -167,7 +167,7 @@ const startBroadcast = async (streams, rmtp) => {
         activeBroadcast = {
           id: broadcast.id,
           session: broadcast.sessionId,
-          rmtp: broadcast.broadcastUrls.rmtp,
+          rtmp: broadcast.broadcastUrls.rtmp,
           url: broadcast.broadcastUrls.hls,
           apiKey: apiKey,
           availableAt: broadcast.createdAt + broadcastDelay
