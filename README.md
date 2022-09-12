@@ -1,12 +1,12 @@
-# OpenTok Broadcast Sample App for JavaScript
+# Vonage Video API Broadcast Sample App for JavaScript
 
 <img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
 
-This document describes how to use the OpenTok Broadcast Sample App for JavaScript. Through
+This document describes how to use the Video API Broadcast Sample App for JavaScript. Through
 the exploration of this sample application, you will learn best practices for setting up and
 managing hosts, guests, and viewers in a web-based broadcasting application.
 
-In the OpenTok Broadcast Sample App, the host is the individual who controls and publishes
+In the Video API Broadcast Sample App, the host is the individual who controls and publishes
 the broadcast. The sample app supports up to 3 guests who can publish in the broadcast.
 
 The sample app also supports the following recommended numbers of viewers, based on the
@@ -16,9 +16,9 @@ number of publishers in the broadcast:
 - 1 host, 2 guests: 100 viewers
 - 1 host, 1 guest:  150 viewers
 
-The OpenTok live streaming feature lets you broadcast an OpenTok session to an HTTP live
+The Vonage Video API live streaming feature lets you broadcast an Video API session to an HTTP live
 streaming (HLS) stream. More clients can simultaneously view this stream than can view
-a live interactive OpenTok session. Also, clients that do not support WebRTC (such as Safari)
+a live interactive Video API session. Also, clients that do not support WebRTC (such as Safari)
 can view the HLS stream. HLS playback is not supported in all browsers. However, there are a
 number of plugins, such as [Flowplayer](https://flowplayer.org/), that provide
 cross-browser support (using Flash Player in browsers that do not provide direct HLS support).
@@ -36,27 +36,27 @@ This guide has the following sections:
 - [Prerequisites](#prerequisites): A checklist of everything you need to get started.
 - [Quick start](#quick-start): A step-by-step tutorial to help you quickly run the sample app.
 - [Exploring the code](#exploring-the-code): This describes the sample app code design, which
-  uses recommended best practices to implement the OpenTok Broadcast app features.
+  uses recommended best practices to implement the Video API Broadcast app features.
 
 ## Prerequisites
 
-To be prepared to develop your OpenTok Broadcast app:
+To be prepared to develop your Video API Broadcast app:
 
 1. Review the [OpenTok.js](https://tokbox.com/developer/sdks/js/) requirements.
-2. Your app will need an OpenTok **API Key** and **API Secret**, which you can get from
+2. Your app will need an Video API **API Key** and **API Secret**, which you can get from
    the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/). Set the API Key and
    API Secret in [config.json](./config.json).
 
-To run the OpenTok Broadcast Sample App, run the following commands:
+To run the Video API Broadcast Sample App, run the following commands:
 
 ```bash
 npm i
 npm start
 ```
 
-_**NOTE**: The OpenTok Developer Dashboard allows you to quickly run this sample program. For production deployment, you must generate the **Session ID** and **Token** values using one of the [OpenTok Server SDKs](https://tokbox.com/developer/sdks/server/)._
+_**NOTE**: The Video API Developer Dashboard allows you to quickly run this sample program. For production deployment, you must generate the **Session ID** and **Token** values using one of the [Video API Server SDKs](https://tokbox.com/developer/sdks/server/)._
 
-_**IMPORTANT:** In order to deploy an OpenTok Broadcast app, your web domain must use HTTPS._
+_**IMPORTANT:** In order to deploy an Video API Broadcast app, your web domain must use HTTPS._
 
 ## Quick start
 
@@ -111,14 +111,14 @@ sample app yourself. This allows you to customize the app as desired.
 - **[server.js](./server.js)**: The server configures the routes for the host, guests, and viewers.
 
 - **[opentok-api.js](./services/opentok-api.js)**: Configures the **Session ID**, **Token**,
-  and **API Key**, creates the OpenTok session, and generates tokens for hosts, guests, and
+  and **API Key**, creates the Video API session, and generates tokens for hosts, guests, and
   viewers. Set the API Key and API Secret in [config.json](./config.json).
 
 - **[broadcast-api.js](./services/broadcast-api.js)**: Starts and ends the broadcast.
 
 - **[host.js](./public/js/host.js)**: The host is the individual who controls and publishes
   the broadcast, but does not control audio or video for guests or viewers. The host uses the
-  OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send the
+  Video API [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send the
   signals to all clients in the session.
 
 - **[guest.js](./public/js/guest.js)**: Guests can publish in the broadcast. They can control
@@ -204,7 +204,7 @@ subscribe to the host stream and other guest streams, and publish audio and vide
 ### Viewer
 
 The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials from the HTML,
-connect to the session and subscribe after receiving a signal from the host indicating the broadcast has started, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the OpenTok [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast.
+connect to the session and subscribe after receiving a signal from the host indicating the broadcast has started, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the Video API [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast.
 
 ### Host
 
@@ -214,7 +214,7 @@ streams, create the URL for viewers to watch the broadcast, and signal broadcast
 host UI includes an input field to add an [RTMP stream](https://tokbox.com/developer/beta/rtmp-broadcast/),
 a button to start and end the broadcast, as well as a control to get a sharable link that
 can be distributed to all potential viewers to watch the CDN stream. The host makes calls to
-the server, which calls the OpenTok API to start and end the broadcast. Once the broadcast ends,
+the server, which calls the Video API API to start and end the broadcast. Once the broadcast ends,
 the client player will recognize an error event and display a message that the broadcast is over.
 For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
 
@@ -246,7 +246,7 @@ listeners for the broadcast button.
 
 When the broadcast button is clicked, the `startBroadcast()` method is invoked and submits
 a request to the server endpoint to begin the broadcast. The server endpoint relays the
-session ID to the [OpenTok HLS Broadcast REST](https://tokbox.com/developer/rest/#start_broadcast)
+session ID to the [Video API HLS Broadcast REST](https://tokbox.com/developer/rest/#start_broadcast)
 `/broadcast/start` endpoint, which returns broadcast data to the host. The broadcast data
 includes the broadcast URL in its JSON-encoded HTTP response:
 
@@ -267,7 +267,7 @@ includes the broadcast URL in its JSON-encoded HTTP response:
 ```
 
 The `startBroadcast()` method subsequently calls the `updateStatus()` method with the broadcast
-status. The `updateStatus()` method uses the [OpenTok Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
+status. The `updateStatus()` method uses the [Video API Signaling API](https://www.tokbox.com/developer/guides/signaling/js/)
 to notify the live viewers who are subscribed to the session that the broadcast has started:
 
 ```javascript
@@ -299,7 +299,7 @@ immediately, or sets a timeout to play at the appropriate future time:
 ```
 
 When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server,
-which invokes the [OpenTok Broadcast API](https://tokbox.com/developer/rest/#stop_broadcast) `/broadcast/stop`
+which invokes the [Video API Broadcast API](https://tokbox.com/developer/rest/#stop_broadcast) `/broadcast/stop`
 endpoint, which terminates the CDN stream. This is a recommended best practice, as the default
 is that broadcasts remain active until a 120-minute timeout period has completed.
 
