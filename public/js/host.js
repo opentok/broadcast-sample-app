@@ -99,9 +99,11 @@
         rtmpActive.classList.remove('hidden');
       }
     } else {
-      startStopButton.classList;
+      startStopButton.classList.remove('active');
       startStopButton.innerHTML = 'Start Broadcast';
-      rtmpActive.classList.remove('hidden');
+      rtmpActive.classList.add('hidden');
+      document.getElementById('rtmpLabel').classList.remove('hidden');
+      document.getElementById('rtmp-options').classList.remove('hidden');
     }
 
     signal(session, broadcast.status);

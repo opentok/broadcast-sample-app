@@ -241,7 +241,7 @@ body {
 }
 
 .broadcast-controls-container .rtmp-container input::-webkit-input-placeholder {
-    color: #fff;
+    color: #000;
 }
 
 .rtmp-options {
@@ -250,6 +250,11 @@ body {
     align-items: center;
     margin: 5px;
     flex-direction: column;
+}
+
+.rtmp-options .options-input {
+    width: 200px;
+    text-align: left;
 }
 
 .controls-container .url {

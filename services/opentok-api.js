@@ -136,7 +136,7 @@ const getCredentials = async (userType) => {
  */
 const startBroadcast = async (streams, rmtp, fhd = false, dvr = false, lowLatency = false) => {
   return new Promise((resolve, reject) => {
-
+    console.log("StartBroadcast API");
     let layout;
     let dvrConfig = dvr;
     let lowLatencyConfig = lowLatency;
@@ -199,6 +199,7 @@ const startBroadcast = async (streams, rmtp, fhd = false, dvr = false, lowLatenc
  */
 const stopBroadcast = async () => {
   return new Promise((resolve, reject) => {
+    console.log("StopBroadcast API");
     if (!activeBroadcast) {
       reject({ error: 'No active broadcast session found' });
     }
