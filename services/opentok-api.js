@@ -134,10 +134,12 @@ const getCredentials = async (userType) => {
  * @param {String} [rmtp] - The (optional) RTMP stream url
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const startBroadcast = async (streams, rmtp) => {
+const startBroadcast = async (streams, rmtp, fhd = false, dvr = false, lowLatency = false) => {
   return new Promise((resolve, reject) => {
-
+    console.log("StartBroadcast API");
     let layout;
+    let dvrConfig = dvr;
+    let lowLatencyConfig = lowLatency;
     if (streams > 3) {
       layout = {
         type: 'bestFit'
@@ -149,8 +151,14 @@ const startBroadcast = async (streams, rmtp) => {
         stylesheet: customStyle,
       };
     }
+    if (dvrConfig) {
+      lowLatencyConfig = false; // DVR and LL are not compatible
+    }
     const outputs = {
-      hls: {},
+      hls: {
+        dvr: dvrConfig,
+        lowLatency: lowLatencyConfig
+      },
     };
     const sessionId = activeSession.sessionId;
 
@@ -160,8 +168,12 @@ const startBroadcast = async (streams, rmtp) => {
       outputs.rmtp = rmtp;
     }
 
+    const resolution = fhd ? "1920x1080" : process.env.broadcastDefaultResolution ? process.env.broadcastDefaultResolution : "1280x720";
+
+
+
     try {
-      OT.startBroadcast(sessionId, { layout, outputs, }, function (err, broadcast) {
+      OT.startBroadcast(sessionId, { layout, outputs, resolution }, function (err, broadcast) {
         if (err) reject(err);
 
         activeBroadcast = {
@@ -187,6 +199,7 @@ const startBroadcast = async (streams, rmtp) => {
  */
 const stopBroadcast = async () => {
   return new Promise((resolve, reject) => {
+    console.log("StopBroadcast API");
     if (!activeBroadcast) {
       reject({ error: 'No active broadcast session found' });
     }

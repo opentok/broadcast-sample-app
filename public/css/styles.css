@@ -1,6 +1,33 @@
 html,
 body {
     box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.main-container-host {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.left-container {
+    width: 65%;
+    min-width: 900px;
+    height: 100%;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.right-container {
+    background: rgba(136, 31, 255, 0.7);
+    flex: 1 0 0;
+    color: #ccc;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 .main-container {
@@ -8,8 +35,16 @@ body {
     height: 85vh;
     margin: 0 auto;
     padding: 10px;
-    border: 1px solid #59c9e3;
     border-radius: 6px;
+}
+
+.left-container-header {
+    display: flex;
+    padding: 10px;
+    font-size: 18px;
+    background: #000;
+    color: #fff;
+    font-weight: 600;
 }
 
 .main-container.player {
@@ -22,18 +57,28 @@ body {
 }
 
 .video-container {
-    width: 100%;
-    height: 100%;
+    /* flex: none;
+    padding: 10px;
+    overflow: hidden;
+    width: 640px;
+    height: 360px; */
+    flex: none;
+    padding: 10px;
+    height: calc(100% - 100px);
     display: flex;
-    justify-content: space-around;
 
 }
 
-.video-container.wrap {
+.video-container>* {
+    max-width: 640px;
+    max-height: 360px;
+}
+
+/* .video-container.wrap {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-}
+} */
 
 .video-container:empty {
     width: 0;
@@ -151,28 +196,25 @@ body {
 .broadcast-controls-container {
     margin: 15px 0 10px 0;
     text-align: center;
-    color: #696868;
+    color: #fff;
     font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
 .broadcast-controls-container .rtmp-container {
-    width: 675px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    padding: 2em;
 }
 
-.broadcast-controls-container .rtmp-container span {
-    font-family: "Poiret One";
-    font-style: italic;
-    color: #0099cc;
+.broadcast-controls-container .rtmp-container div {
     font-weight: 600;
-    display: inline-block;
-    height: 25px;
 }
 
-.broadcast-controls-container .rtmp-container span.active {
+.broadcast-controls-container .rtmp-container div.active {
     color: #59c9e3;
     font-weight: 600;
     letter-spacing: 1.5px;
@@ -194,12 +236,25 @@ body {
     width: 45%;
     font-size: 14px;
     padding: 0 10px;
-    margin: 5px 0;
+    margin: 5px;
     text-align: center;
 }
 
 .broadcast-controls-container .rtmp-container input::-webkit-input-placeholder {
-    color: lightgrey;
+    color: #000;
+}
+
+.rtmp-options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    flex-direction: column;
+}
+
+.rtmp-options .options-input {
+    width: 200px;
+    text-align: left;
 }
 
 .controls-container .url {
@@ -293,17 +348,15 @@ body {
 }
 
 .btn-broadcast {
-    font-family: 'Poiret One', cursive;
-    background-color: #0099cc;
-    box-shadow: 0 0 0 1px #0099cc;
+    background-color: #333;
     color: #fff !important;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     display: inline-block;
     margin: 5px 0;
-    padding: 5px 10px;
+    padding: 5px 15px;
     border: 0;
-    border-radius: 0;
+    border-radius: 5px;
     -o-transition: all .5s ease-out;
     -webkit-transition: all .5s ease-out;
     -moz-transition: all .5s ease-out;
