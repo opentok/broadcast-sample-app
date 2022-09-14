@@ -67,6 +67,19 @@
     });
   };
 
+  const signalBroadcastURL = function (session, url, to) {
+    console.log("signalBroadcastURL", to, url);
+    const signalData = Object.assign({}, { type: 'broadcast-url', data: url }, to ? { to } : {});
+    console.log("signalBroadcastURL#1", signalData);
+    session.signal(signalData, function (error) {
+      if (error) {
+        console.log(['[signalBroadcastURL] -  error (', error.code, '): ', error.message].join(''));
+      } else {
+        console.log('[signalBroadcastURL] - signal sent');
+      }
+    });
+  };
+
   /**
    * Construct the url for viewers to view the broadcast stream
    * @param {String} url The CDN url for the m3u8 video stream
@@ -180,6 +193,7 @@
       .then(function (broadcastData) {
         broadcast = broadcastData;
         updateStatus(session, 'active');
+        signalBroadcastURL(session, broadcast.url, null);
         analytics.log('startBroadcast', 'variationSuccess');
       }).catch(function (error) {
         console.log(error);
@@ -366,6 +380,17 @@
     session.on('signal:broadcast', function (event) {
       if (event.data === 'status') {
         signal(session, broadcast.status, event.from);
+      }
+    });
+
+    session.on('connectionCreated', function (event) {
+      console.log("connectionCreated", event);
+      console.log("session", session);
+      if (event.connection.connectionId !== session.connection.id) {
+        // send signal to new connected users
+        if (broadcast.status === 'active') {
+          signalBroadcastURL(session, broadcast.url, event.connection.connectionId);
+        }
       }
     });
 

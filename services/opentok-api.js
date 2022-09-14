@@ -184,6 +184,7 @@ const startBroadcast = async (streams, rmtp, fhd = false, dvr = false, lowLatenc
           apiKey: apiKey,
           availableAt: broadcast.createdAt + broadcastDelay
         };
+        console.log("activeBroadcast", activeBroadcast)
         resolve(activeBroadcast);
       });
     }

@@ -21,6 +21,12 @@ app.get('/viewer', async (req, res) => {
     .catch(error => res.status(500).send(error));
 })
 
+app.get('/hls-viewer', async (req, res) => {
+  opentok.getCredentials('viewer')
+    .then(credentials => res.render('pages/hls-viewer', { credentials: JSON.stringify(credentials) }))
+    .catch(error => res.status(500).send(error));
+})
+
 app.get('/host', (req, res) => {
   opentok.getCredentials('host')
     .then(credentials => res.render('pages/host', { credentials: JSON.stringify(credentials) }))
