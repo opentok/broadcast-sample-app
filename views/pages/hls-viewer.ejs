@@ -13,9 +13,15 @@
     <div id="banner" class="banner">
       <span id="bannerText" class="text">Waiting for Broadcast to Begin</span>
     </div>
-    <div id="videoContainer" class="video-container">
-      <video id="video"></video>
-      <button id="play-video">Play Video</button>
+    <div id="videoContainer" class="video-container hidden">
+      <video id="video" autoplay controls></video>
+    </div>
+    <div id="play-video-container" class="hls-play-video hidden">
+      <div class="button-container">
+        <h3>The broadcast has started - Click to play the video</h3>
+        <button id="play-video" class="btn-broadcast">Play Video</button>
+      </div>
+
     </div>
   </div>
 </body>

@@ -49,14 +49,20 @@
    */
   const updateBanner = function (status) {
     const banner = document.getElementById('banner');
+    const videoContainer = document.getElementById('videoContainer');
     const bannerText = document.getElementById('bannerText');
+    const playVideoContainer = document.getElementById('play-video-container');
 
     if (status === 'active') {
       banner.classList.add('hidden');
+      videoContainer.classList.remove('hidden');
+      playVideoContainer.classList.remove('hidden');
     } else if (status === 'ended') {
       bannerText.classList.add('red');
       bannerText.innerHTML = 'The Broadcast is Over';
       banner.classList.remove('hidden');
+      videoContainer.classList.add('hidden');
+      playVideoContainer.classList.add('hidden');
     }
   };
 
@@ -90,7 +96,7 @@
     /** Listen for a broadcast status update from the host */
 
     session.on('signal:broadcast-url', function (event) {
-      console.log("signal:broadcast-url", event)
+      console.log("signal:broadcast-url", event);
       const broadcastUrl = event.data;
       var video = document.getElementById('video');
       if (Hls.isSupported()) {
@@ -99,12 +105,7 @@
         hls.loadSource(broadcastUrl);
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, function () {
-          video.play().then(_ => {
-            // Autoplay started!
-          }).catch(error => {
-            // Autoplay was prevented.
-            // Show a "Play" button so that user can start playback.
-          });;
+          playVideo()
 
         });
       }
@@ -121,7 +122,11 @@
   const playVideo = function () {
     var video = document.getElementById('video');
     if (video) {
-      video.play().catch(err => {
+      video.play().then((res) => {
+        console.log("Play Video Successfull", res);
+        const playVideoContainer = document.getElementById('play-video-container');
+        playVideoContainer.classList.add('hidden');
+      }).catch(err => {
         console.log("Play Video error", err)
       });
     }

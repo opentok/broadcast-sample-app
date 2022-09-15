@@ -183,9 +183,8 @@ body {
 }
 
 .banner .text {
-    color: #0099cc;
+    color: #000;
     font-size: 34px;
-    font-family: 'Yellowtail', cursive;
     letter-spacing: 1px;
 }
 
@@ -420,4 +419,22 @@ body {
 .no-show {
     height: 0;
     width: 0;
+}
+
+#play-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#play-video-container .button-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    text-align: center;
 }
