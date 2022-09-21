@@ -1,6 +1,6 @@
 {
   "name": "Broadcast Sample App",
-  "description": "This sample app shows how to use the OpenTok HLS Broadcast functionality in a JavaScript app.",
+  "description": "This sample app shows how to use the Vonage Video API HLS Broadcast functionality in a JavaScript app.",
   "website": "https://vonage.com",
   "repository": "https://github.com/opentok/broadcast-sample-app",
   "image": "https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg",

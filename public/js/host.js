@@ -67,6 +67,19 @@
     });
   };
 
+  const signalBroadcastURL = function (session, url, to) {
+    console.log("signalBroadcastURL", to, url);
+    const signalData = Object.assign({}, { type: 'broadcast-url', data: url }, to ? { to } : {});
+    console.log("signalBroadcastURL#1", signalData);
+    session.signal(signalData, function (error) {
+      if (error) {
+        console.log(['[signalBroadcastURL] -  error (', error.code, '): ', error.message].join(''));
+      } else {
+        console.log('[signalBroadcastURL] - signal sent');
+      }
+    });
+  };
+
   /**
    * Construct the url for viewers to view the broadcast stream
    * @param {String} url The CDN url for the m3u8 video stream
@@ -100,9 +113,10 @@
       }
     } else {
       startStopButton.classList.remove('active');
-      startStopButton.innerHTML = 'Broadcast Over';
-      startStopButton.disabled = true;
+      startStopButton.innerHTML = 'Start Broadcast';
       rtmpActive.classList.add('hidden');
+      document.getElementById('rtmpLabel').classList.remove('hidden');
+      document.getElementById('rtmp-options').classList.remove('hidden');
     }
 
     signal(session, broadcast.status);
@@ -128,6 +142,7 @@
 
     if (serverDefined && !server.checkValidity()) {
       document.getElementById('rtmpLabel').classList.add('hidden');
+      document.getElementById('rtmp-options').classList.add('hidden');
       document.getElementById('rtmpError').innerHTML = invalidServerMessage;
       document.getElementById('rtmpError').classList.remove('hidden');
       return null;
@@ -135,18 +150,20 @@
 
     if (serverDefined && !streamDefined) {
       document.getElementById('rtmpLabel').classList.add('hidden');
+      document.getElementById('rtmp-options').classList.add('hidden');
       document.getElementById('rtmpError').innerHTML = invalidStreamMessage;
       document.getElementById('rtmpError').classList.remove('hidden');
       return null;
     }
 
     document.getElementById('rtmpLabel').classList.remove('hidden');
+    document.getElementById('rtmp-options').classList.remove('hidden');
     document.getElementById('rtmpError').classList.add('hidden');
     return { serverUrl: server.value, streamName: stream.value };
   };
 
   const hideRtmpInput = function () {
-    ['rtmpLabel', 'rtmpError', 'rtmpServer', 'rtmpStream'].forEach(function (id) {
+    ['rtmpLabel', 'rtmpError', 'rtmpServer', 'rtmpStream', 'rtmp-options'].forEach(function (id) {
       document.getElementById(id).classList.add('hidden');
     });
   };
@@ -164,11 +181,19 @@
       return;
     }
 
+    const HLS_LL = document.querySelector('#hls-ll').checked;
+    const HLS_HD = document.querySelector('#hls-HD').checked;
+    const HLS_DVR = document.querySelector('#hls-dvr').checked;
+
     hideRtmpInput();
-    http.post('/broadcast/start', { streams: broadcast.streams, rtmp: rtmp })
+    http.post('/broadcast/start', {
+      streams: broadcast.streams, rtmp: rtmp,
+      fhd: HLS_HD, dvr: HLS_DVR, lowLatency: HLS_LL
+    })
       .then(function (broadcastData) {
         broadcast = broadcastData;
         updateStatus(session, 'active');
+        signalBroadcastURL(session, broadcast.url, null);
         analytics.log('startBroadcast', 'variationSuccess');
       }).catch(function (error) {
         console.log(error);
@@ -355,6 +380,17 @@
     session.on('signal:broadcast', function (event) {
       if (event.data === 'status') {
         signal(session, broadcast.status, event.from);
+      }
+    });
+
+    session.on('connectionCreated', function (event) {
+      console.log("connectionCreated", event);
+      console.log("session", session);
+      if (event.connection.connectionId !== session.connection.id) {
+        // send signal to new connected users
+        if (broadcast.status === 'active') {
+          signalBroadcastURL(session, broadcast.url, event.connection.connectionId);
+        }
       }
     });
 
