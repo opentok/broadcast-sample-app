@@ -132,8 +132,17 @@
     }
   }
 
-  const init = function () {
+  const switchToLiveMode = function () {
+    window.location.href = 'viewer.html'
+  }
+
+  const addClickEventListeners = function () {
     document.getElementById('play-video').addEventListener('click', playVideo);
+    document.getElementById('go-live-btn').addEventListener('click', switchToLiveMode);
+  }
+
+  const init = function () {
+    addClickEventListeners();
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
     const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
@@ -146,6 +155,8 @@
       }
     });
   };
+
+
 
   document.addEventListener('DOMContentLoaded', init);
 }());
