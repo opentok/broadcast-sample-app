@@ -12,22 +12,23 @@ the broadcast. The sample app supports up to 3 guests who can publish in the bro
 The sample app also supports the following recommended numbers of viewers, based on the
 number of publishers in the broadcast:
 
-- 1 host, 3 guests: 75 viewers
-- 1 host, 2 guests: 100 viewers
-- 1 host, 1 guest:  150 viewers
+- 1 host, 3 guests: 11000 viewers
+- 1 host, 2 guests: 13000 viewers
+- 1 host, 1 guest: 15000 viewers
 
 The Vonage Video API live streaming feature lets you broadcast an Video API session to an HTTP live
 streaming (HLS) stream. More clients can simultaneously view this stream than can view
-a live interactive Video API session. Also, clients that do not support WebRTC (such as Safari)
+a live interactive Video API session. Also, clients that do not support WebRTC
 can view the HLS stream. HLS playback is not supported in all browsers. However, there are a
 number of plugins, such as [Flowplayer](https://flowplayer.org/), that provide
 cross-browser support (using Flash Player in browsers that do not provide direct HLS support).
 
+The DVR feature provides a two-hour window for playing back broadcast content. While the broadcast is in progress, you can play back (and rewind to) any point in the broadcast up to two hours prior to the current time. The DVR recording is unavailable two hours after the broadcast is stopped.
+
 **NOTE**: The viewer limits do not apply to HLS, since all publishing streams are transcoded
 to a single HLS stream that can be accessed from an HLS player. The expected latency for HLS
-is 10-15 seconds. When the host clicks the broadcast button, a link is provided, which the
-host can then share with all prospective viewers. The link directs the viewer to another page
-within the application that streams the broadcast feed.
+is 10-15 seconds and for low latency HLS is shorter. The host can select different options to start the broadcast (Full HD, Low latency and DVR).
+The viewers can move back and forth from the HLS viewer view to the WebRTC view.
 
 You can configure and run this sample app within just a few minutes!
 
@@ -74,7 +75,7 @@ To try out the Broadcast Sample App, visit the following URLs:
 
 Host: [https://broadcast-sample.herokuapp.com/host](https://broadcast-sample.herokuapp.com/host)  
 Guest: [https://broadcast-sample.herokuapp.com/guest](https://broadcast-sample.herokuapp.com/guest)  
-Viewer: [https://broadcast-sample.herokuapp.com/viewer](https://broadcast-sample.herokuapp.com/viewer)  
+Viewer: [https://broadcast-sample.herokuapp.com/viewer](https://broadcast-sample.herokuapp.com/viewer)
 
 ### Starting a broadcast
 
@@ -140,8 +141,7 @@ the credentials and creates the token for each user type (moderator, publisher, 
 defined in [opentok-api.js](./services/opentok-api.js):
 
 ```javascript
-const tokenOptions = userType => {
-
+const tokenOptions = (userType) => {
   const role = {
     host: 'moderator',
     guest: 'publisher',
@@ -157,11 +157,14 @@ route is configured in server.js:
 
 ```javascript
 app.get('/host', (req, res) => {
-  api.getCredentials('host')
-    .then(credentials => res.render('pages/host', {
-      credentials: JSON.stringify(credentials)
-    }))
-    .catch(error => res.status(500).send(error));
+  api
+    .getCredentials('host')
+    .then((credentials) =>
+      res.render('pages/host', {
+        credentials: JSON.stringify(credentials),
+      })
+    )
+    .catch((error) => res.status(500).send(error));
 });
 ```
 
@@ -237,11 +240,11 @@ custom UI with controls for the publisher role associated with the host, and set
 listeners for the broadcast button.
 
 ```javascript
-  var publishAndSubscribe = function (session, publisher) {
-    session.publish(publisher);
-    addPublisherControls(publisher);
-    setEventListeners(session, publisher);
-  };
+var publishAndSubscribe = function (session, publisher) {
+  session.publish(publisher);
+  addPublisherControls(publisher);
+  setEventListeners(session, publisher);
+};
 ```
 
 When the broadcast button is clicked, the `startBroadcast()` method is invoked and submits
@@ -285,17 +288,16 @@ this timestamp to the current time to determine when to play the video. It eithe
 immediately, or sets a timeout to play at the appropriate future time:
 
 ```javascript
-  var init = function () {
-
-    var broadcast = getBroadcastData();
-    if (broadcast.availableAt <= Date.now()) {
+var init = function () {
+  var broadcast = getBroadcastData();
+  if (broadcast.availableAt <= Date.now()) {
+    play(broadcast.url);
+  } else {
+    setTimeout(function () {
       play(broadcast.url);
-    } else {
-      setTimeout(function () { play(broadcast.url); },
-        broadcast.availableAt - Date.now());
-    }
-
-  };
+    }, broadcast.availableAt - Date.now());
+  }
+};
 ```
 
 When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server,

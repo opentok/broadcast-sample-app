@@ -1,13 +1,12 @@
 /* eslint-disable object-shorthand */
 (function () {
-
   /**
    * Options for adding OpenTok publisher and subscriber video elements
    */
   const insertOptions = {
     width: '100%',
     height: '100%',
-    showControls: false
+    showControls: false,
   };
 
   /**
@@ -40,7 +39,7 @@
   const checkBroadcastStatus = function (session) {
     session.signal({
       type: 'broadcast',
-      data: 'status'
+      data: 'status',
     });
   };
 
@@ -75,41 +74,32 @@
     let broadcastActive = false;
 
     /** Subscribe to new streams as they are published */
-    // session.on('streamCreated', function (event) {
-    //   streams.push(event.stream);
-    //   if (broadcastActive) {
-    //     subscribers.push(subscribe(session, event.stream));
-    //   }
-    //   if (streams.length > 3) {
-    //     document.getElementById('videoContainer').classList.add('wrap');
-    //   }
-    // });
+    session.on('streamCreated', function (event) {
+      console.log(event);
 
-    // session.on('streamDestroyed', function (event) {
-    //   const index = streams.indexOf(event.stream);
-    //   streams.splice(index, 1);
-    //   if (streams.length < 4) {
-    //     document.getElementById('videoContainer').classList.remove('wrap');
-    //   }
-    // });
+      // if (broadcastActive) {
+      //   subscribers.push(subscribe(session, event.stream));
+      // }
+      // if (streams.length > 3) {
+      //   document.getElementById('videoContainer').classList.add('wrap');
+      // }
+    });
 
     /** Listen for a broadcast status update from the host */
 
     session.on('signal:broadcast-url', function (event) {
-      console.log("signal:broadcast-url", event);
+      console.log('signal:broadcast-url', event);
       const broadcastUrl = event.data;
       var video = document.getElementById('video');
       if (Hls.isSupported()) {
         var hls = new Hls();
-        console.log("signal:broadcast-url - ", broadcastUrl)
+        console.log('signal:broadcast-url - ', broadcastUrl);
         hls.loadSource(broadcastUrl);
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, function () {
-          playVideo()
-
+          playVideo();
         });
-      }
-      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = broadcastUrl;
         video.addEventListener('canplay', function () {
           video.play();
@@ -122,41 +112,52 @@
   const playVideo = function () {
     var video = document.getElementById('video');
     if (video) {
-      video.play().then((res) => {
-        console.log("Play Video Successfull", res);
-        const playVideoContainer = document.getElementById('play-video-container');
-        playVideoContainer.classList.add('hidden');
-      }).catch(err => {
-        console.log("Play Video error", err)
-      });
+      video
+        .play()
+        .then((res) => {
+          console.log('Play Video Successfull', res);
+          const playVideoContainer = document.getElementById(
+            'play-video-container'
+          );
+          playVideoContainer.classList.add('hidden');
+        })
+        .catch((err) => {
+          console.log('Play Video error', err);
+        });
     }
-  }
+  };
 
   const switchToLiveMode = function () {
-    window.location.href = 'viewer.html'
-  }
+    window.location.href = 'viewer.html';
+  };
 
   const addClickEventListeners = function () {
     document.getElementById('play-video').addEventListener('click', playVideo);
-    document.getElementById('go-live-btn').addEventListener('click', switchToLiveMode);
-  }
+    document
+      .getElementById('go-live-btn')
+      .addEventListener('click', switchToLiveMode);
+  };
 
   const init = function () {
     addClickEventListeners();
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
-    const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
+    const session = OT.initSession(
+      credentials.apiKey,
+      credentials.sessionId,
+      props
+    );
     setEventListeners(session);
     session.connect(credentials.token, function (error) {
       if (error) {
         console.log(error);
       } else {
+        console.log('connected');
+
         checkBroadcastStatus(session);
       }
     });
   };
 
-
-
   document.addEventListener('DOMContentLoaded', init);
-}());
+})();

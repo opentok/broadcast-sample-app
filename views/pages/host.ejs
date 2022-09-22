@@ -1,74 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <%- include('../partials/head') %>
+  <head>
+    <%- include('../partials/head') %>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.10/clipboard.min.js"></script>
     <script src="js/util/http.js" type="text/javascript"></script>
     <script src="js/host.js" type="text/javascript"></script>
-</head>
+  </head>
 
-<body>
-  <div id="credentials" style="display:none;" data="<%= credentials %>"></div>
-  <div id="main" class="main-container-host">
-    <div class="left-container">
-      <div class="left-container-header">
-        Video Broadcast Streams
+  <body>
+    <div id="credentials" style="display: none" data="<%= credentials %>"></div>
+    <div id="main" class="main-container-host">
+      <div class="left-container">
+        <div class="left-container-header">Video Broadcast Streams</div>
+        <div id="videoContainer" class="video-container">
+          <div id="hostDivider" class="hidden"></div>
+        </div>
+        <div class="broadcast-controls-container"></div>
       </div>
-      <div id="videoContainer" class="video-container">
-        <div id="hostDivider" class="hidden"></div>
-      </div>
-      <div class="broadcast-controls-container">
+      <div class="right-container">
+        <div class="broadcast-controls-container">
+          <div class="rtmp-container">
+            <div id="rtmpLabel">
+              Want to stream to YouTube Live or Facebook Live? <br />Add your
+              RTMP Server URL and Stream Name:
+            </div>
+            <div class="hidden error" id="rtmpError">
+              The entered RTMP server and/or stream name are not valid. Please
+              check the url and try again.
+            </div>
+            <span id="rtmpActive" class="hidden active"
+              >Your RTMP stream is active!</span
+            >
+            <div id="rtmpInputContainer" class="input-container">
+              <input
+                id="rtmpServer"
+                type="url"
+                placeholder="rtmp://myrtmpserver/mybroadcastapp"
+              />
+              <input id="rtmpStream" type="text" placeholder="myStreamName" />
+            </div>
+            <div id="rtmp-options" class="rtmp-options">
+              <div class="options-input">
+                <input
+                  type="checkbox"
+                  id="hls-ll"
+                  name="Low Latency HLS"
+                  value="Low Latency"
+                />
+                <label for="hls-ll"> Low Latency HLS</label>
+              </div>
+              <div class="options-input">
+                <input
+                  type="checkbox"
+                  id="hls-HD"
+                  name="Full HD HLS"
+                  value="FHD 1080p"
+                />
+                <label for="hls-HD"> FHD 1080p </label><br />
+              </div>
+              <div class="options-input">
+                <input
+                  type="checkbox"
+                  id="hls-dvr"
+                  name="DVR HLS"
+                  value="DVR"
+                />
+                <label for="hls-dvr"> DVR </label><br />
+              </div>
+            </div>
+          </div>
+          <div>
+            <button id="startStop" class="btn-broadcast hidden">
+              Start Broadcast
+            </button>
+          </div>
 
+          <div id="urlContainer" class="url-container hidden">
+            <div id="broadcastURL" class="opacity-0 no-show"></div>
+            <div
+              id="copyURL"
+              class="copy-link"
+              data-clipboard-target="#broadcastURL"
+            >
+              <span>Get sharable HLS link</span>
+            </div>
+            <div id="copyNotice" class="tooltip copy opacity-0">
+              <span>Link copied to clipboard!</span>
+              <span class="triangle-down">▼</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="right-container">
-      <div class="broadcast-controls-container">
-        <div class="rtmp-container">
-          <div id="rtmpLabel">Want to stream to YouTube Live or Facebook Live? <br>Add your RTMP Server URL and Stream
-            Name:</div>
-          <div class="hidden error" id="rtmpError">The entered RTMP server and/or stream name are not valid. Please
-            check the url and try again.</div>
-          <span id="rtmpActive" class="hidden active">Your RTMP stream is active!</span>
-          <div id="rtmpInputContainer" class="input-container">
-            <input id="rtmpServer" type="url" placeholder="rtmp://myrtmpserver/mybroadcastapp">
-            <input id="rtmpStream" type="text" placeholder="myStreamName">
-          </div>
-          <div id="rtmp-options" class="rtmp-options">
-            <div class="options-input">
-              <input type="checkbox" id="hls-ll" name="Low Latency HLS" value="Low Latency">
-              <label for="hls-ll"> Low Latency HLS</label>
-            </div>
-            <div class="options-input">
-              <input type="checkbox" id="hls-HD" name="Full HD HLS" value="FHD 1080p">
-              <label for="hls-HD"> FHD 1080p </label><br>
-            </div>
-            <div class="options-input">
-              <input type="checkbox" id="hls-dvr" name="DVR HLS" value="DVR">
-              <label for="hls-dvr"> DVR </label><br>
-            </div>
-          </div>
-        </div>
-        <div>
-          <button id="startStop" class="btn-broadcast hidden">Start Broadcast</button>
-        </div>
-
-        <div id="urlContainer" class="url-container hidden">
-          <div id="broadcastURL" class="opacity-0 no-show"></div>
-          <div id="copyURL" class="copy-link" data-clipboard-target="#broadcastURL">
-            <span>Get sharable HLS link</span>
-          </div>
-          <div id="copyNotice" class="tooltip copy opacity-0">
-            <span>Link copied to clipboard!</span>
-            <span class="triangle-down">▼</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-</body>
-
+  </body>
 </html>
