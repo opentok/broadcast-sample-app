@@ -204,6 +204,10 @@ When the web page is loaded, those credentials are retrieved from the HTML and a
 The functions in [guest.js](./public/js/guest.js) retrieve the credentials from the HTML,
 subscribe to the host stream and other guest streams, and publish audio and video to the session.
 
+### HLS viewer
+
+The functions in [viewer.js](./public/js/hls-viewer.js) retrieve the credentials from the HTML, connect to the session and check whether the broadcast is active or not. The HLS viewer can also move to the Viewer view (WebRTC session)
+
 ### Viewer
 
 The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials from the HTML,
@@ -220,20 +224,6 @@ can be distributed to all potential viewers to watch the CDN stream. The host ma
 the server, which calls the Video API API to start and end the broadcast. Once the broadcast ends,
 the client player will recognize an error event and display a message that the broadcast is over.
 For more information, see [Initialize, Connect, and Publish to a Session](https://tokbox.com/developer/concepts/connect-and-publish/).
-
-The following line in host.js creates a control that allows the host to copy the URL of the CDN
-stream to the clipboard for distribution to potential viewers:
-
-```javascript
-  var init = function () {
-    var clipboard = new Clipboard('#copyURL');
-
-    . . .
-
-    });
-  };
-
-```
 
 The following method in host.js sets up the publisher session for the host, configures a
 custom UI with controls for the publisher role associated with the host, and sets up event
@@ -260,7 +250,7 @@ includes the broadcast URL in its JSON-encoded HTTP response:
 
     http.post('/broadcast/start', { sessionId: session.sessionId })
       .then(function (broadcastData) {
-        broadcast = R.merge(broadcast, broadcastData);
+
         updateStatus(session, 'active');
 
         . . .
@@ -299,6 +289,8 @@ var init = function () {
   }
 };
 ```
+
+If a guest joins the HLS view after the broadcast has started, it will send a signal to the host to retrieve the current status of the broadcast. If the broadcast is active, the host will send them the URL so they can play the HLS feed.
 
 When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server,
 which invokes the [Video API Broadcast API](https://tokbox.com/developer/rest/#stop_broadcast) `/broadcast/stop`

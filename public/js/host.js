@@ -53,7 +53,7 @@
       subscriber: publisher,
     };
     subscribers.push(subscriberData);
-    // publisher.on('audioLevelUpdated', audioLevelUpdate);
+
     return publisher;
   };
 
@@ -154,8 +154,6 @@
       startStopButton.classList.add('active');
       startStopButton.innerHTML = 'End Broadcast';
       document.getElementById('urlContainer').classList.remove('hidden');
-      displayUrl.innerHTML = playerUrl;
-      displayUrl.setAttribute('value', playerUrl);
       if (broadcast.rtmp) {
         rtmpActive.classList.remove('hidden');
       }
@@ -272,60 +270,6 @@
       .catch(function (error) {
         console.log(error);
         analytics.log('endBroadcast', 'variationError');
-      });
-  };
-
-  /**
-   * Calculates the active speaker amongst all subscribers/publishers
-   */
-  const calculateActiveSpeaker = function () {
-    let activeSpeakers = subscribers.filter(
-      (f) => f.activity && f.activity.talking
-    );
-    activeSpeakers = activeSpeakers.sort(
-      (a, b) => a.activity.audioLevel < b.activity.audioLevel
-    );
-    const now = Date.now();
-
-    if (activeSpeakers.length > 0 && now - lastActiveSpeaker > 1000) {
-      if (
-        !activeSpeaker ||
-        activeSpeaker.subscriber.streamId !==
-          activeSpeakers[0].subscriber.streamId
-      ) {
-        activeSpeaker = activeSpeakers[0];
-        lastActiveSpeaker = now;
-        updateClasses();
-      }
-    }
-  };
-
-  /**
-   * Updates the class lists for streams
-   */
-  const updateClasses = function () {
-    let focusUsed = 0;
-
-    const streamClasses = subscribers.map((m, index) => {
-      let cssClasses = ['sub', `item${index - focusUsed}`];
-      if (m.subscriber.streamId === activeSpeaker.subscriber.streamId) {
-        cssClasses = ['focus'];
-        focusUsed = 1;
-      }
-      return {
-        id: m.subscriber.streamId,
-        layoutClassList: cssClasses,
-      };
-    });
-
-    http
-      .post('/broadcast/classes', { classList: streamClasses })
-      .then(function () {
-        analytics.log('updatedStreamClasses', 'variationSuccess');
-      })
-      .catch(function (error) {
-        console.log(error);
-        analytics.log('updatedStreamClasses', 'variationError');
       });
   };
 
@@ -490,9 +434,9 @@
       subscribe(session, event.stream);
       if (subscribers.length > 2) {
         document.getElementById('videoContainer').classList.add('wrap');
-        // if (broadcast.status === 'active' && subscribers.length <= 3) {
-        //   updateBroadcastLayout();
-        // }
+        if (broadcast.status === 'active' && subscribers.length <= 3) {
+          updateBroadcastLayout();
+        }
       }
     });
 
@@ -562,11 +506,6 @@
   const addPublisherControls = function (publisher) {
     const publisherContainer = document.getElementById(publisher.element.id);
     const el = document.createElement('div');
-    // const controls = [
-    //   '<div class="publisher-controls-container">',
-    //   '<div id="publishVideo" class="control video-control"></div>',
-    //   '<div id="publishAudio" class="control audio-control"></div>',
-    //   '</div>',
 
     const controls = [
       '<div>',

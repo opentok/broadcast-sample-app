@@ -73,18 +73,6 @@
     const subscribers = [];
     let broadcastActive = false;
 
-    /** Subscribe to new streams as they are published */
-    session.on('streamCreated', function (event) {
-      console.log(event);
-
-      // if (broadcastActive) {
-      //   subscribers.push(subscribe(session, event.stream));
-      // }
-      // if (streams.length > 3) {
-      //   document.getElementById('videoContainer').classList.add('wrap');
-      // }
-    });
-
     /** Listen for a broadcast status update from the host */
 
     session.on('signal:broadcast-url', function (event) {
