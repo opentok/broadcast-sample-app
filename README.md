@@ -79,15 +79,9 @@ Viewer: [https://broadcast-sample.herokuapp.com/viewer](https://broadcast-sample
 
 ### Starting a broadcast
 
-From the host view, press the `Start Broadcast` button (shown below) and optionally provide the RTMP Server URL and Stream Name.
+From the host view, press the `Start Broadcast` button and optionally provide the RTMP Server URL and Stream Name. You can configure different parametes for the broadcast (HLS Low Latency, DVR and Full HD)
 
-![image](https://user-images.githubusercontent.com/1228996/97630435-9ad4f500-19fd-11eb-9772-64e72bd005e3.png)
-
-This will start an HLS/RTMP stream and provide a sharable link to the broadcast view (shown below).
-
-![image](https://user-images.githubusercontent.com/1228996/97630527-bb9d4a80-19fd-11eb-8f7e-3d21c66d232b.png)
-
-Click the `Get sharable HLS link` to copy the broadcast URL to your clipboard. You can then paste that link into a browser to view the stream live.
+- Note: DVR functionality and Low Latency are incompatible
 
 ## Exploring the code
 
@@ -211,7 +205,7 @@ The functions in [viewer.js](./public/js/hls-viewer.js) retrieve the credentials
 ### Viewer
 
 The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials from the HTML,
-connect to the session and subscribe after receiving a signal from the host indicating the broadcast has started, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the Video API [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast.
+connect to the session and subscribe after receiving a signal from the host indicating the broadcast has started, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the Video API [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast. The viewer can also move to the HLS viewer view.
 
 ### Host
 
