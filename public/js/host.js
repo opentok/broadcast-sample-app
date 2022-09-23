@@ -689,7 +689,6 @@
   };
 
   const init = function () {
-    const clipboard = new Clipboard('#copyURL'); // eslint-disable-line no-unused-vars
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
     session = OT.initSession(credentials.apiKey, credentials.sessionId, props);

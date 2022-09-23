@@ -20,21 +20,6 @@
     return credentials;
   };
 
-  /**
-   * Subscribe to a stream
-   * @returns {Object} A subscriber object
-   */
-  // const subscribe = function (session, stream) {
-  //   const name = stream.name;
-  //   const insertMode = name === 'Host' ? 'before' : 'after';
-  //   const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
-  //   return session.subscribe(stream, 'hostDivider', properties, function (error) {
-  //     if (error) {
-  //       console.log(error);
-  //     }
-  //   });
-  // };
-
   /** Ping the host to see if the broadcast has started */
   const checkBroadcastStatus = function (session) {
     session.signal({
