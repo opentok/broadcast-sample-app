@@ -534,7 +534,6 @@
     ].join('\n');
     el.innerHTML = controls;
     publisherContainer.appendChild(el.firstChild);
-    refreshDeviceList(publisher);
   };
 
   /**
