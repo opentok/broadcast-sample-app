@@ -555,14 +555,13 @@
       console.log(devices);
       const videoSelect = document.getElementById('videoInputs');
       videoSelect.innerHTML = '';
-      console.log(pub);
 
       const currentVideoSource = pub.getVideoSource();
 
       // Select Input
       const currentVideoOption = document.createElement('option');
       //disabledOption.disabled = true;
-      currentVideoOption.innerText = currentVideoSource.track.label;
+      currentVideoOption.innerText = currentVideoSource?.track?.label;
       currentVideoOption.classList.add('dropdown-item');
       currentVideoOption.value = currentVideoSource.track.label;
       currentVideoOption.selected = true;
