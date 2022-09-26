@@ -1,14 +1,13 @@
 /* global analytics */
 /* eslint-disable object-shorthand */
 (function () {
-
   /**
    * Options for adding OpenTok publisher and subscriber video elements
    */
   const insertOptions = {
     width: '100%',
     height: '100%',
-    showControls: false
+    showControls: false,
   };
 
   /**
@@ -26,7 +25,10 @@
    * Create an OpenTok publisher object
    */
   const initPublisher = function () {
-    const properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
+    const properties = Object.assign(
+      { name: 'Guest', insertMode: 'after' },
+      insertOptions
+    );
     return OT.initPublisher('hostDivider', properties);
   };
 
@@ -36,7 +38,10 @@
   const subscribe = function (session, stream) {
     const name = stream.name;
     const insertMode = name === 'Host' ? 'before' : 'after';
-    const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
+    const properties = Object.assign(
+      { name: name, insertMode: insertMode },
+      insertOptions
+    );
     session.subscribe(stream, 'hostDivider', properties, function (error) {
       if (error) {
         console.log(error);
@@ -76,8 +81,7 @@
    * @param {Object} publisher The OpenTok publisher object
    */
   const publishAndSubscribe = function (session, publisher) {
-
-    const streams = 1;
+    let streams = 1;
 
     session.publish(publisher);
     addPublisherControls(publisher);
@@ -98,20 +102,27 @@
       }
     });
 
-    document.getElementById('publishVideo').addEventListener('click', function () {
-      toggleMedia(publisher, this);
-    });
+    document
+      .getElementById('publishVideo')
+      .addEventListener('click', function () {
+        toggleMedia(publisher, this);
+      });
 
-    document.getElementById('publishAudio').addEventListener('click', function () {
-      toggleMedia(publisher, this);
-    });
-
+    document
+      .getElementById('publishAudio')
+      .addEventListener('click', function () {
+        toggleMedia(publisher, this);
+      });
   };
 
   const init = function () {
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
-    const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
+    const session = OT.initSession(
+      credentials.apiKey,
+      credentials.sessionId,
+      props
+    );
     const publisher = initPublisher();
 
     session.connect(credentials.token, function (error) {
@@ -130,4 +141,4 @@
   };
 
   document.addEventListener('DOMContentLoaded', init);
-}());
+})();

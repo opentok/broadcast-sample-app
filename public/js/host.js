@@ -558,14 +558,16 @@
 
       const currentVideoSource = pub.getVideoSource();
 
-      // Select Input
-      const currentVideoOption = document.createElement('option');
-      //disabledOption.disabled = true;
-      currentVideoOption.innerText = currentVideoSource?.track?.label;
-      currentVideoOption.classList.add('dropdown-item');
-      currentVideoOption.value = currentVideoSource.track.label;
-      currentVideoOption.selected = true;
-      videoSelect.appendChild(currentVideoOption);
+      if (currentVideoSource) {
+        // Select Input
+        const currentVideoOption = document.createElement('option');
+        //disabledOption.disabled = true;
+        currentVideoOption.innerText = currentVideoSource?.track?.label;
+        currentVideoOption.classList.add('dropdown-item');
+        currentVideoOption.value = currentVideoSource.track?.label;
+        currentVideoOption.selected = true;
+        videoSelect.appendChild(currentVideoOption);
+      }
 
       for (let i = 0; i < devices.length; i += 1) {
         if (devices[i].deviceId != currentVideoSource.deviceId) {
