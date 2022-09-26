@@ -200,7 +200,7 @@
     document.getElementById('rtmpLabel').classList.remove('hidden');
     document.getElementById('rtmp-options').classList.remove('hidden');
     document.getElementById('rtmpError').classList.add('hidden');
-    return { serverUrl: server.value, streamName: stream.value };
+    return { id: 'testId', serverUrl: server.value, streamName: stream.value };
   };
 
   const hideRtmpInput = function () {

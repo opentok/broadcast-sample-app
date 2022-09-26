@@ -70,10 +70,15 @@ app.get('*', (req, res) => {
  */
 app.post('/broadcast/start', (req, res) => {
   const { streams, rtmp, lowLatency, fhd, dvr } = req.body;
+
   opentok
     .startBroadcast(streams, rtmp, lowLatency, fhd, dvr)
     .then((data) => res.send(data))
-    .catch((error) => res.status(500).send(error));
+    .catch((error) => {
+      console.log(error);
+
+      res.status(500).send(error);
+    });
 });
 
 app.post('/broadcast/layout', (req, res) => {

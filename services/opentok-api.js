@@ -138,14 +138,13 @@ const getCredentials = async (userType) => {
  */
 const startBroadcast = async (
   streams,
-  rmtp,
+  rtmp,
   lowLatency,
   fhd = false,
   dvr = false
 ) => {
   return new Promise((resolve, reject) => {
     console.log('StartBroadcast API');
-    console.log('low latency ' + lowLatency);
 
     const layout = {
       type: 'bestFit',
@@ -166,7 +165,7 @@ const startBroadcast = async (
     if (dvrConfig) {
       lowLatencyConfig = false; // DVR and LL are not compatible
     }
-    const outputs = {
+    let outputs = {
       hls: {
         dvr: dvrConfig,
         lowLatency: lowLatencyConfig,
@@ -174,10 +173,11 @@ const startBroadcast = async (
     };
     const sessionId = activeSession.sessionId;
 
-    const { serverUrl, streamName } = rmtp;
+    const { serverUrl, streamName } = rtmp;
 
     if (serverUrl && streamName) {
-      outputs.rmtp = rmtp;
+      outputs.rtmp = [rtmp];
+      console.log(outputs);
     }
 
     const resolution = fhd
@@ -191,12 +191,16 @@ const startBroadcast = async (
         sessionId,
         { layout, outputs, resolution },
         function (err, broadcast) {
-          if (err) reject(err);
+          if (err) {
+            console.log('error starting broadcast ' + err);
+
+            reject(err);
+          }
 
           activeBroadcast = {
             id: broadcast.id,
             session: broadcast.sessionId,
-            rmtp: broadcast.broadcastUrls.rmtp,
+            rtmp: broadcast.broadcastUrls.rtmp,
             url: broadcast.broadcastUrls.hls,
             apiKey: apiKey,
             availableAt: broadcast.createdAt + broadcastDelay,
