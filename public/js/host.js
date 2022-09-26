@@ -342,8 +342,6 @@
       ),
       subData,
     ];
-
-    calculateActiveSpeaker();
   };
 
   /**
