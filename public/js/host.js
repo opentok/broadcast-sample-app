@@ -215,6 +215,18 @@
     });
   };
 
+  const showRtmpInput = function () {
+    [
+      'rtmpLabel',
+      'rtmpError',
+      'rtmpServer',
+      'rtmpStream',
+      'rtmp-options',
+    ].forEach(function (id) {
+      document.getElementById(id).classList.remove('hidden');
+    });
+  };
+
   /**
    * Make a request to the server to start the broadcast
    */
@@ -265,6 +277,7 @@
       .post('/broadcast/end')
       .then(function () {
         updateStatus(session, 'ended');
+        showRtmpInput();
         analytics.log('endBroadcast', 'variationSuccess');
       })
       .catch(function (error) {
