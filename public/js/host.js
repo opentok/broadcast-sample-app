@@ -559,6 +559,7 @@
     session.publish(publisher);
     addPublisherControls(publisher);
     setEventListeners(session, publisher);
+    refreshDeviceList(publisher);
   };
 
   const refreshDeviceList = (pub) => {
