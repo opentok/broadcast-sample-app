@@ -101,6 +101,7 @@
 
       if (status === 'active') {
         document.getElementById('back-hls').classList.remove('hidden');
+        document.getElementById('participate').classList.remove('hidden');
         streams.forEach(function (stream) {
           subscribers.push(subscribe(session, stream));
         });
@@ -114,18 +115,20 @@
   };
 
   const switchToHlsMode = function (e) {
-    console.log(window.location.href);
-
-    window.location.href = 'hls-viewer';
+    window.location.href = `hls-viewer${window.location.search}`;
   };
-  const addClickEventListeners = function () {
-    document
-      .getElementById('go-hls-btn')
-      .addEventListener('click', switchToHlsMode);
+
+  const switchToLiveMode = function (e) {
+    window.location.href = `guest${window.location.search}`;
   };
 
   const init = function () {
-    addClickEventListeners();
+    document
+      .getElementById('participate-button')
+      .addEventListener('click', switchToLiveMode);
+    document
+      .getElementById('go-hls-btn')
+      .addEventListener('click', switchToHlsMode);
 
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };

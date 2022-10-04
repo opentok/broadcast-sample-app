@@ -49,6 +49,10 @@
     });
   };
 
+  const switchToViewerMode = function () {
+    window.location.href = `viewer${window.location.search}`;
+  };
+
   /**
    * Toggle publishing audio/video to allow host to mute
    * their video (publishVideo) or audio (publishAudio)
@@ -113,6 +117,10 @@
       .addEventListener('click', function () {
         toggleMedia(publisher, this);
       });
+
+    document
+      .getElementById('back-viewer')
+      .addEventListener('click', switchToViewerMode);
   };
 
   const init = function () {

@@ -20,6 +20,13 @@
     return credentials;
   };
 
+  const getBroadcastUrl = async function () {
+    const response = await fetch(
+      `/broadcast/${window.location.search.split('=')[1]}`
+    );
+    return response.json();
+  };
+
   /** Ping the host to see if the broadcast has started */
   const checkBroadcastStatus = function (session) {
     session.signal({
@@ -72,6 +79,9 @@
         hls.on(Hls.Events.MANIFEST_PARSED, function () {
           playVideo();
         });
+        hls.on(Hls.Events.BUFFER_EOS, function () {
+          updateBanner('ended');
+        });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = broadcastUrl;
         video.addEventListener('canplay', function () {
@@ -101,7 +111,7 @@
   };
 
   const switchToLiveMode = function () {
-    window.location.href = 'viewer.html';
+    window.location.href = `viewer${window.location.search}`;
   };
 
   const addClickEventListeners = function () {
@@ -113,23 +123,45 @@
 
   const init = function () {
     addClickEventListeners();
-    const credentials = getCredentials();
-    const props = { connectionEventsSuppressed: true };
-    const session = OT.initSession(
-      credentials.apiKey,
-      credentials.sessionId,
-      props
-    );
-    setEventListeners(session);
-    session.connect(credentials.token, function (error) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('connected');
+    getBroadcastUrl()
+      .then((data) => {
+        updateBanner('active');
+        const { url } = data;
 
-        checkBroadcastStatus(session);
-      }
-    });
+        var video = document.getElementById('video');
+        if (Hls.isSupported()) {
+          var hls = new Hls();
+          console.log('broadcast-url - ', url);
+          hls.loadSource(url);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            playVideo();
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = url;
+          video.addEventListener('canplay', function () {
+            video.play();
+          });
+        }
+      })
+      .catch((e) => console.log(e)); // addClickEventListeners();
+    // const credentials = getCredentials();
+    // const props = { connectionEventsSuppressed: true };
+    // const session = OT.initSession(
+    //   credentials.apiKey,
+    //   credentials.sessionId,
+    //   props
+    // );
+    // setEventListeners(session);
+    // session.connect(credentials.token, function (error) {
+    //   if (error) {
+    //     console.log(error);
+    //   } else {
+    //     console.log('connected');
+
+    //     checkBroadcastStatus(session);
+    //   }
+    // });
   };
 
   document.addEventListener('DOMContentLoaded', init);

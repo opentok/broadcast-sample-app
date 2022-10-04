@@ -256,6 +256,7 @@
         lowLatency: HLS_LL,
         fhd: HLS_HD,
         dvr: HLS_DVR,
+        sessionId: credentialData.sessionId,
       })
       .then(function (broadcastData) {
         broadcast = broadcastData;
@@ -274,7 +275,9 @@
    */
   const endBroadcast = function () {
     http
-      .post('/broadcast/end')
+      .post('/broadcast/end', {
+        sessionId: credentialData.sessionId,
+      })
       .then(function () {
         updateStatus(session, 'ended');
         showRtmpInput();
@@ -417,6 +420,7 @@
         .post('/broadcast/layout', {
           streams: subscribers.length,
           type: subscribers.length > 3 ? 'custom' : 'bestFit',
+          sessionId: credentialData.sessionId,
         })
         .then(function (result) {
           console.log(result);
@@ -559,7 +563,7 @@
     session.publish(publisher);
     addPublisherControls(publisher);
     setEventListeners(session, publisher);
-    refreshDeviceList(publisher);
+    // refreshDeviceList(publisher);
   };
 
   const refreshDeviceList = (pub) => {
@@ -611,9 +615,9 @@
 
       // Select Input
       const currentAudioOption = document.createElement('option');
-      currentAudioOption.innerText = currentAudioSource.label;
+      currentAudioOption.innerText = currentAudioSource?.label;
 
-      currentAudioOption.value = currentAudioSource.label;
+      currentAudioOption.value = currentAudioSource?.label;
       currentAudioOption.selected = true;
       audioSelect.appendChild(currentAudioOption);
 

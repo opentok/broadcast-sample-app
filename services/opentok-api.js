@@ -65,7 +65,7 @@ stream.item7 {
 const broadcastDelay = 20 * 1000;
 
 let activeSession;
-let activeBroadcast;
+const activeBroadcast = {};
 
 /**
  * Returns options for token creation based on user type
@@ -94,7 +94,7 @@ const createSession = async (options) => {
         (err, session) => {
           if (err) resolve(err);
 
-          activeSession = session;
+          // activeSession = session;
           resolve(session);
         }
       );
@@ -109,24 +109,26 @@ const createSession = async (options) => {
  * @param {String} userType Host, guest, or viewer
  * @returns {String}
  */
-const createToken = (userType) =>
-  OT.generateToken(activeSession.sessionId, tokenOptions(userType));
+const createToken = (userType, sessionId) =>
+  OT.generateToken(sessionId, tokenOptions(userType));
 
 /**
  * Creates an OpenTok session and generates an associated token
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const getCredentials = async (userType) => {
+const getCredentials = async (userType, sessionId = null) => {
   return new Promise(async (resolve, reject) => {
-    if (!activeSession) {
+    let session;
+    if (!session) {
       try {
-        await createSession();
+        session = await createSession();
       } catch (err) {
         reject(err);
       }
     }
-    const token = createToken(userType);
-    resolve({ apiKey, sessionId: activeSession.sessionId, token });
+    // }
+    const token = createToken(userType, session.sessionId);
+    resolve({ apiKey, sessionId: session.sessionId, token });
   });
 };
 
@@ -141,7 +143,8 @@ const startBroadcast = async (
   rtmp,
   lowLatency,
   fhd = false,
-  dvr = false
+  dvr = false,
+  sessionId
 ) => {
   return new Promise((resolve, reject) => {
     console.log('StartBroadcast API');
@@ -171,7 +174,6 @@ const startBroadcast = async (
         lowLatency: lowLatencyConfig,
       },
     };
-    const sessionId = activeSession.sessionId;
 
     const { serverUrl, streamName } = rtmp;
 
@@ -197,7 +199,7 @@ const startBroadcast = async (
             reject(err);
           }
 
-          activeBroadcast = {
+          activeBroadcast[sessionId] = {
             id: broadcast.id,
             session: broadcast.sessionId,
             rtmp: broadcast.broadcastUrls.rtmp,
@@ -206,7 +208,7 @@ const startBroadcast = async (
             availableAt: broadcast.createdAt + broadcastDelay,
           };
           console.log('activeBroadcast', activeBroadcast);
-          resolve(activeBroadcast);
+          resolve(activeBroadcast[sessionId]);
         }
       );
     } catch (err) {
@@ -219,22 +221,25 @@ const startBroadcast = async (
  * End the broadcast
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const stopBroadcast = async () => {
+const stopBroadcast = async (sessionId) => {
   return new Promise((resolve, reject) => {
     console.log('StopBroadcast API');
-    if (!activeBroadcast) {
+    if (!activeBroadcast[sessionId]) {
       reject({ error: 'No active broadcast session found' });
     }
 
     try {
-      OT.stopBroadcast(activeBroadcast.id, function (err, broadcast) {
-        if (err) reject(err);
-        resolve(broadcast);
-      });
+      OT.stopBroadcast(
+        activeBroadcast[sessionId].id,
+        function (err, broadcast) {
+          if (err) reject(err);
+          resolve(broadcast);
+        }
+      );
     } catch (err) {
       reject(err);
     } finally {
-      activeBroadcast = null;
+      activeBroadcast[sessionId] = null;
     }
   });
 };
@@ -245,7 +250,7 @@ const stopBroadcast = async () => {
  * @param {String} type - OPTIONAL: type of layout
  * @returns {Promise} <Resolve => null, Reject => {Error}>
  */
-const updateLayout = async (streams, type) => {
+const updateLayout = async (streams, type, sessionId) => {
   return new Promise((resolve, reject) => {
     if (!activeBroadcast) {
       reject({ error: 'No active broadcast session found' });
@@ -265,7 +270,7 @@ const updateLayout = async (streams, type) => {
 
     try {
       OT.setBroadcastLayout(
-        activeBroadcast.id,
+        activeBroadcast[sessionId].id,
         type,
         stylesheet,
         function (err) {
@@ -291,17 +296,13 @@ const updateLayout = async (streams, type) => {
  * </pre>
  * @returns {Promise} <Resolve => null, Reject => {Error}>
  */
-const updateStreamClassList = async (classListArray) => {
+const updateStreamClassList = async (classListArray, sessionId) => {
   return new Promise((resolve, reject) => {
     try {
-      OT.setStreamClassLists(
-        activeSession.sessionId,
-        classListArray,
-        function (err) {
-          if (err) reject(err);
-          resolve();
-        }
-      );
+      OT.setStreamClassLists(sessionId, classListArray, function (err) {
+        if (err) reject(err);
+        resolve();
+      });
     } catch (err) {
       reject(err);
     }
@@ -314,4 +315,7 @@ module.exports = {
   stopBroadcast,
   updateLayout,
   updateStreamClassList,
+  createToken,
+  apiKey,
+  activeBroadcast,
 };
