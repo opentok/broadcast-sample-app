@@ -141,6 +141,9 @@
     session.connect(credentials.token, function (error) {
       if (error) {
         console.log(error);
+        if (error.name === 'OT_CONNECTION_LIMIT_EXCEEDED') {
+          switchToHlsMode();
+        }
       } else {
         setEventListeners(session);
         checkBroadcastStatus(session);

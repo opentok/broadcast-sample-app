@@ -126,6 +126,7 @@
     getBroadcastUrl()
       .then((data) => {
         updateBanner('active');
+
         const { url } = data;
 
         var video = document.getElementById('video');
