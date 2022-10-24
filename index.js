@@ -89,8 +89,7 @@ app.get('/broadcast/:room', (req, res) => {
   const { room } = req.params;
 
   if (!room) res.status(500);
-  if (sessions[room] && opentok.activeBroadcast[sessions[room]])
-    res.json({ url: opentok.activeBroadcast[sessions[room]].url });
+  if (sessions[room] && opentok.activeBroadcast[sessions[room]]) res.json({ url: opentok.activeBroadcast[sessions[room]].url });
   else {
     res.status(500).send('no broadcast url found');
   }

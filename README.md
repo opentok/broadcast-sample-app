@@ -267,24 +267,6 @@ to notify the live viewers who are subscribed to the session that the broadcast 
   };
 ```
 
-The broadcast data includes both the URL for the CDN stream and a timestamp indicating when
-the video should begin playing. The `init()` method in [broadcast.js](./js/broadcast.js) compares
-this timestamp to the current time to determine when to play the video. It either begins to play
-immediately, or sets a timeout to play at the appropriate future time:
-
-```javascript
-var init = function () {
-  var broadcast = getBroadcastData();
-  if (broadcast.availableAt <= Date.now()) {
-    play(broadcast.url);
-  } else {
-    setTimeout(function () {
-      play(broadcast.url);
-    }, broadcast.availableAt - Date.now());
-  }
-};
-```
-
 If a guest joins the HLS view after the broadcast has started, it will send a signal to the host to retrieve the current status of the broadcast. If the broadcast is active, the host will send them the URL so they can play the HLS feed.
 
 When the broadcast is over, the `endBroadcast()` method in host.js submits a request to the server,
