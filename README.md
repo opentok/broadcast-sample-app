@@ -119,9 +119,9 @@ sample app yourself. This allows you to customize the app as desired.
   control whether guests are broadcasting, though the host does have a moderator token that
   can be used for that purpose.
 
-- **[viewer.js](./public/js/viewer.js)**: Viewers can only view the broadcast.
+- **[viewer.js](./public/js/viewer.js)**: Viewers can view the live WebRTC stream.
 
-- **[broadcast.js](./public/js/broadcast.js)**: Plays the broadcast feed.
+- **[viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast.
 
 - **[CSS files](./public/css)**: Defines the client UI style.
 
