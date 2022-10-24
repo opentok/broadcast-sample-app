@@ -148,15 +148,16 @@ The credentials are embedded in an EJS template as JSON. For example, the follow
 route is configured in server.js:
 
 ```javascript
-app.get('/host', (req, res) => {
-  api
-    .getCredentials('host')
-    .then((credentials) =>
-      res.render('pages/host', {
-        credentials: JSON.stringify(credentials),
-      })
-    )
-    .catch((error) => res.status(500).send(error));
+app.get('/host', async (req, res) => {
+  const roomName = req.query.room;
+  try {
+    const credentials = await giveMeCredentials('host', roomName);
+    res.render('pages/host', {
+      credentials: JSON.stringify(credentials),
+    });
+  } catch (e) {
+    res.status(500).send(error);
+  }
 });
 ```
 
