@@ -73,9 +73,9 @@ as [Heroku](https://www.heroku.com/) to host the application.
 
 To try out the Broadcast Sample App, visit the following URLs:
 
-Host: [https://broadcast-sample.herokuapp.com/host](https://broadcast-sample.herokuapp.com/host)  
-Guest: [https://broadcast-sample.herokuapp.com/guest](https://broadcast-sample.herokuapp.com/guest)  
-Viewer: [https://broadcast-sample.herokuapp.com/viewer](https://broadcast-sample.herokuapp.com/viewer)
+Host: [https://broadcast-sample.herokuapp.com/host?room={yourRoomName}](https://broadcast-sample.herokuapp.com/host)  
+Guest: [https://broadcast-sample.herokuapp.com/guest?room={yourRoomName}](https://broadcast-sample.herokuapp.com/guest)  
+Viewer: [https://broadcast-sample.herokuapp.com/viewer?room={yourRoomName}](https://broadcast-sample.herokuapp.com/viewer)
 
 ### Starting a broadcast
 
@@ -200,12 +200,14 @@ subscribe to the host stream and other guest streams, and publish audio and vide
 
 ### HLS viewer
 
-The functions in [viewer.js](./public/js/hls-viewer.js) retrieve the credentials from the HTML, connect to the session and check whether the broadcast is active or not. The HLS viewer can also move to the Viewer view (WebRTC session)
+The functions in [viewer.js](./public/js/hls-viewer.js) check whether the broadcast is active or not. The HLS viewer can also move to the Viewer view (WebRTC session). Your application is responsible to let the HLS viewers when the HLS stream has started, this could be via WSS or any other way. For simplicity, this sample app has a button that checks the server for the broadcast URL.
+
+Note: The Vonage Video API does not support the `#EXT-X-ENDLIST` tag for HLS streams as stated in the [Knowlegdebase page](https://tokbox.com/developer/guides/broadcast/live-streaming/#live-streaming-known-issues). Thereore, your application logic needs to update the HLS player once the stream is over.
 
 ### Viewer
 
 The functions in [viewer.js](./public/js/viewer.js) retrieve the credentials from the HTML,
-connect to the session and subscribe after receiving a signal from the host indicating the broadcast has started, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the Video API [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast. The viewer can also move to the HLS viewer view.
+connect to the session and subscribe after receiving a signal from the host indicating the broadcast has started, and monitor broadcast status. Once the broadcast begins, the viewer can see the host and guests. Each viewer uses the Video API [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to receive the signals sent in the broadcast. The viewer can also move to the HLS viewer view and become a Guest to publish audio and video.
 
 ### Host
 
