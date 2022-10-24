@@ -109,8 +109,6 @@ sample app yourself. This allows you to customize the app as desired.
   and **API Key**, creates the Video API session, and generates tokens for hosts, guests, and
   viewers. Set the API Key and API Secret in [config.json](./config.json).
 
-- **[broadcast-api.js](./services/broadcast-api.js)**: Starts and ends the broadcast.
-
 - **[host.js](./public/js/host.js)**: The host is the individual who controls and publishes
   the broadcast, but does not control audio or video for guests or viewers. The host uses the
   Video API [Signaling API](https://www.tokbox.com/developer/guides/signaling/js/) to send the
