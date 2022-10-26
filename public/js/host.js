@@ -89,16 +89,10 @@
    * @param {Object} [to] - An OpenTok connection object
    */
   const signal = function (session, status, to) {
-    const signalData = Object.assign(
-      {},
-      { type: 'broadcast', data: status },
-      to ? { to } : {}
-    );
+    const signalData = Object.assign({}, { type: 'broadcast', data: status }, to ? { to } : {});
     session.signal(signalData, function (error) {
       if (error) {
-        console.log(
-          ['signal error (', error.code, '): ', error.message].join('')
-        );
+        console.log(['signal error (', error.code, '): ', error.message].join(''));
       } else {
         console.log('signal sent');
       }
@@ -107,22 +101,11 @@
 
   const signalBroadcastURL = function (session, url, to) {
     console.log('signalBroadcastURL', to, url);
-    const signalData = Object.assign(
-      {},
-      { type: 'broadcast-url', data: url },
-      to ? { to } : {}
-    );
+    const signalData = Object.assign({}, { type: 'broadcast-url', data: url }, to ? { to } : {});
     console.log('signalBroadcastURL#1', signalData);
     session.signal(signalData, function (error) {
       if (error) {
-        console.log(
-          [
-            '[signalBroadcastURL] -  error (',
-            error.code,
-            '): ',
-            error.message,
-          ].join('')
-        );
+        console.log(['[signalBroadcastURL] -  error (', error.code, '): ', error.message].join(''));
       } else {
         console.log('[signalBroadcastURL] - signal sent');
       }
@@ -176,10 +159,8 @@
 
     const serverDefined = !!server.value;
     const streamDefined = !!stream.value;
-    const invalidServerMessage =
-      'The RTMP server url is invalid. Please update the value and try again.';
-    const invalidStreamMessage =
-      'The RTMP stream name must be defined. Please update the value and try again.';
+    const invalidServerMessage = 'The RTMP server url is invalid. Please update the value and try again.';
+    const invalidStreamMessage = 'The RTMP stream name must be defined. Please update the value and try again.';
 
     if (serverDefined && !server.checkValidity()) {
       document.getElementById('rtmpLabel').classList.add('hidden');
@@ -204,25 +185,13 @@
   };
 
   const hideRtmpInput = function () {
-    [
-      'rtmpLabel',
-      'rtmpError',
-      'rtmpServer',
-      'rtmpStream',
-      'rtmp-options',
-    ].forEach(function (id) {
+    ['rtmpLabel', 'rtmpError', 'rtmpServer', 'rtmpStream', 'rtmp-options'].forEach(function (id) {
       document.getElementById(id).classList.add('hidden');
     });
   };
 
   const showRtmpInput = function () {
-    [
-      'rtmpLabel',
-      'rtmpError',
-      'rtmpServer',
-      'rtmpStream',
-      'rtmp-options',
-    ].forEach(function (id) {
+    ['rtmpLabel', 'rtmpError', 'rtmpServer', 'rtmpStream', 'rtmp-options'].forEach(function (id) {
       document.getElementById(id).classList.remove('hidden');
     });
   };
@@ -243,15 +212,11 @@
     const HLS_HD = document.querySelector('#hls-HD').checked;
     const HLS_DVR = document.querySelector('#hls-dvr').checked;
 
-    if (HLS_LL && HLS_DVR)
-      alert(
-        'DVR is not supported with Low latency HLS, DVR will regular HLS will be selected'
-      );
+    if (HLS_LL && HLS_DVR) alert('DVR is not supported with Low latency HLS, DVR will regular HLS will be selected');
 
     hideRtmpInput();
     http
       .post('/broadcast/start', {
-        streams: broadcast.streams,
         rtmp: rtmp,
         lowLatency: HLS_LL,
         fhd: HLS_HD,
@@ -293,20 +258,12 @@
    * Subscribe to a stream
    */
   const subscribe = function (session, stream) {
-    const properties = Object.assign(
-      { name: 'Guest', insertMode: 'after' },
-      insertOptions
-    );
-    const subscriber = session.subscribe(
-      stream,
-      'hostDivider',
-      properties,
-      function (error) {
-        if (error) {
-          console.log(error);
-        }
+    const properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
+    const subscriber = session.subscribe(stream, 'hostDivider', properties, function (error) {
+      if (error) {
+        console.log(error);
       }
-    );
+    });
     subscribers.push({ subscriber });
     subscriber.on('audioLevelUpdated', audioLevelUpdate);
 
@@ -322,9 +279,7 @@
   const audioLevelUpdate = function (event) {
     const now = Date.now();
 
-    const subData = subscribers.find(
-      (f) => f.subscriber.streamId === event.target.streamId
-    );
+    const subData = subscribers.find((f) => f.subscriber.streamId === event.target.streamId);
     if (event.audioLevel > 0.2) {
       if (!subData.activity) {
         subData.activity = {
@@ -332,10 +287,7 @@
           talking: true,
           audioLevel: event.audioLevel,
         };
-      } else if (
-        subData.activity.talking &&
-        now - subData.activity.timestamp > 1000
-      ) {
+      } else if (subData.activity.talking && now - subData.activity.timestamp > 1000) {
         subData.activity.timestamp = now;
         subData.activity.audioLevel = event.audioLevel;
       } else if (now - subData.activity.timestamp > 1000) {
@@ -352,12 +304,7 @@
       }
     }
 
-    subscribers = [
-      ...subscribers.filter(
-        (f) => f.subscriber.streamId !== event.target.streamId
-      ),
-      subData,
-    ];
+    subscribers = [...subscribers.filter((f) => f.subscriber.streamId !== event.target.streamId), subData];
   };
 
   /**
@@ -456,9 +403,7 @@
     });
 
     session.on('streamDestroyed', function (event) {
-      subscribers = subscribers.filter(
-        (f) => f.subscriber.streamId !== event.stream.id
-      );
+      subscribers = subscribers.filter((f) => f.subscriber.streamId !== event.stream.id);
       if (subscribers.length <= 3) {
         document.getElementById('videoContainer').classList.remove('wrap');
         if (broadcast.status === 'active' && subscribers.length < 3) {
@@ -499,23 +444,17 @@
       refreshDeviceList(publisher);
     });
 
-    document
-      .getElementById('publishVideo')
-      .addEventListener('click', function () {
-        toggleMedia(publisher, this);
-      });
+    document.getElementById('publishVideo').addEventListener('click', function () {
+      toggleMedia(publisher, this);
+    });
 
-    document
-      .getElementById('publishAudio')
-      .addEventListener('click', function () {
-        toggleMedia(publisher, this);
-      });
+    document.getElementById('publishAudio').addEventListener('click', function () {
+      toggleMedia(publisher, this);
+    });
 
-    document
-      .getElementById('screenshare')
-      .addEventListener('click', function () {
-        toggleScreenShare(this);
-      });
+    document.getElementById('screenshare').addEventListener('click', function () {
+      toggleScreenShare(this);
+    });
   };
 
   const addPublisherControls = function (publisher) {
@@ -563,7 +502,6 @@
     session.publish(publisher);
     addPublisherControls(publisher);
     setEventListeners(session, publisher);
-    // refreshDeviceList(publisher);
   };
 
   const refreshDeviceList = (pub) => {
@@ -646,9 +584,7 @@
     const labelToFind = event.target.value;
     const videoDevices = await listVideoInputs();
 
-    const deviceId = videoDevices.find(
-      (e) => e.label === labelToFind
-    )?.deviceId;
+    const deviceId = videoDevices.find((e) => e.label === labelToFind)?.deviceId;
 
     if (deviceId != null) {
       publisher.setVideoSource(deviceId);
@@ -659,9 +595,7 @@
     const labelToFind = event.target.value;
     const audioDevices = await listAudioInputs();
 
-    const deviceId = audioDevices.find(
-      (e) => e.label === labelToFind
-    )?.deviceId;
+    const deviceId = audioDevices.find((e) => e.label === labelToFind)?.deviceId;
 
     if (deviceId != null) {
       publisher.setAudioSource(deviceId);
@@ -671,9 +605,7 @@
   const listAudioInputs = async () => {
     try {
       const devices = await listDevices();
-      const filteredDevices = devices.filter(
-        (device) => device.kind === 'audioInput'
-      );
+      const filteredDevices = devices.filter((device) => device.kind === 'audioInput');
       return Promise.resolve(filteredDevices);
     } catch (error) {
       return Promise.reject(error);
@@ -683,9 +615,7 @@
   const listVideoInputs = async () => {
     try {
       const devices = await listDevices();
-      const filteredDevices = devices.filter(
-        (device) => device.kind === 'videoInput'
-      );
+      const filteredDevices = devices.filter((device) => device.kind === 'videoInput');
       return Promise.resolve(filteredDevices);
     } catch (error) {
       return Promise.reject(error);

@@ -10,7 +10,7 @@ const sessions = {};
 
 const opentok = require('./services/opentok-api');
 
-const giveMeCredentials = async (usertype, roomName) => {
+const generateCredentials = async (usertype, roomName) => {
   if (sessions[roomName]) {
     const token = opentok.createToken(usertype, sessions[roomName]);
     credentials = {
@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 app.get('/host', async (req, res) => {
   const roomName = req.query.room;
   try {
-    const credentials = await giveMeCredentials('host', roomName);
+    const credentials = await generateCredentials('host', roomName);
     res.render('pages/host', {
       credentials: JSON.stringify(credentials),
     });
@@ -52,7 +52,7 @@ app.get('/host', async (req, res) => {
 app.get('/viewer', async (req, res) => {
   const roomName = req.query.room;
   try {
-    const credentials = await giveMeCredentials('viewer', roomName);
+    const credentials = await generateCredentials('viewer', roomName);
     res.render('pages/viewer', {
       credentials: JSON.stringify(credentials),
     });
@@ -64,7 +64,7 @@ app.get('/viewer', async (req, res) => {
 app.get('/hls-viewer', async (req, res) => {
   const roomName = req.query.room;
   try {
-    const credentials = await giveMeCredentials('viewer', roomName);
+    const credentials = await generateCredentials('viewer', roomName);
     res.render('pages/hls-viewer', {
       credentials: JSON.stringify(credentials),
     });
@@ -76,7 +76,7 @@ app.get('/hls-viewer', async (req, res) => {
 app.get('/guest', async (req, res) => {
   const roomName = req.query.room;
   try {
-    const credentials = await giveMeCredentials('guest', roomName);
+    const credentials = await generateCredentials('guest', roomName);
     res.render('pages/guest', {
       credentials: JSON.stringify(credentials),
     });
@@ -103,10 +103,10 @@ app.get('*', (req, res) => {
  * API Endpoints
  */
 app.post('/broadcast/start', (req, res) => {
-  const { streams, rtmp, lowLatency, fhd, dvr, sessionId } = req.body;
+  const { rtmp, lowLatency, fhd, dvr, sessionId } = req.body;
 
   opentok
-    .startBroadcast(streams, rtmp, lowLatency, fhd, dvr, sessionId)
+    .startBroadcast(rtmp, lowLatency, fhd, dvr, sessionId)
     .then((data) => res.send(data))
     .catch((error) => {
       console.log(error);

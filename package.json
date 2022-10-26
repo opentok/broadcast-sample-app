@@ -1,7 +1,7 @@
 {
   "name": "dynamic-video-layouts",
   "version": "1.0.0",
-  "description": "OpenTok Broadcast Sample Application",
+  "description": "Vonage Video API Broadcast Sample Application",
   "engines": {
     "node": "10.16.3"
   },

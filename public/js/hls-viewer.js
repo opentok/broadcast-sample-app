@@ -21,9 +21,7 @@
   };
 
   const getBroadcastUrl = async function () {
-    const response = await fetch(
-      `/broadcast/${window.location.search.split('=')[1]}`
-    );
+    const response = await fetch(`/broadcast/${window.location.search.split('=')[1]}`);
     return response.json();
   };
 
@@ -99,9 +97,7 @@
         .play()
         .then((res) => {
           console.log('Play Video Successfull', res);
-          const playVideoContainer = document.getElementById(
-            'play-video-container'
-          );
+          const playVideoContainer = document.getElementById('play-video-container');
           playVideoContainer.classList.add('hidden');
         })
         .catch((err) => {
@@ -116,9 +112,7 @@
 
   const addClickEventListeners = function () {
     document.getElementById('play-video').addEventListener('click', playVideo);
-    document
-      .getElementById('go-live-btn')
-      .addEventListener('click', switchToLiveMode);
+    document.getElementById('go-live-btn').addEventListener('click', switchToLiveMode);
   };
 
   const init = function () {
@@ -145,24 +139,7 @@
           });
         }
       })
-      .catch((e) => console.log(e)); // addClickEventListeners();
-    // const credentials = getCredentials();
-    // const props = { connectionEventsSuppressed: true };
-    // const session = OT.initSession(
-    //   credentials.apiKey,
-    //   credentials.sessionId,
-    //   props
-    // );
-    // setEventListeners(session);
-    // session.connect(credentials.token, function (error) {
-    //   if (error) {
-    //     console.log(error);
-    //   } else {
-    //     console.log('connected');
-
-    //     checkBroadcastStatus(session);
-    //   }
-    // });
+      .catch((e) => console.log(e));
   };
 
   document.addEventListener('DOMContentLoaded', init);
