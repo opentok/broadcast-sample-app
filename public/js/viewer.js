@@ -1,13 +1,12 @@
 /* eslint-disable object-shorthand */
 (function () {
-
   /**
    * Options for adding OpenTok publisher and subscriber video elements
    */
   const insertOptions = {
     width: '100%',
     height: '100%',
-    showControls: false
+    showControls: false,
   };
 
   /**
@@ -28,19 +27,27 @@
   const subscribe = function (session, stream) {
     const name = stream.name;
     const insertMode = name === 'Host' ? 'before' : 'after';
-    const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
-    return session.subscribe(stream, 'hostDivider', properties, function (error) {
-      if (error) {
-        console.log(error);
+    const properties = Object.assign(
+      { name: name, insertMode: insertMode },
+      insertOptions
+    );
+    return session.subscribe(
+      stream,
+      'hostDivider',
+      properties,
+      function (error) {
+        if (error) {
+          console.log(error);
+        }
       }
-    });
+    );
   };
 
   /** Ping the host to see if the broadcast has started */
   const checkBroadcastStatus = function (session) {
     session.signal({
       type: 'broadcast',
-      data: 'status'
+      data: 'status',
     });
   };
 
@@ -93,6 +100,8 @@
       broadcastActive = status === 'active';
 
       if (status === 'active') {
+        document.getElementById('back-hls').classList.remove('hidden');
+        document.getElementById('participate').classList.remove('hidden');
         streams.forEach(function (stream) {
           subscribers.push(subscribe(session, stream));
         });
@@ -105,14 +114,36 @@
     });
   };
 
+  const switchToHlsMode = function (e) {
+    window.location.href = `hls-viewer${window.location.search}`;
+  };
+
+  const switchToLiveMode = function (e) {
+    window.location.href = `guest${window.location.search}`;
+  };
+
   const init = function () {
+    document
+      .getElementById('participate-button')
+      .addEventListener('click', switchToLiveMode);
+    document
+      .getElementById('go-hls-btn')
+      .addEventListener('click', switchToHlsMode);
+
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
-    const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
+    const session = OT.initSession(
+      credentials.apiKey,
+      credentials.sessionId,
+      props
+    );
 
     session.connect(credentials.token, function (error) {
       if (error) {
         console.log(error);
+        if (error.name === 'OT_CONNECTION_LIMIT_EXCEEDED') {
+          switchToHlsMode();
+        }
       } else {
         setEventListeners(session);
         checkBroadcastStatus(session);
@@ -121,4 +152,4 @@
   };
 
   document.addEventListener('DOMContentLoaded', init);
-}());
+})();

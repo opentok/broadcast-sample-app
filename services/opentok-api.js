@@ -65,7 +65,7 @@ stream.item7 {
 const broadcastDelay = 20 * 1000;
 
 let activeSession;
-let activeBroadcast;
+const activeBroadcast = {};
 
 /**
  * Returns options for token creation based on user type
@@ -91,120 +91,127 @@ const createSession = async (options) => {
     try {
       OT.createSession({ ...defaultSessionOptions, ...options }, (err, session) => {
         if (err) resolve(err);
-
-        activeSession = session;
         resolve(session);
       });
-    }
-    catch (err) {
+    } catch (err) {
       reject(err);
     }
   });
-}
+};
 
 /**
  * Create an OpenTok token
  * @param {String} userType Host, guest, or viewer
  * @returns {String}
  */
-const createToken = userType => OT.generateToken(activeSession.sessionId, tokenOptions(userType));
+const createToken = (userType, sessionId) => OT.generateToken(sessionId, tokenOptions(userType));
 
 /**
  * Creates an OpenTok session and generates an associated token
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const getCredentials = async (userType) => {
+const getCredentials = async (userType, sessionId = null) => {
   return new Promise(async (resolve, reject) => {
-    if (!activeSession) {
+    let session;
+    if (!session) {
       try {
-        await createSession();
-      }
-      catch (err) {
+        session = await createSession();
+      } catch (err) {
         reject(err);
       }
     }
-    const token = createToken(userType);
-    resolve({ apiKey, sessionId: activeSession.sessionId, token });
+    const token = createToken(userType, session.sessionId);
+    resolve({ apiKey, sessionId: session.sessionId, token });
   });
-}
+};
 
 /**
  * Start the broadcast and keep the active broadcast in memory
- * @param {Number} streams - The current number of published streams
- * @param {String} [rmtp] - The (optional) RTMP stream url
+ * @param {String} [rtmp] - The (optional) RTMP stream url
+ * @param {Boolean} [lowLatency] - The (optional) low Latency option for HLS
+ * @param {fhd} [fhd] - The (optional) Full HD parameter for streaming
+ * @param {dvr} [dvr] - The (optional) DVR option for HLS
+ * @param {sessionId} [sessionId] - The sessionId to start the broadcast for
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const startBroadcast = async (streams, rmtp) => {
+const startBroadcast = async (rtmp, lowLatency, fhd = false, dvr = false, sessionId) => {
   return new Promise((resolve, reject) => {
+    console.log('StartBroadcast API');
 
-    let layout;
-    if (streams > 3) {
-      layout = {
-        type: 'bestFit'
-      };
-    }
-    else {
-      layout = {
-        type: 'custom',
-        stylesheet: customStyle,
-      };
-    }
-    const outputs = {
-      hls: {},
+    const layout = {
+      type: 'bestFit',
+      screenshareType: 'pip',
     };
-    const sessionId = activeSession.sessionId;
+    let dvrConfig = dvr;
+    let lowLatencyConfig = lowLatency;
+    if (dvrConfig) {
+      lowLatencyConfig = false; // DVR and LL are not compatible
+    }
+    let outputs = {
+      hls: {
+        dvr: dvrConfig,
+        lowLatency: lowLatencyConfig,
+      },
+    };
 
-    const { serverUrl, streamName } = rmtp;
+    const { serverUrl, streamName } = rtmp;
 
     if (serverUrl && streamName) {
-      outputs.rmtp = rmtp;
+      outputs.rtmp = [rtmp];
+      console.log(outputs);
     }
+
+    const resolution = fhd ? '1920x1080' : process.env.broadcastDefaultResolution ? process.env.broadcastDefaultResolution : '1280x720';
 
     try {
-      OT.startBroadcast(sessionId, { layout, outputs, }, function (err, broadcast) {
-        if (err) reject(err);
+      OT.startBroadcast(sessionId, { layout, outputs, resolution }, function (err, broadcast) {
+        if (err) {
+          console.log('error starting broadcast ' + err);
 
-        activeBroadcast = {
+          reject(err);
+        }
+
+        activeBroadcast[sessionId] = {
           id: broadcast.id,
           session: broadcast.sessionId,
-          rmtp: broadcast.broadcastUrls.rmtp,
+          rtmp: broadcast.broadcastUrls.rtmp,
           url: broadcast.broadcastUrls.hls,
           apiKey: apiKey,
-          availableAt: broadcast.createdAt + broadcastDelay
+          availableAt: broadcast.createdAt + broadcastDelay,
         };
-        resolve(activeBroadcast);
+        console.log('activeBroadcast', activeBroadcast);
+        resolve(activeBroadcast[sessionId]);
       });
-    }
-    catch (err) {
+    } catch (err) {
       reject(err);
     }
   });
-}
+};
 
 /**
  * End the broadcast
+ *  @param {String} [sessionId] - The sessionId to stop the broadcast
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const stopBroadcast = async () => {
+const stopBroadcast = async (sessionId) => {
   return new Promise((resolve, reject) => {
-    if (!activeBroadcast) {
+    console.log('StopBroadcast API');
+    if (!activeBroadcast[sessionId]) {
       reject({ error: 'No active broadcast session found' });
     }
 
     try {
-      OT.stopBroadcast(activeBroadcast.id, function (err, broadcast) {
+      OT.stopBroadcast(activeBroadcast[sessionId].id, function (err, broadcast) {
         if (err) reject(err);
         resolve(broadcast);
       });
-    }
-    catch (err) {
+    } catch (err) {
       reject(err);
-    }
-    finally {
-      activeBroadcast = null;
+    } finally {
+      activeBroadcast[sessionId] = null;
     }
   });
-}
+};
 
 /**
  * Dynamically update the broadcast layout
@@ -212,7 +219,7 @@ const stopBroadcast = async () => {
  * @param {String} type - OPTIONAL: type of layout
  * @returns {Promise} <Resolve => null, Reject => {Error}>
  */
-const updateLayout = async (streams, type) => {
+const updateLayout = async (streams, type, sessionId) => {
   return new Promise((resolve, reject) => {
     if (!activeBroadcast) {
       reject({ error: 'No active broadcast session found' });
@@ -222,27 +229,24 @@ const updateLayout = async (streams, type) => {
     if (!type) {
       if (streams > 3) {
         type = 'bestFit';
-      }
-      else {
+      } else {
         type = 'custom';
         stylesheet = customStyle;
       }
-    }
-    else if (type === 'custom') {
+    } else if (type === 'custom') {
       stylesheet = customStyle;
     }
 
     try {
-      OT.setBroadcastLayout(activeBroadcast.id, type, stylesheet, function (err) {
+      OT.setBroadcastLayout(activeBroadcast[sessionId].id, type, stylesheet, function (err) {
         if (err) reject(err);
         resolve();
       });
-    }
-    catch (err) {
+    } catch (err) {
       reject(err);
     }
   });
-}
+};
 
 /**
  * Dynamically update class lists for streams
@@ -256,24 +260,26 @@ const updateLayout = async (streams, type) => {
  * </pre>
  * @returns {Promise} <Resolve => null, Reject => {Error}>
  */
-const updateStreamClassList = async (classListArray) => {
+const updateStreamClassList = async (classListArray, sessionId) => {
   return new Promise((resolve, reject) => {
     try {
-      OT.setStreamClassLists(activeSession.sessionId, classListArray, function (err) {
+      OT.setStreamClassLists(sessionId, classListArray, function (err) {
         if (err) reject(err);
         resolve();
       });
-    }
-    catch (err) {
+    } catch (err) {
       reject(err);
     }
   });
-}
+};
 
 module.exports = {
   getCredentials,
   startBroadcast,
   stopBroadcast,
   updateLayout,
-  updateStreamClassList
+  updateStreamClassList,
+  createToken,
+  apiKey,
+  activeBroadcast,
 };
