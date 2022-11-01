@@ -6,10 +6,12 @@
   /** The state of things */
   let broadcast = { status: 'waiting', streams: 2, rtmp: false };
   let subscribers = [];
-  let activeSpeaker;
+  let renderId;
   let session;
-  let lastActiveSpeaker = Date.now();
   let screenSharePublisher;
+  const SAMPLE_SERVER_BASE_URL = 'https://8615-2a02-c7c-6489-cf00-f587-8aab-3de2-ed68.eu.ngrok.io';
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
 
   /**
    * Options for adding OpenTok publisher and subscriber video elements
@@ -33,6 +35,62 @@
   };
 
   let credentialData;
+
+  /**
+   * Add a stream to the broadcast
+   * @param {String} streamId
+   * @param {String} sessionId - The name of the room
+   */
+  function addStreamToBroadcast(streamId, roomName) {
+    fetch(`${SAMPLE_SERVER_BASE_URL}/addStream`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roomName, streamId }),
+    })
+      .then(function fetch(res) {
+        console.log(res);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  /**
+   * Start a Experience Composer render
+   * @param {String} sessionId
+   * @param {String} roomName - The name of the room
+   * @param {Number} [bgChoice] - The user choice for background streaming
+   
+   */
+  function startExperienceComposer(sessionId, roomName, bgChoice, round) {
+    console.log('starting bg' + bgChoice);
+
+    fetch(`${SAMPLE_SERVER_BASE_URL}/render`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sessionId, roomName, bgChoice, round }),
+    })
+      .then(function fetch(res) {
+        return res.json();
+      })
+      .then(function fetchJson(json) {
+        console.log(json);
+        renderId = json.id;
+      });
+  }
+
+  function stopExperienceComposer(renderId) {
+    fetch(`${SAMPLE_SERVER_BASE_URL}/render/stop/${renderId}`).then(function fetch(res) {
+      // return res.json();
+      console.log('stopped experience composer');
+    });
+  }
 
   /**
    * Create an OpenTok publisher object
@@ -136,7 +194,6 @@
     if (status === 'active') {
       startStopButton.classList.add('active');
       startStopButton.innerHTML = 'End Broadcast';
-      document.getElementById('urlContainer').classList.remove('hidden');
       if (broadcast.rtmp) {
         rtmpActive.classList.remove('hidden');
       }
@@ -201,6 +258,8 @@
    */
   const startBroadcast = function () {
     analytics.log('startBroadcast', 'variationAttempt');
+    const roomName = params.get('room');
+    let bgChoice = null;
 
     const rtmp = validRtmp();
     if (!rtmp) {
@@ -212,6 +271,20 @@
     const HLS_HD = document.querySelector('#hls-HD').checked;
     const HLS_DVR = document.querySelector('#hls-dvr').checked;
 
+    const bg0 = document.querySelector('#bg0').checked;
+    const bg1 = document.querySelector('#bg1').checked;
+    const bg2 = document.querySelector('#bg2').checked;
+    const roundyes = document.querySelector('#roundyes').checked;
+
+    if (bg0) bgChoice = 0;
+    if (bg1) bgChoice = 1;
+    if (bg2) bgChoice = 2;
+
+    console.log(`room: ${roomName} bgChoice:${bgChoice} session:${credentialData.sessionId}`);
+    if (bgChoice !== null) {
+      startExperienceComposer(credentialData.sessionId, roomName, bgChoice, roundyes);
+    }
+
     if (HLS_LL && HLS_DVR) alert('DVR is not supported with Low latency HLS, DVR will regular HLS will be selected');
 
     hideRtmpInput();
@@ -222,6 +295,7 @@
         fhd: HLS_HD,
         dvr: HLS_DVR,
         sessionId: credentialData.sessionId,
+        streamMode: bgChoice !== null ? 'manual' : 'auto',
       })
       .then(function (broadcastData) {
         broadcast = broadcastData;
@@ -239,6 +313,7 @@
    * Make a request to the server to stop the broadcast
    */
   const endBroadcast = function () {
+    bgChoice = null;
     http
       .post('/broadcast/end', {
         sessionId: credentialData.sessionId,
@@ -252,6 +327,7 @@
         console.log(error);
         analytics.log('endBroadcast', 'variationError');
       });
+    if (renderId) stopExperienceComposer(renderId);
   };
 
   /**
@@ -393,6 +469,11 @@
 
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
+      if (event.stream.name === 'EC') {
+        const roomName = params.get('room');
+        addStreamToBroadcast(event.stream.id, roomName);
+        return;
+      }
       subscribe(session, event.stream);
       if (subscribers.length > 2) {
         document.getElementById('videoContainer').classList.add('wrap');
@@ -403,6 +484,7 @@
     });
 
     session.on('streamDestroyed', function (event) {
+      if (event.stream.name === 'EC') return;
       subscribers = subscribers.filter((f) => f.subscriber.streamId !== event.stream.id);
       if (subscribers.length <= 3) {
         document.getElementById('videoContainer').classList.remove('wrap');
@@ -424,13 +506,25 @@
       }
     });
 
-    document.getElementById('copyURL').addEventListener('click', function () {
-      showCopiedNotice();
-    });
-
     document.getElementById('videoInputs').addEventListener('change', (e) => {
       onVideoSourceChanged(e, publisher);
     });
+
+    // document.getElementById('startEC').addEventListener('click', () => {
+    //   const bg0 = document.querySelector('#bg0').checked;
+    //   const bg1 = document.querySelector('#bg1').checked;
+    //   const bg2 = document.querySelector('#bg2').checked;
+
+    //   if (bg0) bgChoice = 0;
+    //   if (bg1) bgChoice = 1;
+    //   if (bg2) bgChoice = 2;
+
+    //   startExperienceComposer(session.sessionId, params.get('room'), bgChoice);
+    // });
+
+    // document.getElementById('stopEC').addEventListener('click', () => {
+    //   stopExperienceComposer(renderId);
+    // });
 
     document.getElementById('audioInputs').addEventListener('change', (e) => {
       onAudioSourceChanged(e, publisher);

@@ -25,10 +25,7 @@
    * Create an OpenTok publisher object
    */
   const initPublisher = function () {
-    const properties = Object.assign(
-      { name: 'Guest', insertMode: 'after' },
-      insertOptions
-    );
+    const properties = Object.assign({ name: 'Guest', insertMode: 'after' }, insertOptions);
     return OT.initPublisher('hostDivider', properties);
   };
 
@@ -38,10 +35,8 @@
   const subscribe = function (session, stream) {
     const name = stream.name;
     const insertMode = name === 'Host' ? 'before' : 'after';
-    const properties = Object.assign(
-      { name: name, insertMode: insertMode },
-      insertOptions
-    );
+    const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
+    if (name === 'EC') return;
     session.subscribe(stream, 'hostDivider', properties, function (error) {
       if (error) {
         console.log(error);
@@ -106,31 +101,21 @@
       }
     });
 
-    document
-      .getElementById('publishVideo')
-      .addEventListener('click', function () {
-        toggleMedia(publisher, this);
-      });
+    document.getElementById('publishVideo').addEventListener('click', function () {
+      toggleMedia(publisher, this);
+    });
 
-    document
-      .getElementById('publishAudio')
-      .addEventListener('click', function () {
-        toggleMedia(publisher, this);
-      });
+    document.getElementById('publishAudio').addEventListener('click', function () {
+      toggleMedia(publisher, this);
+    });
 
-    document
-      .getElementById('back-viewer')
-      .addEventListener('click', switchToViewerMode);
+    document.getElementById('back-viewer').addEventListener('click', switchToViewerMode);
   };
 
   const init = function () {
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
-    const session = OT.initSession(
-      credentials.apiKey,
-      credentials.sessionId,
-      props
-    );
+    const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
     const publisher = initPublisher();
 
     session.connect(credentials.token, function (error) {

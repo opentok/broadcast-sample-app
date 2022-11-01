@@ -27,20 +27,12 @@
   const subscribe = function (session, stream) {
     const name = stream.name;
     const insertMode = name === 'Host' ? 'before' : 'after';
-    const properties = Object.assign(
-      { name: name, insertMode: insertMode },
-      insertOptions
-    );
-    return session.subscribe(
-      stream,
-      'hostDivider',
-      properties,
-      function (error) {
-        if (error) {
-          console.log(error);
-        }
+    const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
+    return session.subscribe(stream, 'hostDivider', properties, function (error) {
+      if (error) {
+        console.log(error);
       }
-    );
+    });
   };
 
   /** Ping the host to see if the broadcast has started */
@@ -71,15 +63,30 @@
    * Listen for events on the OpenTok session
    */
   const setEventListeners = function (session) {
-    const streams = [];
+    let streams = [];
     const subscribers = [];
     let broadcastActive = false;
 
     /** Subscribe to new streams as they are published */
     session.on('streamCreated', function (event) {
+      // if (event.name !== 'EC') {
       streams.push(event.stream);
+      // } else {
+      //   streams.filter((e) => e.name !== 'Host');
+      //   streams.push(event.stream);
+      // }
+
+      // if (streams.find((e) => e.name === 'EC')) {
+      //   streams.filter((e) => e.name !== 'Host');
+      // } else {
+      //   streams.push(event.stream);
+      // }
+
+      // console.log(streams);
+
       if (broadcastActive) {
         subscribers.push(subscribe(session, event.stream));
+        // streams.filter((e) => e.name !== 'Host');
       }
       if (streams.length > 3) {
         document.getElementById('videoContainer').classList.add('wrap');
@@ -102,9 +109,20 @@
       if (status === 'active') {
         document.getElementById('back-hls').classList.remove('hidden');
         document.getElementById('participate').classList.remove('hidden');
-        streams.forEach(function (stream) {
-          subscribers.push(subscribe(session, stream));
-        });
+
+        //If the host published a Experience Composer stream, I want to subscribe to that stream
+        //rather than the regular stream from the host (this is to avoid duplicate subscription)
+
+        if (streams.find((e) => e.name === 'EC')) {
+          streams.forEach(function (stream) {
+            if (stream.name === 'Host') return;
+            subscribers.push(subscribe(session, stream));
+          });
+        } else {
+          streams.forEach(function (stream) {
+            subscribers.push(subscribe(session, stream));
+          });
+        }
       } else if (status === 'ended') {
         subscribers.forEach(function (subscriber) {
           session.unsubscribe(subscriber);
@@ -123,20 +141,12 @@
   };
 
   const init = function () {
-    document
-      .getElementById('participate-button')
-      .addEventListener('click', switchToLiveMode);
-    document
-      .getElementById('go-hls-btn')
-      .addEventListener('click', switchToHlsMode);
+    document.getElementById('participate-button').addEventListener('click', switchToLiveMode);
+    document.getElementById('go-hls-btn').addEventListener('click', switchToHlsMode);
 
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
-    const session = OT.initSession(
-      credentials.apiKey,
-      credentials.sessionId,
-      props
-    );
+    const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
 
     session.connect(credentials.token, function (error) {
       if (error) {

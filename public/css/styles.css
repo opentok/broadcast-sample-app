@@ -52,6 +52,18 @@ body {
   border-radius: 6px;
 }
 
+.main-container-ec {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90vw;
+  height: 85vh;
+  margin: 0 auto;
+  padding: 10px;
+  border-radius: 6px;
+  align-items: center;
+}
+
 .left-container-header {
   display: flex;
   padding: 10px;
@@ -71,20 +83,95 @@ body {
 }
 
 .video-container {
-  /* flex: none;
-    padding: 10px;
-    overflow: hidden;
-    width: 640px;
-    height: 360px; */
   flex: none;
   padding: 10px;
   height: calc(100% - 100px);
   display: flex;
+  align-items: center;
+}
+
+select#gender option[value='0'] {
+  background-image: url('https://wallpaperaccess.com/full/5497307.jpg');
 }
 
 .video-container > * {
   max-width: 640px;
   max-height: 360px;
+}
+
+.video-container-ec > * {
+  max-height: 360px;
+  max-width: 360px;
+}
+
+.title-word {
+  animation: color-animation 4s linear infinite;
+}
+
+.title-word-1 {
+  --color-1: #df8453;
+  --color-2: #3d8dae;
+  --color-3: #e4a9a8;
+}
+
+.title-word-2 {
+  --color-1: #dbad4a;
+  --color-2: #accfcb;
+  --color-3: #17494d;
+}
+
+.title-word-3 {
+  --color-1: #accfcb;
+  --color-2: #e4a9a8;
+  --color-3: #accfcb;
+}
+
+.title-word-4 {
+  --color-1: #3d8dae;
+  --color-2: #df8453;
+  --color-3: #e4a9a8;
+}
+
+@keyframes color-animation {
+  0% {
+    color: var(--color-1);
+  }
+  32% {
+    color: var(--color-1);
+  }
+  33% {
+    color: var(--color-2);
+  }
+  65% {
+    color: var(--color-2);
+  }
+  66% {
+    color: var(--color-3);
+  }
+  99% {
+    color: var(--color-3);
+  }
+  100% {
+    color: var(--color-1);
+  }
+}
+
+.title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 2.5vw;
+  text-transform: uppercase;
+  margin-left: 20vw;
+}
+
+.ECdivider {
+  display: flex;
+  width: 80vw;
+  height: 40vh;
+  max-width: 530px;
+}
+.ECdivider > .OT_subscriber {
+  margin: 15px;
 }
 
 /* .video-container.wrap {
@@ -275,6 +362,14 @@ body {
   align-items: center;
   margin: 5px;
   flex-direction: column;
+}
+.bg-options {
+  display: flex;
+  justify-content: space-between;
+  margin: 4px;
+}
+.bgLabel {
+  margin-top: 5px;
 }
 
 .rtmp-options .options-input {

@@ -1,9 +1,11 @@
 'use strict';
 
-const { apiKey, apiSecret } = require('../config');
+const { apiKey, apiSecret, production_url } = require('../config');
+const jwt = require('jsonwebtoken');
 
 const OpenTok = require('opentok');
 const OT = new OpenTok(apiKey, apiSecret);
+const axios = require('axios');
 
 const defaultSessionOptions = { mediaMode: 'routed' };
 
@@ -134,7 +136,7 @@ const getCredentials = async (userType, sessionId = null) => {
  * @param {sessionId} [sessionId] - The sessionId to start the broadcast for
  * @returns {Promise} <Resolve => {Object} Broadcast data, Reject => {Error}>
  */
-const startBroadcast = async (rtmp, lowLatency, fhd = false, dvr = false, sessionId) => {
+const startBroadcast = async (rtmp, lowLatency, fhd = false, dvr = false, sessionId, streamMode) => {
   return new Promise((resolve, reject) => {
     console.log('StartBroadcast API');
 
@@ -164,7 +166,9 @@ const startBroadcast = async (rtmp, lowLatency, fhd = false, dvr = false, sessio
     const resolution = fhd ? '1920x1080' : process.env.broadcastDefaultResolution ? process.env.broadcastDefaultResolution : '1280x720';
 
     try {
-      OT.startBroadcast(sessionId, { layout, outputs, resolution }, function (err, broadcast) {
+      console.log('starting a streamMode' + streamMode);
+
+      OT.startBroadcast(sessionId, { layout, outputs, resolution, streamMode }, function (err, broadcast) {
         if (err) {
           console.log('error starting broadcast ' + err);
 
@@ -214,6 +218,29 @@ const stopBroadcast = async (sessionId) => {
 };
 
 /**
+ * Add stream to broadcast (Manual)
+ * @param {String} broadcastId
+ * * @param {String} streamId
+ * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
+ */
+const addStreamToBroadcast = async (broadcastId, streamId) => {
+  return new Promise((resolve, reject) => {
+    try {
+      OT.addBroadcastStream(broadcastId, streamId, { hasAudio: true, hasVideo: true }, function (err, broadcast) {
+        if (err) {
+          console.log(err.message);
+          reject(err);
+        }
+        resolve();
+      });
+    } catch (err) {
+      console.log(err);
+      reject(err);
+    }
+  });
+};
+
+/**
  * Dynamically update the broadcast layout
  * @param {Number} streams - The number of active streams in the broadcast session
  * @param {String} type - OPTIONAL: type of layout
@@ -248,6 +275,29 @@ const updateLayout = async (streams, type, sessionId) => {
   });
 };
 
+const generateRestToken = () => {
+  return new Promise((res, rej) => {
+    jwt.sign(
+      {
+        iss: apiKey,
+        ist: 'project',
+        exp: Date.now() + 200,
+        jti: Math.random() * 132,
+      },
+      apiSecret,
+      { algorithm: 'HS256' },
+      function (err, token) {
+        if (token) {
+          res(token);
+        } else {
+          console.log('\n Unable to fetch token, error:', err);
+          rej(err);
+        }
+      }
+    );
+  });
+};
+
 /**
  * Dynamically update class lists for streams
  * @param {Array} classListArray - The number of active streams in the broadcast session
@@ -273,6 +323,72 @@ const updateStreamClassList = async (classListArray, sessionId) => {
   });
 };
 
+/**
+ * Dynamically update the broadcast layout
+ * @param {String} sessionId - The sessionId to start the experience composer render
+ * @returns {Promise} <Resolve => null, Reject => {Error}>
+ */
+
+const createRender = async (sessionId, roomName, bgChoice, round) => {
+  try {
+    console.log('creating render');
+
+    const token = createToken('subscriber', sessionId);
+    const data = JSON.stringify({
+      url: `${production_url}/ec?room=${roomName}&bg=${bgChoice}&round=${round}`,
+      sessionId: sessionId,
+      maxDuration: 300,
+      token: token,
+      projectId: apiKey,
+      properties: {
+        name: 'EC',
+      },
+    });
+
+    const config = {
+      method: 'post',
+      url: `https://api.opentok.com/v2/project/${apiKey}/render`,
+      headers: {
+        'X-OPENTOK-AUTH': await generateRestToken(),
+        'Content-Type': 'application/json',
+      },
+      data: data,
+    };
+
+    const response = await axios(config);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+/**
+ * Dynamically update the broadcast layout
+ * @param {String} id - The id to stop the experience composer render
+ * @returns {Promise} <Resolve => null, Reject => {Error}>
+ */
+
+const deleteRender = async (id) => {
+  console.log('trying to stop render ' + id);
+  const config = {
+    method: 'delete',
+    url: `https://api.opentok.com/v2/project/${apiKey}/render/${id}`,
+    headers: {
+      'X-OPENTOK-AUTH': await generateRestToken(),
+      'Content-Type': 'application/json',
+    },
+  };
+
+  try {
+    const response = await axios(config);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 module.exports = {
   getCredentials,
   startBroadcast,
@@ -282,4 +398,7 @@ module.exports = {
   createToken,
   apiKey,
   activeBroadcast,
+  createRender,
+  deleteRender,
+  addStreamToBroadcast,
 };
