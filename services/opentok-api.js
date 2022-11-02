@@ -110,20 +110,18 @@ const createToken = (userType, sessionId) => OT.generateToken(sessionId, tokenOp
 
 /**
  * Creates an OpenTok session and generates an associated token
+ * @param {String} userType Host, guest, or viewer
  * @returns {Promise} <Resolve => {Object}, Reject => {Error}>
  */
-const getCredentials = async (userType, sessionId = null) => {
+const getCredentials = async (userType) => {
   return new Promise(async (resolve, reject) => {
-    let session;
-    if (!session) {
-      try {
-        session = await createSession();
-      } catch (err) {
-        reject(err);
-      }
+    try {
+      const session = await createSession();
+      const token = createToken(userType, session.sessionId);
+      resolve({ apiKey, sessionId: session.sessionId, token });
+    } catch (err) {
+      reject(err);
     }
-    const token = createToken(userType, session.sessionId);
-    resolve({ apiKey, sessionId: session.sessionId, token });
   });
 };
 

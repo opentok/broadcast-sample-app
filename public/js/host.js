@@ -9,7 +9,7 @@
   let renderId;
   let session;
   let screenSharePublisher;
-  const SAMPLE_SERVER_BASE_URL = 'https://8615-2a02-c7c-6489-cf00-f587-8aab-3de2-ed68.eu.ngrok.io';
+  const SAMPLE_SERVER_BASE_URL = window.location.origin;
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
 
