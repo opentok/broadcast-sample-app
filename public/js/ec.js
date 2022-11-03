@@ -78,9 +78,9 @@
     });
     const roundDivs = params.get('round');
     if (roundDivs === 'true') editDivs();
-    // else {
-    addSubscriberOverlay(subscriber);
-    // }
+    else {
+      addSubscriberOverlay(subscriber);
+    }
   };
 
   /**
