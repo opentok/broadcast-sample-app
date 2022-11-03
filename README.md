@@ -99,6 +99,7 @@ the [OpenTok.js Reference](https://tokbox.com/developer/sdks/js/reference/).
 - [Guest](#guest)
 - [Viewer](#viewer)
 - [Host](#host)
+- [HLS Viewer](#hls-viewer)
 
 _**NOTE:** The sample app contains logic used for logging. This is used to submit anonymous usage data for internal Vonage purposes only. We request that you do not modify or remove any logging code in your use of this sample application._
 
@@ -129,7 +130,7 @@ sample app yourself. This allows you to customize the app as desired.
 
 - **[hls-viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast.
 
-- **[ec.js](./public/js/hls-viewer.js)**: This page defines the code that the Experience Composer instance needs to execute. It will connection to the session, subscribe to all streams but itself and the screen share stream from the Host and customise the appearance of the page. The result of the interaction with this code, that is, what is visible on this page, will be published as a new stream into the session (see logic on `opentok-api.js`).
+- **[ec.js](./public/js/hls-viewer.js)**: This page defines the code that the Experience Composer instance needs to execute. It will connect to the session, subscribe to all streams but itself and the screen share stream from the Host and customise the appearance of the page. The result of the interaction with this code, that is, what is visible on this page, will be published as a new stream into the session (see logic on `opentok-api.js`).
 
 - **[CSS files](./public/css)**: Defines the client UI style.
 
@@ -201,7 +202,7 @@ The credentials are then retrieved in [host.js](./public/js/host.js) and used to
 
 When the web page is loaded, those credentials are retrieved from the HTML and are used to initialize the session.
 
-The logic needed to start and stop the Experience Composer stream is defined in [opentok-api.js](./services/opentok-api.js) (`createRender` and `deleteRender` respectively). At the time of updating this sample application, the nodeJS SDK does not have support for Experience Composer, so the [REST API](https://www.dev.tokbox.com/developer/rest/#starting_experience_composer) will be used.
+The logic needed to start and stop the Experience Composer stream is defined in [opentok-api.js](./services/opentok-api.js) (`createRender` and `deleteRender` respectively). At the time of updating this sample application, the nodeJS SDK does not have support for Experience Composer, so the [REST API](https://www.dev.tokbox.com/developer/rest/#starting_experience_composer) will be used. The `createRender` function creates a Experience Composer instance that will navigate to **[ec.js](./public/js/hls-viewer.js)** and publish a new stream whose name is `EC` into the session.
 
 ### Guest
 
