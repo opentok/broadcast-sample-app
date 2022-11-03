@@ -99,7 +99,7 @@ the [OpenTok.js Reference](https://tokbox.com/developer/sdks/js/reference/).
 - [Guest](#guest)
 - [Viewer](#viewer)
 - [Host](#host)
-- [HLS Viewer](#hls-viewer)
+- [HLS Viewer](#hls-viewer) -[Experience Composer](#experience-composer)
 
 _**NOTE:** The sample app contains logic used for logging. This is used to submit anonymous usage data for internal Vonage purposes only. We request that you do not modify or remove any logging code in your use of this sample application._
 
@@ -130,7 +130,7 @@ sample app yourself. This allows you to customize the app as desired.
 
 - **[hls-viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast.
 
-- **[ec.js](./public/js/hls-viewer.js)**: This page defines the code that the Experience Composer instance needs to execute. It will connect to the session, subscribe to all streams but itself and the screen share stream from the Host and customise the appearance of the page. The result of the interaction with this code, that is, what is visible on this page, will be published as a new stream into the session (see logic on `opentok-api.js`).
+- **[ec.js](./public/js/hls-viewer.js)**: This page defines the code that the Experience Composer instance needs to execute.
 
 - **[CSS files](./public/css)**: Defines the client UI style.
 
@@ -214,6 +214,10 @@ subscribe to the host stream and other guest streams, and publish audio and vide
 The functions in [viewer.js](./public/js/hls-viewer.js) check whether the broadcast is active or not. The HLS viewer can also move to the Viewer view (WebRTC session). Your application is responsible to let the HLS viewers when the HLS stream has started, this could be via WSS or any other way. For simplicity, this sample app has a button that checks the server for the broadcast URL.
 
 Note: The Vonage Video API does not support the `#EXT-X-ENDLIST` tag for HLS streams as stated in the [Knowlegdebase page](https://tokbox.com/developer/guides/broadcast/live-streaming/#live-streaming-known-issues). Thereore, your application logic needs to update the HLS player once the stream is over.
+
+### Experience Composer
+
+The code in [ec.js](./public/js/ec.js) will connect the Experience Composer instance to the session, subscribe to all streams but itself and the screen share stream from the Host and customise the appearance of the page. The result of the interaction with this code, that is, what is visible on this page, will be published as a new stream into the session (see logic on `opentok-api.js`).
 
 ### Viewer
 
