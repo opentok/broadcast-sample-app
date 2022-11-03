@@ -99,7 +99,8 @@ the [OpenTok.js Reference](https://tokbox.com/developer/sdks/js/reference/).
 - [Guest](#guest)
 - [Viewer](#viewer)
 - [Host](#host)
-- [HLS Viewer](#hls-viewer) -[Experience Composer](#experience-composer)
+- [HLS Viewer](#hls-viewer)
+- [Experience Composer](#experience-composer)
 
 _**NOTE:** The sample app contains logic used for logging. This is used to submit anonymous usage data for internal Vonage purposes only. We request that you do not modify or remove any logging code in your use of this sample application._
 
