@@ -106,7 +106,8 @@ const createSession = async (options) => {
  * @param {String} userType Host, guest, or viewer
  * @returns {String}
  */
-const createToken = (userType, sessionId) => OT.generateToken(sessionId, tokenOptions(userType));
+const createToken = (userType, sessionId) =>
+  OT.generateToken(sessionId, Object.assign({ initialLayoutClassList: ['full', 'focus'] }, tokenOptions(userType)));
 
 /**
  * Creates an OpenTok session and generates an associated token
@@ -140,7 +141,7 @@ const startBroadcast = async (rtmp, lowLatency, fhd = false, dvr = false, sessio
 
     const layout = {
       type: 'bestFit',
-      screenshareType: 'pip',
+      screenshareType: 'verticalPresentation',
     };
     let dvrConfig = dvr;
     let lowLatencyConfig = lowLatency;

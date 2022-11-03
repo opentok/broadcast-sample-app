@@ -93,6 +93,13 @@ body {
 select#gender option[value='0'] {
   background-image: url('https://wallpaperaccess.com/full/5497307.jpg');
 }
+.icon {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+}
 
 .video-container > * {
   max-width: 640px;
@@ -388,7 +395,7 @@ select#gender option[value='0'] {
 }
 
 .url-container {
-  width: 90vw;
+  /* width: 90vw; */
   margin: 0 auto;
   position: relative;
 }
@@ -396,7 +403,7 @@ select#gender option[value='0'] {
 .copy-link {
   position: relative;
   font-family: 'Poiret One', cursive;
-  color: #59c9e3;
+  /* color: #59c9e3; */
   width: 200px;
   margin: 10px auto;
   cursor: pointer;
@@ -429,7 +436,7 @@ select#gender option[value='0'] {
   box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.75);
 }
 
-.tooltip.copy::before {
+/* .tooltip.copy::before {
   content: '\2714';
   height: 16px;
   width: 16px;
@@ -439,7 +446,7 @@ select#gender option[value='0'] {
   margin-right: 10px;
   border: 1px solid #59c9e3;
   border-radius: 50%;
-}
+} */
 
 .url-container .tooltip.copy {
   position: absolute;

@@ -95,7 +95,7 @@
     // session.publish(publisher);
 
     session.on('streamCreated', function (event) {
-      if (event.stream.name === 'EC') return;
+      if (event.stream.name === 'EC' || event.stream.name === 'HostScreen') return;
       subscribe(session, event.stream);
     });
 

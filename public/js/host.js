@@ -12,7 +12,8 @@
   const SAMPLE_SERVER_BASE_URL = window.location.origin;
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
-
+  if (!params.get('room')) window.location.replace(`${window.location.origin}/host?room=${generateId()}`);
+  let bgChoice = null;
   /**
    * Options for adding OpenTok publisher and subscriber video elements
    */
@@ -21,6 +22,10 @@
     height: '100%',
     showControls: false,
   };
+
+  function generateId() {
+    return Math.floor((1 + Math.random()) * 0x10000).toString();
+  }
 
   /**
    * Get our OpenTok http Key, Session ID, and Token from the JSON embedded
@@ -32,6 +37,16 @@
     el.remove();
     credentialData = credentials;
     return credentials;
+  };
+
+  const showCopiedNotice = function () {
+    console.log('showing');
+
+    const notice = document.getElementById('copyNotice');
+    notice.classList.remove('opacity-0');
+    setTimeout(function () {
+      notice.classList.add('opacity-0');
+    }, 1500);
   };
 
   let credentialData;
@@ -188,12 +203,19 @@
     const playerUrl = getBroadcastUrl(url, availableAt);
     const displayUrl = document.getElementById('broadcastURL');
     const rtmpActive = document.getElementById('rtmpActive');
+    const bg = document.getElementById('round-option');
+    const ecInfo = document.getElementById('ecInfo');
+    const copyUrl = document.getElementById('copyURL');
 
     broadcast.status = status;
 
     if (status === 'active') {
       startStopButton.classList.add('active');
       startStopButton.innerHTML = 'End Broadcast';
+      copyUrl.classList.remove('hidden');
+      displayUrl.innerHTML = window.location.href.replace('host?', 'hls-viewer?');
+      ecInfo.classList.add('hidden');
+      bg.classList.add('hidden');
       if (broadcast.rtmp) {
         rtmpActive.classList.remove('hidden');
       }
@@ -201,6 +223,10 @@
       startStopButton.classList.remove('active');
       startStopButton.innerHTML = 'Start Broadcast';
       rtmpActive.classList.add('hidden');
+      ecInfo.classList.remove('hidden');
+      bg.classList.remove('hidden');
+      copyUrl.classList.add('hidden');
+
       document.getElementById('rtmpLabel').classList.remove('hidden');
       document.getElementById('rtmp-options').classList.remove('hidden');
     }
@@ -238,7 +264,7 @@
     document.getElementById('rtmpLabel').classList.remove('hidden');
     document.getElementById('rtmp-options').classList.remove('hidden');
     document.getElementById('rtmpError').classList.add('hidden');
-    return { id: Math.floor((1 + Math.random()) * 0x10000).toString(), serverUrl: server.value, streamName: stream.value };
+    return { id: generateId(), serverUrl: server.value, streamName: stream.value };
   };
 
   const hideRtmpInput = function () {
@@ -259,7 +285,6 @@
   const startBroadcast = function () {
     analytics.log('startBroadcast', 'variationAttempt');
     const roomName = params.get('room');
-    let bgChoice = null;
 
     const rtmp = validRtmp();
     if (!rtmp) {
@@ -428,6 +453,16 @@
         const screenShareButton = document.getElementById('screenshare');
         screenShareButton.classList.toggle('disabled');
       });
+
+      screenSharePublisher.on('streamCreated', function (event) {
+        console.log(event.stream);
+        if (event.stream.name === 'HostScreen') {
+          const roomName = params.get('room');
+          if (bgChoice !== null) {
+            addStreamToBroadcast(event.stream.id, roomName);
+          }
+        }
+      });
     } else {
       screenSharePublisher.destroy();
     }
@@ -467,11 +502,19 @@
       }
     });
 
+    document.getElementById('copyURL').addEventListener('click', function () {
+      showCopiedNotice();
+    });
+
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
-      if (event.stream.name === 'EC') {
+      console.log(event.stream);
+
+      if (event.stream.name === 'EC' || event.stream.name === 'HostScreen') {
         const roomName = params.get('room');
-        addStreamToBroadcast(event.stream.id, roomName);
+        if (bgChoice !== null) {
+          addStreamToBroadcast(event.stream.id, roomName);
+        }
         return;
       }
       subscribe(session, event.stream);
@@ -509,22 +552,6 @@
     document.getElementById('videoInputs').addEventListener('change', (e) => {
       onVideoSourceChanged(e, publisher);
     });
-
-    // document.getElementById('startEC').addEventListener('click', () => {
-    //   const bg0 = document.querySelector('#bg0').checked;
-    //   const bg1 = document.querySelector('#bg1').checked;
-    //   const bg2 = document.querySelector('#bg2').checked;
-
-    //   if (bg0) bgChoice = 0;
-    //   if (bg1) bgChoice = 1;
-    //   if (bg2) bgChoice = 2;
-
-    //   startExperienceComposer(session.sessionId, params.get('room'), bgChoice);
-    // });
-
-    // document.getElementById('stopEC').addEventListener('click', () => {
-    //   stopExperienceComposer(renderId);
-    // });
 
     document.getElementById('audioInputs').addEventListener('change', (e) => {
       onAudioSourceChanged(e, publisher);
@@ -729,6 +756,7 @@
   };
 
   const init = function () {
+    const clipboard = new ClipboardJS('#copyURL');
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
     session = OT.initSession(credentials.apiKey, credentials.sessionId, props);

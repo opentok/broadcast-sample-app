@@ -69,23 +69,12 @@
 
     /** Subscribe to new streams as they are published */
     session.on('streamCreated', function (event) {
-      // if (event.name !== 'EC') {
-      streams.push(event.stream);
-      // } else {
-      //   streams.filter((e) => e.name !== 'Host');
-      //   streams.push(event.stream);
-      // }
-
-      // if (streams.find((e) => e.name === 'EC')) {
-      //   streams.filter((e) => e.name !== 'Host');
-      // } else {
-      //   streams.push(event.stream);
-      // }
-
-      // console.log(streams);
+      if (event.stream.name === 'EC') {
+        streams.push(event.stream);
+      }
 
       if (broadcastActive) {
-        subscribers.push(subscribe(session, event.stream));
+        if (event.stream.name === 'EC' || event.stream.name === 'HostScreen') subscribers.push(subscribe(session, event.stream));
         // streams.filter((e) => e.name !== 'Host');
       }
       if (streams.length > 3) {
@@ -110,19 +99,10 @@
         document.getElementById('back-hls').classList.remove('hidden');
         document.getElementById('participate').classList.remove('hidden');
 
-        //If the host published a Experience Composer stream, I want to subscribe to that stream
-        //rather than the regular stream from the host (this is to avoid duplicate subscription)
-
-        if (streams.find((e) => e.name === 'EC')) {
-          streams.forEach(function (stream) {
-            if (stream.name === 'Host') return;
-            subscribers.push(subscribe(session, stream));
-          });
-        } else {
-          streams.forEach(function (stream) {
-            subscribers.push(subscribe(session, stream));
-          });
-        }
+        streams.forEach(function (stream) {
+          if (stream.name !== 'EC') return;
+          subscribers.push(subscribe(session, stream));
+        });
       } else if (status === 'ended') {
         subscribers.forEach(function (subscriber) {
           session.unsubscribe(subscriber);
