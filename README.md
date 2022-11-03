@@ -30,6 +30,10 @@ to a single HLS stream that can be accessed from an HLS player. The expected lat
 is 10-15 seconds and for low latency HLS is shorter. The host can select different options to start the broadcast (Full HD, Low latency and DVR).
 The viewers can move back and forth from the HLS viewer view to the WebRTC view.
 
+Instead of the regular Broadcast view, the Host can decide whether to compose a custom view with all the published streams into the sesion. This is done through [Experience Composer API](https://www.tokbox.com/developer/guides/experience-composer/) which allows to publish a custom application view with your own layout as a stream into the session. The host has some additional controls to apply a custom background to the composed view and to round the corners of the video tiles. If a background option is selected, a Experience Composer stream will be published into the session, otherwise a regular broadcast will be composed.
+
+**NOTE**: The price for a Experience Composer stream differs from a regular stream. Check [this article](https://video-api.support.vonage.com/hc/en-us/articles/6714156901780-Experience-Composer-Activation-and-Pricing) for further pricing information
+
 You can configure and run this sample app within just a few minutes!
 
 This guide has the following sections:
@@ -46,9 +50,9 @@ To be prepared to develop your Video API Broadcast app:
 1. Review the [OpenTok.js](https://tokbox.com/developer/sdks/js/) requirements.
 2. Your app will need an Video API **API Key** and **API Secret**, which you can get from
    the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/). Set the API Key and
-   API Secret in [config.json](./config.json).
-
-To run the Video API Broadcast Sample App, run the following commands:
+   API Secret along with your **production_url** in [config.json](./config.json).
+3. Enable Experience Composer in the [account Portal](https://tokbox.com/account)
+   To run the Video API Broadcast Sample App, run the following commands:
 
 ```bash
 npm i
@@ -119,9 +123,13 @@ sample app yourself. This allows you to customize the app as desired.
   control whether guests are broadcasting, though the host does have a moderator token that
   can be used for that purpose.
 
-- **[viewer.js](./public/js/viewer.js)**: Viewers can view the live WebRTC stream.
+- **[viewer.js](./public/js/viewer.js)**: Viewers can view the live WebRTC stream and switch to the Guest and HLS views.
 
-- **[viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast.
+- **[hls-viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast and switch to the viewer view.
+
+- **[hls-viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast.
+
+- **[ec.js](./public/js/hls-viewer.js)**: This page defines the code that the Experience Composer instance needs to execute. It will connection to the session, subscribe to all streams but itself and the screen share stream from the Host and customise the appearance of the page. The result of the interaction with this code, that is, what is visible on this page, will be published as a new stream into the session (see logic on `opentok-api.js`).
 
 - **[CSS files](./public/css)**: Defines the client UI style.
 
@@ -151,7 +159,7 @@ route is configured in server.js:
 app.get('/host', async (req, res) => {
   const roomName = req.query.room;
   try {
-    const credentials = await giveMeCredentials('host', roomName);
+    const credentials = await generateCredentials('host', roomName);
     res.render('pages/host', {
       credentials: JSON.stringify(credentials),
     });
@@ -188,9 +196,12 @@ The credentials are then retrieved in [host.js](./public/js/host.js) and used to
     });
   };
 
+
 ```
 
 When the web page is loaded, those credentials are retrieved from the HTML and are used to initialize the session.
+
+The logic needed to start and stop the Experience Composer stream is defined in [opentok-api.js](./services/opentok-api.js) (`createRender` and `deleteRender` respectively). At the time of updating this sample application, the nodeJS SDK does not have support for Experience Composer, so the [REST API](https://www.dev.tokbox.com/developer/rest/#starting_experience_composer) will be used.
 
 ### Guest
 

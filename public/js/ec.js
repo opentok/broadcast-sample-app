@@ -66,9 +66,7 @@
    */
   const subscribe = function (session, stream) {
     const name = stream.name;
-    const roomName = window.location.search.split('=')[1];
-    // if (name !== 'Host') return;
-    // const insertMode = name === 'Host' ? 'before' : 'after';
+
     const insertMode = 'after';
     const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
     const subscriber = session.subscribe(stream, 'hostDivider', properties, function (error) {
@@ -90,10 +88,6 @@
    * @param {Object} publisher The OpenTok publisher object
    */
   const subscribeAndSetUpListeners = function (session) {
-    let streams = 1;
-
-    // session.publish(publisher);
-
     session.on('streamCreated', function (event) {
       if (event.stream.name === 'EC' || event.stream.name === 'HostScreen') return;
       subscribe(session, event.stream);

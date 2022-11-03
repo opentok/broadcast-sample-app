@@ -21,7 +21,7 @@
     "broadcast",
     "webrtc"
   ],
-  "author": "Michael Jolley <michael.jolley@vonage.com>",
+  "author": "Michael Jolley <michael.jolley@vonage.com>, Javier Molina sanz <javier.molinasanz@vonage.com> Enrico Portolan <enrico.portolan@vonage.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/opentok/broadcast-sample-app/issues"

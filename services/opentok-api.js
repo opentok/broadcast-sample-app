@@ -336,7 +336,6 @@ const createRender = async (sessionId, roomName, bgChoice, round) => {
     const data = JSON.stringify({
       url: `${production_url}/ec?room=${roomName}&bg=${bgChoice}&round=${round}`,
       sessionId: sessionId,
-      maxDuration: 300,
       token: token,
       projectId: apiKey,
       properties: {
