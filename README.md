@@ -297,7 +297,7 @@ is that broadcasts remain active until a 120-minute timeout period has completed
 
 ![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/host-view.png?raw=true)
 
-### Webrtc viewer
+### WebRTC viewer
 
 ![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/webrtcviewer.png?raw=true)
 
