@@ -293,7 +293,17 @@ is that broadcasts remain active until a 120-minute timeout period has completed
 
 ## Screenshots
 
+### Host View
+
 ![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/host-view.png?raw=true)
+
+### Webrtc viewer
+
+![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/webrtcviewer.png?raw=true)
+
+### HLS viewer
+
+![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/hls-viewer.png?raw=true)
 
 ## Development and Contributing
 
