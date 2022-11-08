@@ -291,6 +291,10 @@ which invokes the [Video API Broadcast API](https://tokbox.com/developer/rest/#s
 endpoint, which terminates the CDN stream. This is a recommended best practice, as the default
 is that broadcasts remain active until a 120-minute timeout period has completed.
 
+## Screenshots
+
+![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/host-view.png?raw=true)
+
 ## Development and Contributing
 
 Interested in contributing? We :heart: pull requests! See the [Contribution](CONTRIBUTING.md) guidelines.
