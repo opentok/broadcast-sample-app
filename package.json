@@ -37,6 +37,6 @@
   "devDependencies": {
     "eslint": "^7.9.0",
     "eslint-config-airbnb": "^18.2.0",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.20"
   }
 }
