@@ -203,7 +203,7 @@ The credentials are then retrieved in [host.js](./public/js/host.js) and used to
 
 When the web page is loaded, those credentials are retrieved from the HTML and are used to initialize the session.
 
-The logic needed to start and stop the Experience Composer stream is defined in [opentok-api.js](./services/opentok-api.js) (`createRender` and `deleteRender` respectively). At the time of updating this sample application, the nodeJS SDK does not have support for Experience Composer, so the [REST API](https://www.dev.tokbox.com/developer/rest/#starting_experience_composer) will be used. The `createRender` function creates a Experience Composer instance that will navigate to **[ec.js](./public/js/hls-viewer.js)** and publish a new stream whose name is `EC` into the session.
+The logic needed to start and stop the Experience Composer stream is defined in [opentok-api.js](./services/opentok-api.js) (`createRender` and `deleteRender` respectively). At the time of updating this sample application, the nodeJS SDK does not have support for Experience Composer, so the [REST API](https://www.dev.tokbox.com/developer/rest/#starting_experience_composer) will be used. The `createRender` function creates an Experience Composer instance that will navigate to **[ec.js](./public/js/hls-viewer.js)** and publish a new stream named `EC` into the session.
 
 ### Guest
 
@@ -214,7 +214,7 @@ subscribe to the host stream and other guest streams, and publish audio and vide
 
 The functions in [viewer.js](./public/js/hls-viewer.js) check whether the broadcast is active or not. The HLS viewer can also move to the Viewer view (WebRTC session). Your application is responsible to let the HLS viewers when the HLS stream has started, this could be via WSS or any other way. For simplicity, this sample app has a button that checks the server for the broadcast URL.
 
-Note: The Vonage Video API does not support the `#EXT-X-ENDLIST` tag for HLS streams as stated in the [Knowlegdebase page](https://tokbox.com/developer/guides/broadcast/live-streaming/#live-streaming-known-issues). Thereore, your application logic needs to update the HLS player once the stream is over.
+**NOTE**: The price for an Experience Composer stream differs from a regular stream. Check [this article](https://video-api.support.vonage.com/hc/en-us/articles/6714156901780-Experience-Composer-Activation-and-Pricing) for further pricing information.
 
 ### Experience Composer
 

@@ -52,10 +52,7 @@
     const el = document.createElement('div');
 
     const controls = [
-      // '<div class="publisher-controls-container">',
       '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/Vonage_Logo.png" width="140" height="40" style="position: absolute; margin-top: 20px; margin-left: 30px; z-index: 100"></img>',
-      // '<span  style="position: absolute; margin-bottom: 200px; margin-left: 30px; z-index: 100">User</span>',
-      // '</div>',
     ].join('\n');
     el.innerHTML = controls;
     subscriberContainer.appendChild(el.firstChild);

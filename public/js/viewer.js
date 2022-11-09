@@ -75,7 +75,6 @@
 
       if (broadcastActive) {
         if (event.stream.name === 'EC' || event.stream.name === 'HostScreen') subscribers.push(subscribe(session, event.stream));
-        // streams.filter((e) => e.name !== 'Host');
       }
       if (streams.length > 3) {
         document.getElementById('videoContainer').classList.add('wrap');
