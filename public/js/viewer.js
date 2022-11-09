@@ -27,20 +27,12 @@
   const subscribe = function (session, stream) {
     const name = stream.name;
     const insertMode = name === 'Host' ? 'before' : 'after';
-    const properties = Object.assign(
-      { name: name, insertMode: insertMode },
-      insertOptions
-    );
-    return session.subscribe(
-      stream,
-      'hostDivider',
-      properties,
-      function (error) {
-        if (error) {
-          console.log(error);
-        }
+    const properties = Object.assign({ name: name, insertMode: insertMode }, insertOptions);
+    return session.subscribe(stream, 'hostDivider', properties, function (error) {
+      if (error) {
+        console.log(error);
       }
-    );
+    });
   };
 
   /** Ping the host to see if the broadcast has started */
@@ -71,15 +63,18 @@
    * Listen for events on the OpenTok session
    */
   const setEventListeners = function (session) {
-    const streams = [];
+    let streams = [];
     const subscribers = [];
     let broadcastActive = false;
 
     /** Subscribe to new streams as they are published */
     session.on('streamCreated', function (event) {
-      streams.push(event.stream);
+      if (event.stream.name === 'EC') {
+        streams.push(event.stream);
+      }
+
       if (broadcastActive) {
-        subscribers.push(subscribe(session, event.stream));
+        if (event.stream.name === 'EC' || event.stream.name === 'HostScreen') subscribers.push(subscribe(session, event.stream));
       }
       if (streams.length > 3) {
         document.getElementById('videoContainer').classList.add('wrap');
@@ -102,7 +97,9 @@
       if (status === 'active') {
         document.getElementById('back-hls').classList.remove('hidden');
         document.getElementById('participate').classList.remove('hidden');
+
         streams.forEach(function (stream) {
+          if (stream.name !== 'EC') return;
           subscribers.push(subscribe(session, stream));
         });
       } else if (status === 'ended') {
@@ -123,20 +120,12 @@
   };
 
   const init = function () {
-    document
-      .getElementById('participate-button')
-      .addEventListener('click', switchToLiveMode);
-    document
-      .getElementById('go-hls-btn')
-      .addEventListener('click', switchToHlsMode);
+    document.getElementById('participate-button').addEventListener('click', switchToLiveMode);
+    document.getElementById('go-hls-btn').addEventListener('click', switchToHlsMode);
 
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
-    const session = OT.initSession(
-      credentials.apiKey,
-      credentials.sessionId,
-      props
-    );
+    const session = OT.initSession(credentials.apiKey, credentials.sessionId, props);
 
     session.connect(credentials.token, function (error) {
       if (error) {

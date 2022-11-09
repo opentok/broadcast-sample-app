@@ -4,17 +4,16 @@
   "website": "https://vonage.com",
   "repository": "https://github.com/opentok/broadcast-sample-app",
   "image": "https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg",
-  "keywords": [
-    "vonage",
-    "broadcast",
-    "javascript"
-  ],
+  "keywords": ["vonage", "broadcast", "javascript"],
   "env": {
     "apiKey": {
       "description": "Vonage Video API Project API Key"
     },
     "apiSecret": {
       "description": "Vonage Video API Project API Secret"
+    },
+    "production_url": {
+      "description": "Your production URL"
     }
   }
 }

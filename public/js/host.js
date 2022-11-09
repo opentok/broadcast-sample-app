@@ -6,11 +6,14 @@
   /** The state of things */
   let broadcast = { status: 'waiting', streams: 2, rtmp: false };
   let subscribers = [];
-  let activeSpeaker;
+  let renderId;
   let session;
-  let lastActiveSpeaker = Date.now();
   let screenSharePublisher;
-
+  const SAMPLE_SERVER_BASE_URL = window.location.origin;
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
+  if (!params.get('room')) window.location.replace(`${window.location.origin}/host?room=${generateId()}`);
+  let bgChoice = null;
   /**
    * Options for adding OpenTok publisher and subscriber video elements
    */
@@ -19,6 +22,10 @@
     height: '100%',
     showControls: false,
   };
+
+  function generateId() {
+    return Math.floor((1 + Math.random()) * 0x10000).toString();
+  }
 
   /**
    * Get our OpenTok http Key, Session ID, and Token from the JSON embedded
@@ -32,7 +39,73 @@
     return credentials;
   };
 
+  const showCopiedNotice = function () {
+    console.log('showing');
+
+    const notice = document.getElementById('copyNotice');
+    notice.classList.remove('opacity-0');
+    setTimeout(function () {
+      notice.classList.add('opacity-0');
+    }, 1500);
+  };
+
   let credentialData;
+
+  /**
+   * Add a stream to the broadcast
+   * @param {String} streamId
+   * @param {String} sessionId - The name of the room
+   */
+  function addStreamToBroadcast(streamId, roomName) {
+    fetch(`${SAMPLE_SERVER_BASE_URL}/addStream`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roomName, streamId }),
+    })
+      .then(function fetch(res) {
+        console.log(res);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  /**
+   * Start a Experience Composer render
+   * @param {String} sessionId
+   * @param {String} roomName - The name of the room
+   * @param {Number} [bgChoice] - The user choice for background streaming
+   
+   */
+  function startExperienceComposer(sessionId, roomName, bgChoice, round) {
+    console.log('starting bg' + bgChoice);
+
+    fetch(`${SAMPLE_SERVER_BASE_URL}/render`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sessionId, roomName, bgChoice, round }),
+    })
+      .then(function fetch(res) {
+        return res.json();
+      })
+      .then(function fetchJson(json) {
+        console.log(json);
+        renderId = json.id;
+      });
+  }
+
+  function stopExperienceComposer(renderId) {
+    fetch(`${SAMPLE_SERVER_BASE_URL}/render/stop/${renderId}`).then(function fetch(res) {
+      // return res.json();
+      console.log('stopped experience composer');
+    });
+  }
 
   /**
    * Create an OpenTok publisher object
@@ -130,13 +203,19 @@
     const playerUrl = getBroadcastUrl(url, availableAt);
     const displayUrl = document.getElementById('broadcastURL');
     const rtmpActive = document.getElementById('rtmpActive');
+    const bg = document.getElementById('round-option');
+    const ecInfo = document.getElementById('ecInfo');
+    const copyUrl = document.getElementById('copyURL');
 
     broadcast.status = status;
 
     if (status === 'active') {
       startStopButton.classList.add('active');
       startStopButton.innerHTML = 'End Broadcast';
-      document.getElementById('urlContainer').classList.remove('hidden');
+      copyUrl.classList.remove('hidden');
+      displayUrl.innerHTML = window.location.href.replace('host?', 'hls-viewer?');
+      ecInfo.classList.add('hidden');
+      bg.classList.add('hidden');
       if (broadcast.rtmp) {
         rtmpActive.classList.remove('hidden');
       }
@@ -144,6 +223,10 @@
       startStopButton.classList.remove('active');
       startStopButton.innerHTML = 'Start Broadcast';
       rtmpActive.classList.add('hidden');
+      ecInfo.classList.remove('hidden');
+      bg.classList.remove('hidden');
+      copyUrl.classList.add('hidden');
+
       document.getElementById('rtmpLabel').classList.remove('hidden');
       document.getElementById('rtmp-options').classList.remove('hidden');
     }
@@ -181,7 +264,7 @@
     document.getElementById('rtmpLabel').classList.remove('hidden');
     document.getElementById('rtmp-options').classList.remove('hidden');
     document.getElementById('rtmpError').classList.add('hidden');
-    return { id: Math.floor((1 + Math.random()) * 0x10000).toString(), serverUrl: server.value, streamName: stream.value };
+    return { id: generateId(), serverUrl: server.value, streamName: stream.value };
   };
 
   const hideRtmpInput = function () {
@@ -201,6 +284,7 @@
    */
   const startBroadcast = function () {
     analytics.log('startBroadcast', 'variationAttempt');
+    const roomName = params.get('room');
 
     const rtmp = validRtmp();
     if (!rtmp) {
@@ -212,6 +296,20 @@
     const HLS_HD = document.querySelector('#hls-HD').checked;
     const HLS_DVR = document.querySelector('#hls-dvr').checked;
 
+    const bg0 = document.querySelector('#bg0').checked;
+    const bg1 = document.querySelector('#bg1').checked;
+    const bg2 = document.querySelector('#bg2').checked;
+    const roundyes = document.querySelector('#roundyes').checked;
+
+    if (bg0) bgChoice = 0;
+    if (bg1) bgChoice = 1;
+    if (bg2) bgChoice = 2;
+
+    console.log(`room: ${roomName} bgChoice:${bgChoice} session:${credentialData.sessionId}`);
+    if (bgChoice !== null) {
+      startExperienceComposer(credentialData.sessionId, roomName, bgChoice, roundyes);
+    }
+
     if (HLS_LL && HLS_DVR) alert('DVR is not supported with Low latency HLS, DVR will regular HLS will be selected');
 
     hideRtmpInput();
@@ -222,6 +320,7 @@
         fhd: HLS_HD,
         dvr: HLS_DVR,
         sessionId: credentialData.sessionId,
+        streamMode: bgChoice !== null ? 'manual' : 'auto',
       })
       .then(function (broadcastData) {
         broadcast = broadcastData;
@@ -239,6 +338,7 @@
    * Make a request to the server to stop the broadcast
    */
   const endBroadcast = function () {
+    bgChoice = null;
     http
       .post('/broadcast/end', {
         sessionId: credentialData.sessionId,
@@ -252,6 +352,7 @@
         console.log(error);
         analytics.log('endBroadcast', 'variationError');
       });
+    if (renderId) stopExperienceComposer(renderId);
   };
 
   /**
@@ -352,6 +453,16 @@
         const screenShareButton = document.getElementById('screenshare');
         screenShareButton.classList.toggle('disabled');
       });
+
+      screenSharePublisher.on('streamCreated', function (event) {
+        console.log(event.stream);
+        if (event.stream.name === 'HostScreen') {
+          const roomName = params.get('room');
+          if (bgChoice !== null) {
+            addStreamToBroadcast(event.stream.id, roomName);
+          }
+        }
+      });
     } else {
       screenSharePublisher.destroy();
     }
@@ -391,8 +502,21 @@
       }
     });
 
+    document.getElementById('copyURL').addEventListener('click', function () {
+      showCopiedNotice();
+    });
+
     // Subscribe to new streams as they're published
     session.on('streamCreated', function (event) {
+      console.log(event.stream);
+
+      if (event.stream.name === 'EC' || event.stream.name === 'HostScreen') {
+        const roomName = params.get('room');
+        if (bgChoice !== null) {
+          addStreamToBroadcast(event.stream.id, roomName);
+        }
+        return;
+      }
       subscribe(session, event.stream);
       if (subscribers.length > 2) {
         document.getElementById('videoContainer').classList.add('wrap');
@@ -403,6 +527,7 @@
     });
 
     session.on('streamDestroyed', function (event) {
+      if (event.stream.name === 'EC') return;
       subscribers = subscribers.filter((f) => f.subscriber.streamId !== event.stream.id);
       if (subscribers.length <= 3) {
         document.getElementById('videoContainer').classList.remove('wrap');
@@ -422,10 +547,6 @@
           signalBroadcastURL(session, broadcast.url, event.from);
         }
       }
-    });
-
-    document.getElementById('copyURL').addEventListener('click', function () {
-      showCopiedNotice();
     });
 
     document.getElementById('videoInputs').addEventListener('change', (e) => {
@@ -635,6 +756,7 @@
   };
 
   const init = function () {
+    const clipboard = new ClipboardJS('#copyURL');
     const credentials = getCredentials();
     const props = { connectionEventsSuppressed: true };
     session = OT.initSession(credentials.apiKey, credentials.sessionId, props);

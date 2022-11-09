@@ -30,6 +30,10 @@ to a single HLS stream that can be accessed from an HLS player. The expected lat
 is 10-15 seconds and for low latency HLS is shorter. The host can select different options to start the broadcast (Full HD, Low latency and DVR).
 The viewers can move back and forth from the HLS viewer view to the WebRTC view.
 
+Instead of the regular Broadcast view, the Host can decide to compose a custom view with all the published streams in the session. This is done through the [Experience Composer API](https://www.tokbox.com/developer/guides/experience-composer/) which allows publishing a custom application view with your own layout as a stream into the session. The host has additional controls to apply a custom background to the composed view and round the corners of the video tiles. If a background option is selected, an Experience Composer stream will be published into the session, otherwise a regular broadcast will be composed.
+
+**NOTE**: The price for a Experience Composer stream differs from a regular stream. Check [this article](https://video-api.support.vonage.com/hc/en-us/articles/6714156901780-Experience-Composer-Activation-and-Pricing) for further pricing information
+
 You can configure and run this sample app within just a few minutes!
 
 This guide has the following sections:
@@ -46,9 +50,9 @@ To be prepared to develop your Video API Broadcast app:
 1. Review the [OpenTok.js](https://tokbox.com/developer/sdks/js/) requirements.
 2. Your app will need an Video API **API Key** and **API Secret**, which you can get from
    the [OpenTok Developer Dashboard](https://dashboard.tokbox.com/). Set the API Key and
-   API Secret in [config.json](./config.json).
-
-To run the Video API Broadcast Sample App, run the following commands:
+   API Secret along with your **production_url** in [config.json](./config.json).
+3. Enable Experience Composer in the [account Portal](https://tokbox.com/account)
+   To run the Video API Broadcast Sample App, run the following commands:
 
 ```bash
 npm i
@@ -95,6 +99,8 @@ the [OpenTok.js Reference](https://tokbox.com/developer/sdks/js/reference/).
 - [Guest](#guest)
 - [Viewer](#viewer)
 - [Host](#host)
+- [HLS Viewer](#hls-viewer)
+- [Experience Composer](#experience-composer)
 
 _**NOTE:** The sample app contains logic used for logging. This is used to submit anonymous usage data for internal Vonage purposes only. We request that you do not modify or remove any logging code in your use of this sample application._
 
@@ -119,9 +125,13 @@ sample app yourself. This allows you to customize the app as desired.
   control whether guests are broadcasting, though the host does have a moderator token that
   can be used for that purpose.
 
-- **[viewer.js](./public/js/viewer.js)**: Viewers can view the live WebRTC stream.
+- **[viewer.js](./public/js/viewer.js)**: Viewers can view the live WebRTC stream and switch to the Guest and HLS views.
 
-- **[viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast.
+- **[hls-viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast and switch to the viewer view.
+
+- **[hls-viewer.js](./public/js/hls-viewer.js)**: HLS Viewers can only view the broadcast.
+
+- **[ec.js](./public/js/hls-viewer.js)**: This page defines the code that the Experience Composer instance needs to execute.
 
 - **[CSS files](./public/css)**: Defines the client UI style.
 
@@ -151,7 +161,7 @@ route is configured in server.js:
 app.get('/host', async (req, res) => {
   const roomName = req.query.room;
   try {
-    const credentials = await giveMeCredentials('host', roomName);
+    const credentials = await generateCredentials('host', roomName);
     res.render('pages/host', {
       credentials: JSON.stringify(credentials),
     });
@@ -188,9 +198,12 @@ The credentials are then retrieved in [host.js](./public/js/host.js) and used to
     });
   };
 
+
 ```
 
 When the web page is loaded, those credentials are retrieved from the HTML and are used to initialize the session.
+
+The logic needed to start and stop the Experience Composer stream is defined in [opentok-api.js](./services/opentok-api.js) (`createRender` and `deleteRender` respectively). At the time of updating this sample application, the nodeJS SDK does not have support for Experience Composer, so the [REST API](https://www.dev.tokbox.com/developer/rest/#starting_experience_composer) will be used. The `createRender` function creates an Experience Composer instance that will navigate to **[ec.js](./public/js/hls-viewer.js)** and publish a new stream named `EC` into the session.
 
 ### Guest
 
@@ -201,7 +214,11 @@ subscribe to the host stream and other guest streams, and publish audio and vide
 
 The functions in [viewer.js](./public/js/hls-viewer.js) check whether the broadcast is active or not. The HLS viewer can also move to the Viewer view (WebRTC session). Your application is responsible to let the HLS viewers when the HLS stream has started, this could be via WSS or any other way. For simplicity, this sample app has a button that checks the server for the broadcast URL.
 
-Note: The Vonage Video API does not support the `#EXT-X-ENDLIST` tag for HLS streams as stated in the [Knowlegdebase page](https://tokbox.com/developer/guides/broadcast/live-streaming/#live-streaming-known-issues). Thereore, your application logic needs to update the HLS player once the stream is over.
+**NOTE**: The price for an Experience Composer stream differs from a regular stream. Check [this article](https://video-api.support.vonage.com/hc/en-us/articles/6714156901780-Experience-Composer-Activation-and-Pricing) for further pricing information.
+
+### Experience Composer
+
+The code in [ec.js](./public/js/ec.js) will connect the Experience Composer instance to the session, subscribe to all streams but itself and the screen share stream from the Host and customise the appearance of the page. The result of the interaction with this code, that is, what is visible on this page, will be published as a new stream into the session (see logic on `opentok-api.js`).
 
 ### Viewer
 
@@ -273,6 +290,20 @@ When the broadcast is over, the `endBroadcast()` method in host.js submits a req
 which invokes the [Video API Broadcast API](https://tokbox.com/developer/rest/#stop_broadcast) `/broadcast/stop`
 endpoint, which terminates the CDN stream. This is a recommended best practice, as the default
 is that broadcasts remain active until a 120-minute timeout period has completed.
+
+## Screenshots
+
+### Host View
+
+![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/host.jpg?raw=true)
+
+### WebRTC Viewer
+
+![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/webrtc.jpg?raw=true)
+
+### HLS Viewer
+
+![Host-view](https://github.com/nexmo-se/broadcast-sample-app/blob/main/public/images/hls.jpg?raw=true)
 
 ## Development and Contributing
 
