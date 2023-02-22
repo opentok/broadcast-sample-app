@@ -77,9 +77,9 @@ as [Heroku](https://www.heroku.com/) to host the application.
 
 To try out the Broadcast Sample App, visit the following URLs:
 
-Host: [https://broadcast-sample.herokuapp.com/host?room={yourRoomName}](https://broadcast-sample.herokuapp.com/host)  
-Guest: [https://broadcast-sample.herokuapp.com/guest?room={yourRoomName}](https://broadcast-sample.herokuapp.com/guest)  
-Viewer: [https://broadcast-sample.herokuapp.com/viewer?room={yourRoomName}](https://broadcast-sample.herokuapp.com/viewer)
+Host: [https://{your-domain.com}/host?room={yourRoomName}](https://{your-domain.com}/host)  
+Guest: [https://{your-domain.com}/guest?room={yourRoomName}](https://{your-domain.com}/guest)  
+Viewer: [https://{your-domain.com}/viewer?room={yourRoomName}](https://{your-domain.com}/viewer)
 
 ### Starting a broadcast
 
