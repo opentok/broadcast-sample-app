@@ -75,12 +75,6 @@ HTTPS is required. A web server such as [MAMP](https://www.mamp.info/) or
 [XAMPP](https://www.apachefriends.org/index.html) will work, or you can use a cloud service such
 as [Heroku](https://www.heroku.com/) to host the application.
 
-To try out the Broadcast Sample App, visit the following URLs:
-
-Host: [https://{your-domain.com}/host?room={yourRoomName}](https://{your-domain.com}/host)  
-Guest: [https://{your-domain.com}/guest?room={yourRoomName}](https://{your-domain.com}/guest)  
-Viewer: [https://{your-domain.com}/viewer?room={yourRoomName}](https://{your-domain.com}/viewer)
-
 ### Starting a broadcast
 
 From the host view, press the `Start Broadcast` button and optionally provide the RTMP Server URL and Stream Name. You can configure different parametes for the broadcast (HLS Low Latency, DVR and Full HD)
@@ -145,9 +139,9 @@ defined in [opentok-api.js](./services/opentok-api.js):
 ```javascript
 const tokenOptions = (userType) => {
   const role = {
-    host: 'moderator',
-    guest: 'publisher',
-    viewer: 'subscriber',
+    host: "moderator",
+    guest: "publisher",
+    viewer: "subscriber",
   }[userType];
 
   return { role };
@@ -158,11 +152,11 @@ The credentials are embedded in an EJS template as JSON. For example, the follow
 route is configured in server.js:
 
 ```javascript
-app.get('/host', async (req, res) => {
+app.get("/host", async (req, res) => {
   const roomName = req.query.room;
   try {
-    const credentials = await generateCredentials('host', roomName);
-    res.render('pages/host', {
+    const credentials = await generateCredentials("host", roomName);
+    res.render("pages/host", {
       credentials: JSON.stringify(credentials),
     });
   } catch (e) {
